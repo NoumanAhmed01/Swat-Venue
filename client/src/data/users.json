@@ -1,0 +1,41 @@
+[
+  {
+    "id": "admin1",
+    "name": "Admin User",
+    "email": "admin@swatvenue.com",
+    "role": "admin",
+    "phone": "+92-300-0000000"
+  },
+  {
+    "id": "owner1",
+    "name": "Ahmad Khan",
+    "email": "ahmad@example.com",
+    "role": "owner",
+    "phone": "+92-300-1234567",
+    "venues": ["1"]
+  },
+  {
+    "id": "owner2",
+    "name": "Fazal Din",
+    "email": "fazal@example.com",
+    "role": "owner",
+    "phone": "+92-300-2345678",
+    "venues": ["2"]
+  },
+  {
+    "id": "owner3",
+    "name": "Malik Hassan",
+    "email": "hassan@example.com",
+    "role": "owner",
+    "phone": "+92-300-3456789",
+    "venues": ["3"]
+  },
+  {
+    "id": "owner4",
+    "name": "Rahman Shah",
+    "email": "rahman@example.com",
+    "role": "owner",
+    "phone": "+92-300-4567890",
+    "venues": ["4"]
+  }
+]

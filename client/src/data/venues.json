@@ -1,0 +1,90 @@
+[
+  {
+    "id": "1",
+    "name": "Royal Banquet Hall",
+    "location": "Mingora, Swat",
+    "address": "Green Chowk, Mingora, Swat, KPK",
+    "capacity": 500,
+    "price": 75000,
+    "priceType": "per day",
+    "rating": 4.8,
+    "reviews": 4,
+    "images": [
+      "https://images.pexels.com/photos/1395967/pexels-photo-1395967.jpeg",
+      "https://images.pexels.com/photos/1444442/pexels-photo-1444442.jpeg",
+      "https://images.pexels.com/photos/1058277/pexels-photo-1058277.jpeg"
+    ],
+    "amenities": ["AC", "Parking", "Catering", "Sound System", "Stage", "WiFi"],
+    "description": "Elegant banquet hall perfect for weddings and large events. Features traditional architecture with modern amenities.",
+    "ownerId": "owner1",
+    "ownerName": "Ahmad Khan",
+    "phone": "+92-300-1234567",
+    "status": "approved"
+  },
+  {
+    "id": "2",
+    "name": "Mountain View Resort",
+    "location": "Kalam, Swat",
+    "address": "Upper Kalam, Swat Valley, KPK",
+    "capacity": 200,
+    "price": 45000,
+    "priceType": "per day",
+    "rating": 4.6,
+    "reviews": 3,
+    "images": [
+      "https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg",
+      "https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg",
+      "https://images.pexels.com/photos/1024248/pexels-photo-1024248.jpeg"
+    ],
+    "amenities": ["Mountain View", "Garden", "Catering", "Parking", "Photography Area"],
+    "description": "Scenic outdoor venue with breathtaking mountain views. Perfect for intimate gatherings and destination events.",
+    "ownerId": "owner2",
+    "ownerName": "Fazal Din",
+    "phone": "+92-300-2345678",
+    "status": "approved"
+  },
+  {
+    "id": "3",
+    "name": "Grand Palace Hall",
+    "location": "Saidu Sharif, Swat",
+    "address": "Main Bazaar, Saidu Sharif, Swat, KPK",
+    "capacity": 800,
+    "price": 120000,
+    "priceType": "per day",
+    "rating": 4.9,
+    "reviews": 3,
+    "images": [
+      "https://images.pexels.com/photos/1444442/pexels-photo-1444442.jpeg",
+      "https://images.pexels.com/photos/1395967/pexels-photo-1395967.jpeg",
+      "https://images.pexels.com/photos/2306281/pexels-photo-2306281.jpeg"
+    ],
+    "amenities": ["AC", "VIP Lounge", "Valet Parking", "Full Catering", "Bridal Suite", "Sound & Lights", "WiFi"],
+    "description": "Luxurious banquet hall with opulent interiors and world-class facilities. The premier venue for grand celebrations.",
+    "ownerId": "owner3",
+    "ownerName": "Malik Hassan",
+    "phone": "+92-300-3456789",
+    "status": "approved"
+  },
+  {
+    "id": "4",
+    "name": "Garden Pavilion",
+    "location": "Bahrain, Swat",
+    "address": "Riverside, Bahrain, Swat Valley, KPK",
+    "capacity": 150,
+    "price": 35000,
+    "priceType": "per day",
+    "rating": 4.4,
+    "reviews": 2,
+    "images": [
+      "https://images.pexels.com/photos/1024248/pexels-photo-1024248.jpeg",
+      "https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg",
+      "https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg"
+    ],
+    "amenities": ["Garden Setting", "Riverside View", "BBQ Area", "Parking", "Basic Sound System"],
+    "description": "Charming garden venue by the riverside. Ideal for small gatherings and outdoor celebrations.",
+    "ownerId": "owner4",
+    "ownerName": "Rahman Shah",
+    "phone": "+92-300-4567890",
+    "status": "approved"
+  }
+]

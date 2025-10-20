@@ -1,0 +1,110 @@
+[
+  {
+    "id": "1",
+    "venueId": "1",
+    "customerName": "Ahmad Hassan",
+    "rating": 5,
+    "comment": "Absolutely stunning venue! The Royal Banquet Hall exceeded all our expectations for our wedding. The staff was incredibly professional and the food was exceptional. The decor and ambiance were perfect for our special day.",
+    "date": "2024-12-15",
+    "eventType": "Wedding"
+  },
+  {
+    "id": "2",
+    "venueId": "1",
+    "customerName": "Fatima Khan",
+    "rating": 4,
+    "comment": "Great venue with excellent facilities. The sound system was top-notch and the parking was convenient. Only minor issue was the AC could have been a bit cooler, but overall a wonderful experience.",
+    "date": "2024-11-28",
+    "eventType": "Corporate Event"
+  },
+  {
+    "id": "3",
+    "venueId": "1",
+    "customerName": "Ali Rahman",
+    "rating": 5,
+    "comment": "Perfect venue for our anniversary celebration. The staff went above and beyond to make our event memorable. The catering service was outstanding and the venue was beautifully decorated.",
+    "date": "2024-10-20",
+    "eventType": "Anniversary"
+  },
+  {
+    "id": "4",
+    "venueId": "1",
+    "customerName": "Zara Sheikh",
+    "rating": 4,
+    "comment": "Lovely venue with great ambiance. The location is convenient and the facilities are modern. Would definitely recommend for special occasions.",
+    "date": "2024-09-15",
+    "eventType": "Birthday Party"
+  },
+  {
+    "id": "5",
+    "venueId": "2",
+    "customerName": "Hassan Ali",
+    "rating": 5,
+    "comment": "Mountain View Resort is absolutely breathtaking! The natural beauty combined with excellent service made our wedding unforgettable. The outdoor setting was perfect and the food was delicious.",
+    "date": "2024-12-10",
+    "eventType": "Wedding"
+  },
+  {
+    "id": "6",
+    "venueId": "2",
+    "customerName": "Ayesha Malik",
+    "rating": 4,
+    "comment": "Beautiful location with stunning mountain views. The staff was helpful and the venue was well-maintained. Perfect for intimate gatherings.",
+    "date": "2024-11-05",
+    "eventType": "Engagement"
+  },
+  {
+    "id": "7",
+    "venueId": "2",
+    "customerName": "Omar Khan",
+    "rating": 5,
+    "comment": "Exceptional venue! The scenic beauty is unmatched and the service quality is outstanding. Our guests were amazed by the location and facilities.",
+    "date": "2024-10-12",
+    "eventType": "Corporate Retreat"
+  },
+  {
+    "id": "8",
+    "venueId": "3",
+    "customerName": "Sana Ahmed",
+    "rating": 5,
+    "comment": "Grand Palace Hall is truly grand! The luxurious interiors and world-class facilities made our wedding reception absolutely perfect. The bridal suite was beautiful and the service was impeccable.",
+    "date": "2024-12-20",
+    "eventType": "Wedding"
+  },
+  {
+    "id": "9",
+    "venueId": "3",
+    "customerName": "Tariq Shah",
+    "rating": 4,
+    "comment": "Impressive venue with excellent facilities. The VIP lounge was a great addition and the sound system was professional grade. Highly recommended for large events.",
+    "date": "2024-11-18",
+    "eventType": "Conference"
+  },
+  {
+    "id": "10",
+    "venueId": "3",
+    "customerName": "Nadia Iqbal",
+    "rating": 5,
+    "comment": "Absolutely loved this venue! The opulent decor and spacious hall were perfect for our family gathering. The catering was exceptional and the staff was very accommodating.",
+    "date": "2024-10-25",
+    "eventType": "Family Gathering"
+  },
+  {
+    "id": "11",
+    "venueId": "4",
+    "customerName": "Bilal Ahmed",
+    "rating": 4,
+    "comment": "Garden Pavilion offers a unique outdoor experience. The riverside location is peaceful and the garden setting is beautiful. Perfect for smaller, intimate events.",
+    "date": "2024-12-05",
+    "eventType": "Birthday Party"
+  },
+  {
+    "id": "12",
+    "venueId": "4",
+    "customerName": "Rabia Khan",
+    "rating": 5,
+    "comment": "Charming venue with a lovely garden setting. The riverside view added a special touch to our event. The BBQ area was a hit with our guests!",
+    "date": "2024-11-12",
+    "eventType": "Family Reunion"
+  }
+]
