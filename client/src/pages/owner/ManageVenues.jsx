@@ -13,25 +13,56 @@ import {
   Star,
 } from "lucide-react";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import EditVenue from "../../components/EditVenue";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
+import { venueAPI } from "../../utils/api";
 import venuesData from "../../data/venues.json";
 
 const ManageVenues = () => {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingVenue, setEditingVenue] = useState(null);
+  const [deletingVenue, setDeletingVenue] = useState(null);
 
   useEffect(() => {
-    // Simulate API call - filter venues by current owner
-    setTimeout(() => {
-      // In real app, this would filter by authenticated user's venues
-      setVenues(venuesData);
-      setLoading(false);
-    }, 1000);
+    fetchVenues();
   }, []);
 
-  const handleDelete = (venueId) => {
-    if (window.confirm("Are you sure you want to delete this venue?")) {
-      setVenues(venues.filter((venue) => venue.id !== venueId));
+  const fetchVenues = async () => {
+    try {
+      setLoading(true);
+      const response = await venueAPI.getOwnerVenues({ status: "" });
+      setVenues(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching venues:", error);
+      setVenues(venuesData);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleEdit = (venue) => {
+    setEditingVenue(venue);
+  };
+
+  const handleDelete = (venue) => {
+    setDeletingVenue(venue);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingVenue(null);
+  };
+
+  const handleCloseDelete = () => {
+    setDeletingVenue(null);
+  };
+
+  const handleVenueUpdated = () => {
+    fetchVenues();
+  };
+
+  const handleVenueDeleted = () => {
+    fetchVenues();
   };
 
   if (loading) {
@@ -94,7 +125,7 @@ const ManageVenues = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {venues.map((venue) => (
                 <div
-                  key={venue.id}
+                  key={venue._id || venue.id}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
                 >
                   {/* Image */}
@@ -164,18 +195,21 @@ const ManageVenues = () => {
                     {/* Actions */}
                     <div className="flex gap-2">
                       <Link
-                        to={`/venue/${venue.id}`}
+                        to={`/venue/${venue._id || venue.id}`}
                         className="flex-1 flex items-center justify-center space-x-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                       >
                         <Eye className="h-4 w-4" />
                         <span>View</span>
                       </Link>
-                      <button className="flex-1 flex items-center justify-center space-x-2 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-800 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                      <button
+                        onClick={() => handleEdit(venue)}
+                        className="flex-1 flex items-center justify-center space-x-2 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-800 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                      >
                         <Edit className="h-4 w-4" />
                         <span>Edit</span>
                       </button>
                       <button
-                        onClick={() => handleDelete(venue.id)}
+                        onClick={() => handleDelete(venue)}
                         className="flex-1 flex items-center justify-center space-x-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -188,6 +222,22 @@ const ManageVenues = () => {
             </div>
           )}
         </div>
+
+        {editingVenue && (
+          <EditVenue
+            venueId={editingVenue._id || editingVenue.id}
+            onClose={handleCloseEdit}
+            onVenueUpdated={handleVenueUpdated}
+          />
+        )}
+
+        {deletingVenue && (
+          <DeleteConfirmation
+            venue={deletingVenue}
+            onClose={handleCloseDelete}
+            onVenueDeleted={handleVenueDeleted}
+          />
+        )}
       </div>
     </>
   );

@@ -6,22 +6,37 @@ import reservedDatesData from "../data/reservedDates.json"; // 📁 Local JSON f
 
 // 💡 BookingCalendar Component
 // Displays a calendar showing available, reserved, and past dates for a specific venue
-const BookingCalendar = ({ venueId, selectedDate, onDateSelect }) => {
+const BookingCalendar = ({
+  venueId,
+  selectedDate,
+  onDateSelect,
+  reservedDates: propReservedDates,
+}) => {
   // State to store reserved dates for this venue
   const [reservedDates, setReservedDates] = useState([]);
 
   // 🧠 useEffect runs when venueId changes to load relevant reserved dates
   useEffect(() => {
-    const venueReservations = reservedDatesData.find(
-      (v) => v.venueId === venueId
-    );
-    setReservedDates(venueReservations?.reservedDates || []);
-  }, [venueId]);
+    if (propReservedDates) {
+      setReservedDates(propReservedDates);
+    } else {
+      const venueReservations = reservedDatesData.find(
+        (v) => v.venueId === venueId
+      );
+      setReservedDates(venueReservations?.reservedDates || []);
+    }
+  }, [venueId, propReservedDates]);
 
   // ✅ Check if a date is already reserved
   const isDateReserved = (date) => {
     const dateString = date.toISOString().split("T")[0];
-    return reservedDates.includes(dateString);
+    return reservedDates.some((reservedDate) => {
+      const reserved =
+        typeof reservedDate === "string"
+          ? reservedDate
+          : new Date(reservedDate).toISOString().split("T")[0];
+      return reserved === dateString;
+    });
   };
 
   // ⚠️ Check if the date is in the past
@@ -51,7 +66,9 @@ const BookingCalendar = ({ venueId, selectedDate, onDateSelect }) => {
   // 📆 Handle user selecting a date
   const handleDateChange = (value) => {
     if (value instanceof Date && !isDateReserved(value) && !isDatePast(value)) {
-      onDateSelect(value); // Notify parent component about the selected date
+      if (onDateSelect) {
+        onDateSelect(value);
+      }
     }
   };
 

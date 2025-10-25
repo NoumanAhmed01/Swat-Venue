@@ -182,7 +182,7 @@ const OwnerDashboard = () => {
                     Recent Bookings
                   </h2>
                   <Link
-                    to="/owner/bookings"
+                    to="/owner/booking"
                     className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
                   >
                     View all
@@ -249,7 +249,7 @@ const OwnerDashboard = () => {
           </div>
 
           {/* Performance Chart Placeholder */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 Revenue Overview
@@ -266,7 +266,7 @@ const OwnerDashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

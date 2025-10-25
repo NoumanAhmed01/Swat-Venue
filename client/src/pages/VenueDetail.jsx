@@ -25,6 +25,7 @@ import {
   Camera,
   Utensils,
   Building,
+  X,
 } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import {
@@ -32,17 +33,21 @@ import {
   ReviewSkeleton,
 } from "../components/SkeletonLoader";
 import BookingCalendar from "../components/BookingCalendar";
-import venuesData from "../data/venues.json";
-import reviewsData from "../data/reviews.json";
+import Review from "../components/Review";
+import { venueAPI } from "../utils/api";
+import BookingForm from "../components/BookingForm";
 
-const inquirySchema = yup.object({
+const bookingSchema = yup.object({
   name: yup.string().required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone number is required"),
   eventDate: yup.string().required("Event date is required"),
   eventType: yup.string().required("Event type is required"),
-  guestCount: yup.number().required("Guest count is required"),
-  message: yup.string().required("Message is required"),
+  guestCount: yup
+    .number()
+    .required("Guest count is required")
+    .min(1, "At least 1 guest is required"),
+  message: yup.string(),
 });
 
 const VenueDetail = () => {
@@ -50,9 +55,7 @@ const VenueDetail = () => {
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
-  const [venueReviews, setVenueReviews] = useState([]);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -61,21 +64,36 @@ const VenueDetail = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm({
-    resolver: yupResolver(inquirySchema),
+    resolver: yupResolver(bookingSchema),
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      const foundVenue = venuesData.find((v) => v.id === id);
-      setVenue(foundVenue);
-      if (foundVenue) {
-        const reviews = reviewsData.filter((r) => r.venueId === foundVenue.id);
-        setVenueReviews(reviews);
+    const fetchVenue = async () => {
+      try {
+        setLoading(true);
+        const response = await venueAPI.getById(id);
+        setVenue(response.data.data);
+      } catch (error) {
+        console.error("Error fetching venue:", error);
+        toast.error("Failed to load venue details.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 800);
+    };
+
+    fetchVenue();
   }, [id]);
+
+  const handleReviewSubmitted = async () => {
+    try {
+      const response = await venueAPI.getById(id);
+      setVenue(response.data.data);
+    } catch (error) {
+      console.error("Error refreshing venue:", error);
+    }
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -84,12 +102,14 @@ const VenueDetail = () => {
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      toast.success("Inquiry sent successfully! We'll contact you soon.");
+      toast.success(
+        "Booking request sent successfully! We'll contact you soon."
+      );
       reset();
       setSelectedDate(null);
-      setInquiryModalOpen(false);
+      setBookingModalOpen(false);
     } catch (error) {
-      toast.error("Failed to send inquiry. Please try again.");
+      toast.error("Failed to send booking request. Please try again.");
     }
   };
 
@@ -154,7 +174,7 @@ const VenueDetail = () => {
           </h1>
           <Link
             to="/venues"
-            className="text-emerald-600 hover:text-emerald-700 font-medium"
+            className="text-gold-600 hover:text-gold-700 font-medium"
           >
             Back to Venues
           </Link>
@@ -245,7 +265,7 @@ const VenueDetail = () => {
                         onClick={() => setCurrentImageIndex(index)}
                         className={`relative rounded-lg overflow-hidden ${
                           index === currentImageIndex
-                            ? "ring-2 ring-emerald-500"
+                            ? "ring-2 ring-gold-500"
                             : ""
                         }`}
                       >
@@ -326,85 +346,11 @@ const VenueDetail = () => {
               </div>
 
               {/* Reviews */}
-              {venueReviews.length > 0 && (
-                <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark">
-                      Customer Reviews ({venueReviews.length})
-                    </h3>
-                    <div className="flex items-center space-x-2">
-                      <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                      <span className="font-semibold text-primary-900 dark:text-text-dark">
-                        {venue.rating}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        ({venue.reviews} reviews)
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    {(showAllReviews
-                      ? venueReviews
-                      : venueReviews.slice(0, 3)
-                    ).map((review) => (
-                      <div
-                        key={review.id}
-                        className="border-b border-gray-200 dark:border-surface-700 pb-6 last:border-b-0"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-primary-900 dark:text-text-dark">
-                              {review.customerName}
-                            </h4>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <div className="flex items-center">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < review.rating
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300 dark:text-gray-600"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {review.eventType}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(review.date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-text-light dark:text-text-dark leading-relaxed">
-                          {review.comment}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  {venueReviews.length > 3 && (
-                    <div className="mt-6 text-center">
-                      <button
-                        onClick={() => setShowAllReviews(!showAllReviews)}
-                        className="inline-flex items-center space-x-2 text-gold-600 hover:text-gold-700 font-medium transition-colors duration-200"
-                      >
-                        <span>
-                          {showAllReviews
-                            ? "Show Less"
-                            : `Show More (${venueReviews.length - 3} more)`}
-                        </span>
-                        <ChevronDown
-                          className={`h-4 w-4 transition-transform duration-200 ${
-                            showAllReviews ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              <Review
+                venueId={venue._id || venue.id}
+                venueRating={venue.rating}
+                onReviewSubmitted={handleReviewSubmitted}
+              />
 
               {/* Location Map Placeholder */}
               <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
@@ -436,10 +382,10 @@ const VenueDetail = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => setInquiryModalOpen(true)}
+                  onClick={() => setBookingModalOpen(true)}
                   className="w-full bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
                 >
-                  Send Inquiry
+                  Book Now
                 </button>
               </div>
 
@@ -463,111 +409,15 @@ const VenueDetail = () => {
           </div>
         </div>
 
-        {/* Inquiry Modal */}
-        {inquiryModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-surface-800 rounded-2xl max-w-lg w-full p-8 relative">
-              <button
-                onClick={() => setInquiryModalOpen(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-              >
-                <span className="text-2xl font-bold">&times;</span>
-              </button>
-              <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark mb-6">
-                Send Inquiry
-              </h3>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <input
-                  {...register("name")}
-                  placeholder="Your Name"
-                  className="w-full p-3 border rounded-lg"
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name.message}</p>
-                )}
-                <input
-                  {...register("email")}
-                  placeholder="Your Email"
-                  className="w-full p-3 border rounded-lg"
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
-                )}
-                <input
-                  {...register("phone")}
-                  placeholder="Phone Number"
-                  className="w-full p-3 border rounded-lg"
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm">{errors.phone.message}</p>
-                )}
-
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    className="w-full p-3 border rounded-lg text-left"
-                  >
-                    {selectedDate
-                      ? selectedDate.toLocaleDateString()
-                      : "Select Event Date"}
-                  </button>
-                  {showCalendar && (
-                    <BookingCalendar
-                      selectedDate={selectedDate}
-                      onChange={setSelectedDate}
-                    />
-                  )}
-                  {errors.eventDate && (
-                    <p className="text-red-500 text-sm">
-                      {errors.eventDate.message}
-                    </p>
-                  )}
-                </div>
-
-                <input
-                  {...register("eventType")}
-                  placeholder="Event Type"
-                  className="w-full p-3 border rounded-lg"
-                />
-                {errors.eventType && (
-                  <p className="text-red-500 text-sm">
-                    {errors.eventType.message}
-                  </p>
-                )}
-                <input
-                  type="number"
-                  {...register("guestCount")}
-                  placeholder="Guest Count"
-                  className="w-full p-3 border rounded-lg"
-                />
-                {errors.guestCount && (
-                  <p className="text-red-500 text-sm">
-                    {errors.guestCount.message}
-                  </p>
-                )}
-                <textarea
-                  {...register("message")}
-                  placeholder="Message"
-                  className="w-full p-3 border rounded-lg"
-                  rows="4"
-                ></textarea>
-                {errors.message && (
-                  <p className="text-red-500 text-sm">
-                    {errors.message.message}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
-                >
-                  {isSubmitting ? "Sending..." : "Send Inquiry"}
-                </button>
-              </form>
-            </div>
-          </div>
+        {/* Booking Modal - Updated UI  */}
+        {bookingModalOpen && (
+          <BookingForm
+            venue={venue}
+            onClose={() => setBookingModalOpen(false)}
+            onSuccess={() => {
+              toast.success("Booking request submitted successfully!");
+            }}
+          />
         )}
       </div>
     </>

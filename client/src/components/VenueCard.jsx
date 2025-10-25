@@ -100,7 +100,7 @@ const VenueCard = ({ venue, className = "" }) => {
         <div className="flex gap-3">
           {/* Navigate to Venue Details Page */}
           <Link
-            to={`/venue/${venue.id}`}
+            to={`/venue/${venue._id}`}
             className="flex-1 bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors duration-200"
           >
             View Details

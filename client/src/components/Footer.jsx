@@ -167,7 +167,7 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Newsletter Signup Form */}
+            {/* Newsletter Signup Form
             <div className="mt-6">
               <h4 className="text-sm font-semibold mb-2">
                 Subscribe to our newsletter
@@ -185,7 +185,7 @@ const Footer = () => {
                   Subscribe
                 </button>
               </form>
-            </div>
+            </div> */}
           </div>
         </div>
 

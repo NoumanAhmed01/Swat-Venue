@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { authAPI } from "../utils/api";
 
-// Create Auth Context
 const AuthContext = createContext();
 
-// Custom hook for accessing auth state easily
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -12,12 +11,10 @@ export const useAuth = () => {
   return context;
 };
 
-// Main AuthProvider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Stores logged-in user info
-  const [loading, setLoading] = useState(true); // Tracks auth state initialization
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check user data when app starts
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -34,78 +31,48 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Mock login (simulate API)
-  const login = async (email, password, role) => {
+  const login = async (email, password) => {
     try {
-      const mockUsers = [
-        {
-          id: "admin1",
-          name: "Admin User",
-          email: "admin@swatvenue.com",
-          role: "admin",
-          phone: "+92-300-0000000",
-        },
-        {
-          id: "owner1",
-          name: "Ahmad Khan",
-          email: "owner@swatvenue.com",
-          role: "owner",
-          phone: "+92-300-1234567",
-        },
-        {
-          id: "customer1",
-          name: "Customer User",
-          email: "customer@swatvenue.com",
-          role: "customer",
-          phone: "+92-300-9876543",
-        },
-      ];
+      const response = await authAPI.login({ email, password });
+      const { token, user: userData } = response.data;
 
-      const foundUser = mockUsers.find((u) => u.email === email);
-      if (foundUser && password === "password") {
-        const token = "mock-jwt-token";
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(foundUser));
-        setUser(foundUser);
-        return true;
-      }
-      return false;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+      return { success: true };
     } catch (error) {
       console.error("Login error:", error);
-      return false;
+      return {
+        success: false,
+        message: error.response?.data?.message || "Login failed"
+      };
     }
   };
 
-  // Mock register (simulate API)
   const register = async (userData) => {
     try {
-      const newUser = {
-        id: Date.now().toString(),
-        name: userData.name,
-        email: userData.email,
-        role: userData.role || "customer",
-        phone: userData.phone,
-      };
+      const response = await authAPI.register(userData);
+      const { token, user: newUser } = response.data;
 
-      const token = "mock-jwt-token";
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(newUser));
       setUser(newUser);
-      return true;
+      return { success: true };
     } catch (error) {
       console.error("Registration error:", error);
-      return false;
+      return {
+        success: false,
+        message: error.response?.data?.message || "Registration failed"
+      };
     }
   };
 
-  // Logout clears local storage
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
   };
 
-  // Value shared to all components using this context
   const value = {
     user,
     login,

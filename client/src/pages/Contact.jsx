@@ -172,7 +172,7 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Name */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">
+                      <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
                         Your Name *
                       </label>
                       <input
@@ -189,7 +189,7 @@ const Contact = () => {
 
                     {/* Email */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">
+                      <label className="block text-sm font-medium mb-2  text-black dark:text-gray-300">
                         Email Address *
                       </label>
                       <input
@@ -208,7 +208,7 @@ const Contact = () => {
 
                   {/* Subject */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
                       Subject *
                     </label>
                     <select
@@ -232,7 +232,7 @@ const Contact = () => {
 
                   {/* Message */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
                       Message *
                     </label>
                     <textarea
@@ -272,15 +272,17 @@ const Contact = () => {
         {/* ❓ FAQ Section */}
         <section className="py-20 bg-white dark:bg-surface-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-3xl font-bold mb-4 text-black dark:text-white">
               Frequently Asked Questions
             </h2>
-            <p className="text-xl mb-12">Quick answers to common questions</p>
+            <p className="text-xl mb-12  text-black dark:text-white">
+              Quick answers to common questions
+            </p>
 
             <div className="space-y-8 text-left">
               {faqItems.map((item, index) => (
                 <div key={index} className="border-b pb-8">
-                  <h3 className="text-lg font-semibold mb-3">
+                  <h3 className="text-lg font-semibold mb-3 text-black dark:text-white">
                     {item.question}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300">
@@ -291,7 +293,9 @@ const Contact = () => {
             </div>
 
             <div className="mt-12">
-              <p className="mb-4">Still have questions?</p>
+              <p className="mb-4 text-black dark:text-white">
+                Still have questions?
+              </p>
               <a
                 href="tel:+923001234567"
                 className="inline-flex items-center space-x-2 bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold"
@@ -306,15 +310,19 @@ const Contact = () => {
         {/* 🗺️ Map Section */}
         <section className="py-20 bg-gray-50 dark:bg-surface-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">Visit Our Office</h2>
-            <p className="text-xl mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-black dark:text-white">
+              Visit Our Office
+            </h2>
+            <p className="text-xl mb-12 text-black dark:text-white">
               Located in the heart of Mingora, Swat
             </p>
 
             <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-lg p-8">
               <div className="bg-gray-200 dark:bg-surface-700 h-96 rounded-lg flex flex-col items-center justify-center">
                 <MapPin className="h-16 w-16 text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Interactive Map</h3>
+                <h3 className="text-xl font-semibold mb-2 text-black dark:text-white">
+                  Interactive Map
+                </h3>
                 <p className="text-gray-500">
                   Google Maps integration would appear here
                 </p>

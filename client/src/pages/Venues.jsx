@@ -4,9 +4,9 @@ import { Helmet } from "react-helmet-async";
 import { Filter, Grid2x2 as Grid, List } from "lucide-react";
 import VenueCard from "../components/VenueCard";
 import FilterSidebar from "../components/FilterSidebar";
-import LoadingSpinner from "../components/LoadingSpinner";
 import { VenueCardSkeleton } from "../components/SkeletonLoader";
 import venuesData from "../data/venues.json";
+import { venueAPI } from "../utils/api";
 
 const Venues = () => {
   const [searchParams] = useSearchParams();
@@ -22,12 +22,21 @@ const Venues = () => {
   const venuesPerPage = 12;
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setVenues(venuesData);
-      setFilteredVenues(venuesData);
-      setLoading(false);
-    }, 1000);
+    const fetchVenues = async () => {
+      try {
+        setLoading(true);
+        const response = await venueAPI.getAll();
+        const data = response.data.data;
+        setVenues(data);
+        setFilteredVenues(data);
+      } catch (error) {
+        console.error("Failed to fetch venues:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVenues();
   }, []);
 
   useEffect(() => {
@@ -127,36 +136,24 @@ const Venues = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-surface-900">
-        <div className="flex min-h-screen">
-          {/* Filter Sidebar Skeleton */}
-          <div className="hidden lg:block fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-surface-800 shadow-xl border-r border-gray-200 dark:border-surface-700">
-            <div className="p-4 space-y-6">
-              <div className="h-6 bg-gray-200 dark:bg-surface-700 rounded animate-pulse"></div>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="h-4 bg-gray-200 dark:bg-surface-700 rounded animate-pulse w-1/2"></div>
-                  <div className="h-10 bg-gray-200 dark:bg-surface-700 rounded animate-pulse"></div>
-                </div>
-              ))}
-            </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-surface-900 flex">
+        {/* Sidebar Skeleton */}
+        <div className="hidden lg:block w-80 border-r border-gray-200 dark:border-surface-700 p-4">
+          <div className="space-y-4 animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-8 bg-gray-300 dark:bg-surface-700 rounded"
+              ></div>
+            ))}
           </div>
+        </div>
 
-          {/* Main Content Skeleton */}
-          <div className="flex-1 w-full lg:pl-80">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="mb-8 space-y-2">
-                <div className="h-8 bg-gray-200 dark:bg-surface-700 rounded animate-pulse w-1/3"></div>
-                <div className="h-4 bg-gray-200 dark:bg-surface-700 rounded animate-pulse w-1/4"></div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <VenueCardSkeleton key={index} />
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* Venue Skeletons */}
+        <div className="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <VenueCardSkeleton key={i} />
+          ))}
         </div>
       </div>
     );
@@ -172,17 +169,19 @@ const Venues = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-surface-900">
-        <div className="flex min-h-screen">
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            isOpen={filterSidebarOpen}
-            onClose={() => setFilterSidebarOpen(false)}
-            onFiltersChange={handleFiltersChange}
-          />
+      <div className="bg-gray-50 dark:bg-surface-900">
+        <div className="flex">
+          {/* 🧱 Sidebar (Sticky, Scrolls Independently) */}
+          <aside className="hidden lg:block w-80 h-[calc(100vh-80px)] sticky top-[70px] overflow-y-auto border-r border-gray-200 dark:border-surface-700 no-scrollbar mb-2 rounded-lg">
+            <FilterSidebar
+              isOpen={filterSidebarOpen}
+              onClose={() => setFilterSidebarOpen(false)}
+              onFiltersChange={handleFiltersChange}
+            />
+          </aside>
 
-          {/* Main Content */}
-          <div className="flex-1 w-full lg:pl-80">
+          {/* 🌟 Main Content (Scrollable Area) */}
+          <main className="flex-1">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               {/* Header */}
               <div className="mb-8">
@@ -205,11 +204,11 @@ const Venues = () => {
                 </button>
 
                 <div className="flex items-center space-x-4">
-                  {/* View Mode Toggle */}
+                  {/* View Toggle */}
                   <div className="flex bg-white dark:bg-surface-800 rounded-lg border border-gray-300 dark:border-surface-600">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-l-lg transition-colors duration-200 ${
+                      className={`p-2 rounded-l-lg ${
                         viewMode === "grid"
                           ? "bg-gold-500 text-white"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
@@ -219,7 +218,7 @@ const Venues = () => {
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-r-lg transition-colors duration-200 ${
+                      className={`p-2 rounded-r-lg ${
                         viewMode === "list"
                           ? "bg-gold-500 text-white"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
@@ -244,17 +243,15 @@ const Venues = () => {
                 </div>
               </div>
 
-              {/* Venues Grid/List */}
+              {/* Venue Grid/List */}
               {filteredVenues.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="text-gray-400 mb-4">
-                    <Filter className="h-16 w-16 mx-auto" />
-                  </div>
+                  <Filter className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                     No venues found
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Try adjusting your filters to find more venues
+                    Try adjusting your filters to find more venues.
                   </p>
                 </div>
               ) : (
@@ -319,7 +316,7 @@ const Venues = () => {
                 </div>
               )}
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </>

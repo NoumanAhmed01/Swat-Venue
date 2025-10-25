@@ -52,12 +52,12 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const success = await registerUser(data);
-      if (success) {
+      const result = await registerUser(data);
+      if (result.success) {
         toast.success("Registration successful! Welcome to SwatVenue.");
         navigate(data.role === "owner" ? "/owner/dashboard" : "/");
       } else {
-        toast.error("Registration failed. Please try again.");
+        toast.error(result.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       toast.error("Registration failed. Please try again.");

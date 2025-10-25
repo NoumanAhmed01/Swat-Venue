@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import VenueApprovals from "./pages/admin/VenueApprovals";
 import Analytics from "./pages/admin/Analytics";
+import ManageBooking from "./pages/owner/ManageBooking";
 
 function App() {
   return (
@@ -113,6 +114,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={["owner"]}>
                         <ViewInquiries />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/owner/booking"
+                    element={
+                      <ProtectedRoute allowedRoles={["owner"]}>
+                        <ManageBooking />
                       </ProtectedRoute>
                     }
                   />

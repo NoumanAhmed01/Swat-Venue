@@ -30,16 +30,15 @@ const Login = () => {
     resolver: yupResolver(loginSchema),
   });
 
-  // Handles login logic
   const onSubmit = async (data) => {
     try {
-      const success = await login(data.email, data.password);
-      if (success) {
+      const result = await login(data.email, data.password);
+      if (result.success) {
         toast.success("Login successful!");
         const from = location.state?.from?.pathname || "/";
         navigate(from, { replace: true });
       } else {
-        toast.error("Invalid email or password");
+        toast.error(result.message || "Invalid email or password");
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
