@@ -26,6 +26,9 @@ import {
   Utensils,
   Building,
   X,
+  Video,
+  Image as ImageIcon,
+  Play,
 } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import {
@@ -58,6 +61,8 @@ const VenueDetail = () => {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [activeMediaTab, setActiveMediaTab] = useState("images");
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   const {
     register,
@@ -123,6 +128,22 @@ const VenueDetail = () => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? venue.images.length - 1 : prev - 1
     );
+  };
+
+  const nextVideo = () => {
+    if (venue.videos && venue.videos.length > 0) {
+      setCurrentVideoIndex((prev) =>
+        prev === venue.videos.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const prevVideo = () => {
+    if (venue.videos && venue.videos.length > 0) {
+      setCurrentVideoIndex((prev) =>
+        prev === 0 ? venue.videos.length - 1 : prev - 1
+      );
+    }
   };
 
   const amenityIcons = {
@@ -218,71 +239,172 @@ const VenueDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Image Gallery */}
-              <div className="relative rounded-2xl overflow-hidden">
-                <div className="aspect-w-16 aspect-h-9 relative">
-                  <img
-                    src={venue.images[currentImageIndex]}
-                    alt={`${venue.name} - Image ${currentImageIndex + 1}`}
-                    className="w-full h-96 object-cover"
-                  />
-                  {venue.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </button>
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                        {venue.images.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentImageIndex(index)}
-                            className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                              index === currentImageIndex
-                                ? "bg-white"
-                                : "bg-white bg-opacity-50"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-                {/* Thumbnail Gallery */}
-                {venue.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2 mt-4">
-                    {venue.images.slice(0, 4).map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`relative rounded-lg overflow-hidden ${
-                          index === currentImageIndex
-                            ? "ring-2 ring-gold-500"
-                            : ""
-                        }`}
-                      >
-                        <img
-                          src={image}
-                          alt={`${venue.name} thumbnail ${index + 1}`}
-                          className="w-full h-20 object-cover"
-                        />
-                        {index === 3 && venue.images.length > 4 && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold">
-                            +{venue.images.length - 4}
-                          </div>
-                        )}
-                      </button>
-                    ))}
+              {/* Media Gallery with Tabs */}
+              <div className="bg-white dark:bg-surface-800 rounded-2xl overflow-hidden">
+                {/* Media Type Tabs */}
+                {venue.videos && venue.videos.length > 0 && (
+                  <div className="flex border-b border-gray-200 dark:border-surface-700">
+                    <button
+                      onClick={() => setActiveMediaTab("images")}
+                      className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium transition-colors duration-200 ${
+                        activeMediaTab === "images"
+                          ? "bg-gold-50 dark:bg-gold-900/20 text-gold-600 border-b-2 border-gold-600"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
+                      }`}
+                    >
+                      <ImageIcon className="h-5 w-5" />
+                      <span>Images ({venue.images?.length || 0})</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveMediaTab("videos")}
+                      className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium transition-colors duration-200 ${
+                        activeMediaTab === "videos"
+                          ? "bg-gold-50 dark:bg-gold-900/20 text-gold-600 border-b-2 border-gold-600"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
+                      }`}
+                    >
+                      <Video className="h-5 w-5" />
+                      <span>Videos ({venue.videos?.length || 0})</span>
+                    </button>
                   </div>
                 )}
+
+                {/* Images Tab Content */}
+                {activeMediaTab === "images" && (
+                  <div className="p-4">
+                    <div className="relative rounded-2xl overflow-hidden">
+                      <div className="aspect-w-16 aspect-h-9 relative">
+                        <img
+                          src={venue.images[currentImageIndex]}
+                          alt={`${venue.name} - Image ${currentImageIndex + 1}`}
+                          className="w-full h-96 object-cover"
+                        />
+                        {venue.images.length > 1 && (
+                          <>
+                            <button
+                              onClick={prevImage}
+                              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
+                            >
+                              <ChevronLeft className="h-6 w-6" />
+                            </button>
+                            <button
+                              onClick={nextImage}
+                              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
+                            >
+                              <ChevronRight className="h-6 w-6" />
+                            </button>
+                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                              {venue.images.map((_, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => setCurrentImageIndex(index)}
+                                  className={`w-3 h-3 rounded-full transition-colors duration-200 ${
+                                    index === currentImageIndex
+                                      ? "bg-white"
+                                      : "bg-white bg-opacity-50"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {/* Thumbnail Gallery */}
+                      {venue.images.length > 1 && (
+                        <div className="grid grid-cols-4 gap-2 mt-4">
+                          {venue.images.slice(0, 4).map((image, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentImageIndex(index)}
+                              className={`relative rounded-lg overflow-hidden ${
+                                index === currentImageIndex
+                                  ? "ring-2 ring-gold-500"
+                                  : ""
+                              }`}
+                            >
+                              <img
+                                src={image}
+                                alt={`${venue.name} thumbnail ${index + 1}`}
+                                className="w-full h-20 object-cover"
+                              />
+                              {index === 3 && venue.images.length > 4 && (
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold">
+                                  +{venue.images.length - 4}
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Videos Tab Content */}
+                {activeMediaTab === "videos" &&
+                  venue.videos &&
+                  venue.videos.length > 0 && (
+                    <div className="p-4">
+                      <div className="relative rounded-2xl overflow-hidden">
+                        <div className="aspect-w-16 aspect-h-9 relative bg-black">
+                          <video
+                            key={currentVideoIndex}
+                            controls
+                            className="w-full h-96 object-contain"
+                            poster={venue.images[0]}
+                          >
+                            <source
+                              src={venue.videos[currentVideoIndex]}
+                              type="video/mp4"
+                            />
+                            Your browser does not support the video tag.
+                          </video>
+                          {venue.videos.length > 1 && (
+                            <>
+                              <button
+                                onClick={prevVideo}
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200 z-10"
+                              >
+                                <ChevronLeft className="h-6 w-6" />
+                              </button>
+                              <button
+                                onClick={nextVideo}
+                                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200 z-10"
+                              >
+                                <ChevronRight className="h-6 w-6" />
+                              </button>
+                              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-3 py-1 rounded-full text-white text-sm">
+                                {currentVideoIndex + 1} / {venue.videos.length}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        {/* Video Thumbnails */}
+                        {venue.videos.length > 1 && (
+                          <div className="grid grid-cols-4 gap-2 mt-4">
+                            {venue.videos.map((videoUrl, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setCurrentVideoIndex(index)}
+                                className={`relative rounded-lg overflow-hidden ${
+                                  index === currentVideoIndex
+                                    ? "ring-2 ring-gold-500"
+                                    : ""
+                                }`}
+                              >
+                                <div className="w-full h-20 bg-gray-900 flex items-center justify-center">
+                                  <Play className="h-8 w-8 text-white" />
+                                </div>
+                                <div className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">
+                                  {index + 1}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
               </div>
 
               {/* Venue Info */}

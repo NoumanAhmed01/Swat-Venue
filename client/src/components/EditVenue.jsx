@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
-import { X, Loader2, Plus, Trash2 } from "lucide-react";
+import { X, Loader2, Plus, Trash2, Camera, Video } from "lucide-react";
 import { venueAPI } from "../utils/api";
 
 const venueSchema = yup.object({
@@ -30,13 +30,18 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   const [loading, setLoading] = useState(true);
   const [amenitiesList, setAmenitiesList] = useState([]);
   const [newAmenity, setNewAmenity] = useState("");
+  const [existingImages, setExistingImages] = useState([]);
+  const [existingVideos, setExistingVideos] = useState([]);
+  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [newVideoFiles, setNewVideoFiles] = useState([]);
+  const [deletedImages, setDeletedImages] = useState([]);
+  const [deletedVideos, setDeletedVideos] = useState([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
   } = useForm({
     resolver: yupResolver(venueSchema),
   });
@@ -63,6 +68,8 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
       });
 
       setAmenitiesList(venue.amenities || []);
+      setExistingImages(venue.images || []);
+      setExistingVideos(venue.videos || []);
     } catch (error) {
       console.error("Error fetching venue:", error);
       toast.error("Failed to load venue details");
@@ -85,22 +92,110 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
     );
   };
 
+  const handleNewImageUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    const totalImages =
+      existingImages.length -
+      deletedImages.length +
+      newImageFiles.length +
+      files.length;
+
+    if (totalImages > 10) {
+      toast.error("Maximum 10 images allowed");
+      return;
+    }
+    setNewImageFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleNewVideoUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    const totalVideos =
+      existingVideos.length -
+      deletedVideos.length +
+      newVideoFiles.length +
+      files.length;
+
+    if (totalVideos > 2) {
+      toast.error("Maximum 2 videos allowed");
+      return;
+    }
+    setNewVideoFiles((prev) => [...prev, ...files]);
+  };
+
+  const removeExistingImage = (imageUrl) => {
+    setDeletedImages((prev) => [...prev, imageUrl]);
+    setExistingImages((prev) => prev.filter((img) => img !== imageUrl));
+  };
+
+  const removeExistingVideo = (videoUrl) => {
+    setDeletedVideos((prev) => [...prev, videoUrl]);
+    setExistingVideos((prev) => prev.filter((vid) => vid !== videoUrl));
+  };
+
+  const removeNewImage = (index) => {
+    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewVideo = (index) => {
+    setNewVideoFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (data) => {
     try {
-      const updateData = {
-        ...data,
-        amenities: amenitiesList,
-      };
+      const formData = new FormData();
 
-      await venueAPI.update(venueId, updateData);
+      Object.keys(data).forEach((key) => {
+        if (key === "amenities") {
+          formData.append(key, JSON.stringify(amenitiesList));
+        } else {
+          formData.append(key, data[key]);
+        }
+      });
+
+      if (deletedImages.length > 0) {
+        formData.append("deletedImages", JSON.stringify(deletedImages));
+      }
+
+      if (deletedVideos.length > 0) {
+        formData.append("deletedVideos", JSON.stringify(deletedVideos));
+      }
+
+      newImageFiles.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      newVideoFiles.forEach((file) => {
+        formData.append("videos", file);
+      });
+
+      const token = localStorage.getItem("token");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const response = await fetch(`${API_URL}/api/venues/${venueId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update venue");
+      }
+
       toast.success("Venue updated successfully!");
       onClose();
       if (onVenueUpdated) {
         onVenueUpdated();
       }
     } catch (error) {
+      console.error("Error updating venue:", error);
       const errorMessage =
-        error.response?.data?.message || "Failed to update venue";
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update venue";
       toast.error(errorMessage);
     }
   };
@@ -261,6 +356,150 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
                 {errors.phone.message}
               </p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Venue Images
+            </label>
+
+            {existingImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {existingImages.map((imageUrl, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={imageUrl}
+                      alt={`Existing ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingImage(imageUrl)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {newImageFiles.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {newImageFiles.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`New ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg border-2 border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <span className="absolute bottom-1 left-1 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
+                      New
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+              <div className="text-center">
+                <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleNewImageUpload}
+                  className="hidden"
+                  id="new-image-upload"
+                />
+                <label
+                  htmlFor="new-image-upload"
+                  className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>Add More Images</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Venue Videos
+            </label>
+
+            {existingVideos.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {existingVideos.map((videoUrl, index) => (
+                  <div key={index} className="relative">
+                    <video
+                      src={videoUrl}
+                      controls
+                      className="w-full h-32 rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingVideo(videoUrl)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {newVideoFiles.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {newVideoFiles.map((file, index) => (
+                  <div key={index} className="relative">
+                    <video
+                      src={URL.createObjectURL(file)}
+                      controls
+                      className="w-full h-32 rounded-lg border-2 border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeNewVideo(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <span className="absolute bottom-1 left-1 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
+                      New
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+              <div className="text-center">
+                <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <input
+                  type="file"
+                  multiple
+                  accept="video/*"
+                  onChange={handleNewVideoUpload}
+                  className="hidden"
+                  id="new-video-upload"
+                />
+                <label
+                  htmlFor="new-video-upload"
+                  className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>Add More Videos</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div>

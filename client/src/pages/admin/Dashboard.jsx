@@ -307,7 +307,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Platform Overview Chart Placeholder */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 Platform Overview
@@ -324,7 +324,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

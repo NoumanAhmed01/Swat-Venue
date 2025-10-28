@@ -9,9 +9,10 @@ import {
   Users,
   DollarSign,
   Calendar,
+  Video,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import venuesData from "../../data/venues.json";
 
 const VenueApprovals = () => {
   const [venues, setVenues] = useState([]);
@@ -21,115 +22,97 @@ const VenueApprovals = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    // Simulate API call - add some pending venues for demo
-    setTimeout(() => {
-      const venuesWithStatus = [
-        ...venuesData,
-        {
-          id: "5",
-          name: "Crystal Palace Hall",
-          location: "Mingora, Swat",
-          address: "Main Road, Mingora, Swat, KPK",
-          capacity: 600,
-          price: 95000,
-          priceType: "per day",
-          rating: 0,
-          reviews: 0,
-          images: [
-            "https://images.pexels.com/photos/1395967/pexels-photo-1395967.jpeg",
-            "https://images.pexels.com/photos/1444442/pexels-photo-1444442.jpeg",
-          ],
-          amenities: ["AC", "Parking", "Catering", "Sound System", "Stage"],
-          description: "Newly constructed banquet hall with modern facilities.",
-          ownerId: "owner5",
-          ownerName: "Tariq Shah",
-          phone: "+92-300-5678901",
-          status: "pending",
-          submittedAt: "2025-01-20T10:30:00Z",
-        },
-        {
-          id: "6",
-          name: "Green Valley Resort",
-          location: "Kalam, Swat",
-          address: "Upper Kalam, Swat Valley, KPK",
-          capacity: 250,
-          price: 55000,
-          priceType: "per day",
-          rating: 0,
-          reviews: 0,
-          images: [
-            "https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg",
-          ],
-          amenities: ["Garden", "Mountain View", "Parking"],
-          description: "Beautiful resort venue with mountain views.",
-          ownerId: "owner6",
-          ownerName: "Nasir Khan",
-          phone: "+92-300-6789012",
-          status: "pending",
-          submittedAt: "2025-01-19T14:20:00Z",
-        },
-        {
-          id: "7",
-          name: "Riverside Banquet",
-          location: "Bahrain, Swat",
-          address: "River Road, Bahrain, Swat, KPK",
-          capacity: 400,
-          price: 65000,
-          priceType: "per day",
-          rating: 0,
-          reviews: 0,
-          images: [
-            "https://images.pexels.com/photos/1024248/pexels-photo-1024248.jpeg",
-          ],
-          amenities: ["Riverside View", "Garden", "Parking", "Sound System"],
-          description:
-            "Beautiful banquet hall with riverside views and garden setting.",
-          ownerId: "owner7",
-          ownerName: "Imran Ali",
-          phone: "+92-300-7890123",
-          status: "pending",
-          submittedAt: "2025-01-18T16:45:00Z",
-        },
-      ];
-      setVenues(venuesWithStatus);
-      setLoading(false);
-    }, 1000);
+    fetchVenues();
   }, []);
+
+  const fetchVenues = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const response = await fetch(`${API_URL}/api/venues?status=all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setVenues(result.data || []);
+      } else {
+        throw new Error(result.message || "Failed to fetch venues");
+      }
+    } catch (error) {
+      console.error("Error fetching venues:", error);
+      toast.error("Failed to load venues");
+      setVenues([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredVenues = venues.filter((venue) => {
     if (statusFilter === "all") return true;
     return venue.status === statusFilter;
   });
 
-  const handleApprove = (venueId) => {
-    setVenues(
-      venues.map((venue) =>
-        venue.id === venueId
-          ? {
-              ...venue,
-              status: "approved",
-              approvedAt: new Date().toISOString(),
-            }
-          : venue
-      )
-    );
+  const handleApprove = async (venueId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const response = await fetch(`${API_URL}/api/venues/${venueId}/approve`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Venue approved successfully!");
+        fetchVenues();
+      } else {
+        throw new Error(result.message || "Failed to approve venue");
+      }
+    } catch (error) {
+      console.error("Error approving venue:", error);
+      toast.error(error.message || "Failed to approve venue");
+    }
   };
 
-  const handleReject = (venueId) => {
+  const handleReject = async (venueId) => {
     const reason = window.prompt("Please provide a reason for rejection:");
-    if (reason) {
-      setVenues(
-        venues.map((venue) =>
-          venue.id === venueId
-            ? {
-                ...venue,
-                status: "rejected",
-                rejectedAt: new Date().toISOString(),
-                rejectionReason: reason,
-              }
-            : venue
-        )
-      );
+    if (!reason) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const response = await fetch(`${API_URL}/api/venues/${venueId}/reject`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Venue rejected successfully!");
+        fetchVenues();
+      } else {
+        throw new Error(result.message || "Failed to reject venue");
+      }
+    } catch (error) {
+      console.error("Error rejecting venue:", error);
+      toast.error(error.message || "Failed to reject venue");
     }
   };
 
@@ -236,12 +219,15 @@ const VenueApprovals = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredVenues.map((venue) => (
                 <div
-                  key={venue.id}
+                  key={venue._id}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
                 >
                   <div className="relative h-48">
                     <img
-                      src={venue.images[0]}
+                      src={
+                        (venue.images && venue.images[0]) ||
+                        "https://images.pexels.com/photos/1395967/pexels-photo-1395967.jpeg"
+                      }
                       alt={venue.name}
                       className="w-full h-full object-cover"
                     />
@@ -275,7 +261,7 @@ const VenueApprovals = () => {
                       <div className="flex items-center text-gray-600 dark:text-gray-300">
                         <DollarSign className="h-4 w-4 mr-1" />
                         <span className="text-sm">
-                          ₨{venue.price.toLocaleString()}
+                          ₨{venue.price?.toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -284,10 +270,10 @@ const VenueApprovals = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-300">
                         <strong>Owner:</strong> {venue.ownerName}
                       </p>
-                      {venue.submittedAt && (
+                      {venue.createdAt && (
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           <strong>Submitted:</strong>{" "}
-                          {new Date(venue.submittedAt).toLocaleDateString()}
+                          {new Date(venue.createdAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -304,14 +290,14 @@ const VenueApprovals = () => {
                       {venue.status === "pending" && (
                         <>
                           <button
-                            onClick={() => handleApprove(venue.id)}
+                            onClick={() => handleApprove(venue._id)}
                             className="flex-1 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                           >
                             <CheckCircle className="h-4 w-4" />
                             <span>Approve</span>
                           </button>
                           <button
-                            onClick={() => handleReject(venue.id)}
+                            onClick={() => handleReject(venue._id)}
                             className="flex-1 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                           >
                             <XCircle className="h-4 w-4" />
@@ -385,10 +371,45 @@ const VenueApprovals = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <img
-                      src={selectedVenue.images[0]}
+                      src={
+                        (selectedVenue.images && selectedVenue.images[0]) ||
+                        "https://images.pexels.com/photos/1395967/pexels-photo-1395967.jpeg"
+                      }
                       alt={selectedVenue.name}
-                      className="w-full h-64 object-cover rounded-lg"
+                      className="w-full h-64 object-cover rounded-lg mb-4"
                     />
+
+                    {selectedVenue.images &&
+                      selectedVenue.images.length > 1 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {selectedVenue.images.slice(1, 4).map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`${selectedVenue.name} ${idx + 2}`}
+                              className="w-full h-20 object-cover rounded"
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                    {selectedVenue.videos &&
+                      selectedVenue.videos.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
+                            <Video className="h-4 w-4 mr-2" />
+                            Videos
+                          </h4>
+                          {selectedVenue.videos.map((video, idx) => (
+                            <video
+                              key={idx}
+                              src={video}
+                              controls
+                              className="w-full rounded-lg mb-2"
+                            />
+                          ))}
+                        </div>
+                      )}
                   </div>
                   <div className="space-y-4">
                     <div>
@@ -408,7 +429,7 @@ const VenueApprovals = () => {
                         </p>
                         <p>
                           <strong>Price:</strong> ₨
-                          {selectedVenue.price.toLocaleString()}{" "}
+                          {selectedVenue.price?.toLocaleString()}{" "}
                           {selectedVenue.priceType}
                         </p>
                         <p>
@@ -425,14 +446,15 @@ const VenueApprovals = () => {
                         Amenities
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {selectedVenue.amenities.map((amenity, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
+                        {selectedVenue.amenities &&
+                          selectedVenue.amenities.map((amenity, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"
+                            >
+                              {amenity}
+                            </span>
+                          ))}
                       </div>
                     </div>
 
@@ -451,7 +473,7 @@ const VenueApprovals = () => {
                   <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={() => {
-                        handleApprove(selectedVenue.id);
+                        handleApprove(selectedVenue._id);
                         setModalOpen(false);
                       }}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
@@ -460,7 +482,7 @@ const VenueApprovals = () => {
                     </button>
                     <button
                       onClick={() => {
-                        handleReject(selectedVenue.id);
+                        handleReject(selectedVenue._id);
                         setModalOpen(false);
                       }}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"

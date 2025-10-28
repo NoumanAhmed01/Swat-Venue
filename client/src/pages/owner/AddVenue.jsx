@@ -123,14 +123,48 @@ const AddVenue = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const formData = new FormData();
+
+      Object.keys(data).forEach((key) => {
+        if (key === "amenities") {
+          formData.append(key, JSON.stringify(data[key]));
+        } else {
+          formData.append(key, data[key]);
+        }
+      });
+
+      imageFiles.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      videoFiles.forEach((file) => {
+        formData.append("videos", file);
+      });
+
+      const token = localStorage.getItem("token");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const response = await fetch(`${API_URL}/api/venues`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to add venue");
+      }
+
       toast.success(
         "Venue added successfully! It will be reviewed within 24-48 hours."
       );
       navigate("/owner/manage-venues");
     } catch (error) {
-      toast.error("Failed to add venue. Please try again.");
+      console.error("Error adding venue:", error);
+      toast.error(error.message || "Failed to add venue. Please try again.");
     }
   };
 
