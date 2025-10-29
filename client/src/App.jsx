@@ -27,13 +27,17 @@ import OwnerDashboard from "./pages/owner/Dashboard";
 import AddVenue from "./pages/owner/AddVenue";
 import ManageVenues from "./pages/owner/ManageVenues";
 import ViewInquiries from "./pages/owner/ViewInquiries";
+import ManageBooking from "./pages/owner/ManageBooking";
+
+// User Pages
+import MyBookings from "./pages/user/MyBookings";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import VenueApprovals from "./pages/admin/VenueApprovals";
 import Analytics from "./pages/admin/Analytics";
-import ManageBooking from "./pages/owner/ManageBooking";
+import AdminBookings from "./pages/admin/AdminBookings";
 
 function App() {
   return (
@@ -126,6 +130,16 @@ function App() {
                     }
                   />
 
+                  {/* User Routes */}
+                  <Route
+                    path="/my-bookings"
+                    element={
+                      <ProtectedRoute allowedRoles={["user", "owner", "admin"]}>
+                        <MyBookings />
+                      </ProtectedRoute>
+                    }
+                  />
+
                   {/* Admin Routes */}
                   <Route
                     path="/admin/dashboard"
@@ -156,6 +170,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={["admin"]}>
                         <Analytics />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/bookings"
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <AdminBookings />
                       </ProtectedRoute>
                     }
                   />

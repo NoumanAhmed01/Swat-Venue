@@ -7,74 +7,78 @@ import {
   Clock,
   CalendarCheck,
   MoreVertical,
+  MapPin,
+  Users,
+  Calendar,
+  Phone,
 } from "lucide-react";
+import { bookingAPI, venueAPI } from "../../utils/api";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const ManageBooking = () => {
-  const [bookings, setBookings] = useState([
-    {
-      _id: "1",
-      venue: "Royal Banquet Hall",
-      customer: "Ahmad Hassan",
-      date: "2025-02-15",
-      status: "confirmed",
-      amount: "₨75,000",
-      phone: "0321-1234567",
-      email: "ahmad@example.com",
-      guests: 120,
-      eventType: "Wedding",
-    },
-    {
-      _id: "2",
-      venue: "Garden Pavilion",
-      customer: "Fatima Khan",
-      date: "2025-02-20",
-      status: "pending",
-      amount: "₨35,000",
-      phone: "0300-9876543",
-      email: "fatima@example.com",
-      guests: 80,
-      eventType: "Birthday",
-    },
-    {
-      _id: "3",
-      venue: "Royal Banquet Hall",
-      customer: "Ali Rahman",
-      date: "2025-02-25",
-      status: "cancelled",
-      amount: "₨75,000",
-      phone: "0345-1122334",
-      email: "ali@example.com",
-      guests: 150,
-      eventType: "Corporate",
-    },
-    {
-      _id: "4",
-      venue: "Luxury Convention Center",
-      customer: "Sara Ahmed",
-      date: "2025-03-10",
-      status: "completed",
-      amount: "₨120,000",
-      phone: "0333-4455667",
-      email: "sara@example.com",
-      guests: 200,
-      eventType: "Conference",
-    },
-  ]);
-
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [actionMenu, setActionMenu] = useState(null);
+
+  useEffect(() => {
+    fetchBookingsForOwner();
+  }, []);
+
+  const fetchBookingsForOwner = async () => {
+    try {
+      setLoading(true);
+      const venuesResponse = await venueAPI.getOwnerVenues();
+      const ownerVenues = venuesResponse.data.data || [];
+
+      const allBookings = [];
+      for (const venue of ownerVenues) {
+        try {
+          const bookingsResponse = await bookingAPI.getVenueBookings(
+            venue._id || venue.id
+          );
+          if (bookingsResponse.data.success) {
+            const venueBookings = bookingsResponse.data.data.map((booking) => ({
+              ...booking,
+              venueName: venue.name,
+            }));
+            allBookings.push(...venueBookings);
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching bookings for venue ${venue.name}:`,
+            error
+          );
+        }
+      }
+
+      allBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setBookings(allBookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter bookings based on status
   const filteredBookings = bookings.filter((booking) => {
     return statusFilter === "all" || booking.status === statusFilter;
   });
 
-  const handleStatusChange = (id, newStatus) => {
-    setBookings((prev) =>
-      prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
-    );
-    setActionMenu(null);
-    toast.success(`Booking status updated to ${newStatus}`);
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await bookingAPI.updateStatus(id, newStatus);
+      setBookings((prev) =>
+        prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
+      );
+      setActionMenu(null);
+      toast.success(`Booking status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error("Failed to update booking status");
+      console.error("Error updating booking status:", error);
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -115,6 +119,14 @@ const ManageBooking = () => {
     { value: "cancelled", label: "Cancelled", color: "red" },
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <>
       <Helmet>
@@ -136,7 +148,7 @@ const ManageBooking = () => {
                 </p>
               </div>
               <div className="mt-4 sm:mt-0 flex items-center gap-4">
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-full text-sm font-medium">
                   {filteredBookings.length} bookings
                 </span>
               </div>
@@ -153,7 +165,7 @@ const ManageBooking = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   {statusOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -207,10 +219,10 @@ const ManageBooking = () => {
                       <td className="py-4 px-6">
                         <div>
                           <div className="font-medium text-gray-900 dark:text-white">
-                            {booking.customer}
+                            {booking.customerName || booking.customer?.name}
                           </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            {booking.venue}
+                            {booking.venueName || booking.venue?.name}
                           </div>
                         </div>
                       </td>
@@ -218,7 +230,9 @@ const ManageBooking = () => {
                       {/* Event Details */}
                       <td className="py-4 px-6">
                         <div className="text-sm text-gray-900 dark:text-white">
-                          {new Date(booking.date).toLocaleDateString("en-US", {
+                          {new Date(
+                            booking.eventDate || booking.date
+                          ).toLocaleDateString("en-US", {
                             weekday: "short",
                             year: "numeric",
                             month: "short",
@@ -226,7 +240,8 @@ const ManageBooking = () => {
                           })}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {booking.eventType} • {booking.guests} guests
+                          {booking.eventType} •{" "}
+                          {booking.guestCount || booking.guests} guests
                         </div>
                       </td>
 
@@ -242,8 +257,14 @@ const ManageBooking = () => {
 
                       {/* Amount */}
                       <td className="py-4 px-6">
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {booking.amount}
+                        <div className="font-semibold text-emerald-600 dark:text-emerald-400">
+                          ₨
+                          {(typeof booking.amount === "number"
+                            ? booking.amount
+                            : parseInt(
+                                booking.amount?.replace(/[^0-9]/g, "") || 0
+                              )
+                          ).toLocaleString()}
                         </div>
                       </td>
 
@@ -347,7 +368,7 @@ const ManageBooking = () => {
                 <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
                   {statusFilter !== "all"
                     ? `No ${statusFilter} bookings found. Try selecting a different status filter.`
-                    : "No bookings have been made yet. They will appear here once customers start booking."}
+                    : "No bookings have been made yet. They will appear here once customers start booking your venues."}
                 </p>
               </div>
             )}

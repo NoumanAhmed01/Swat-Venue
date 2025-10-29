@@ -102,7 +102,7 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
         message: data.message || "",
       };
 
-      const response = await bookingAPI.createBooking(bookingData);
+      const response = await bookingAPI.create(bookingData);
 
       if (response.data.success) {
         toast.success("Booking request submitted successfully!");
@@ -254,7 +254,7 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
 
           {/* Event Date and Guest Count - Third Line */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Event Date
               </label>
@@ -274,7 +274,7 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
                 )}
               </button>
               {showCalendar && (
-                <div className="mt-2 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                <div className="absolute z-50 mt-2 left-0 right-0 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 shadow-xl">
                   {loadingDates ? (
                     <div className="flex items-center justify-center py-4">
                       <LoadingSpinner size="sm" />

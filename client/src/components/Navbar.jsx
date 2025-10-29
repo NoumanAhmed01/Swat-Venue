@@ -5,7 +5,16 @@ import { useTheme } from "../context/ThemeContext";
 import logo3 from "../assets/logo3.png";
 
 // Importing icons from lucide-react (lightweight, modern React icon set)
-import { Menu, X, Moon, Sun, User, LogOut, Settings } from "lucide-react";
+import {
+  Menu,
+  X,
+  Moon,
+  Sun,
+  User,
+  LogOut,
+  Settings,
+  Calendar,
+} from "lucide-react";
 
 const Navbar = () => {
   // Local component states
@@ -82,31 +91,47 @@ const Navbar = () => {
                 {/* User dropdown menu */}
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-800 rounded-md shadow-lg py-1 z-50">
+                    {/* For customer/users */}
+                    {(user.role === "user" || user.role === "customer") && (
+                      <Link
+                        to="/my-bookings"
+                        className="flex items-center px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        My Bookings
+                      </Link>
+                    )}
+
+                    {/* For venue owners */}
                     {user.role === "owner" && (
                       <Link
                         to="/owner/dashboard"
-                        className="block px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
+                        className="flex items-center px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <Settings className="inline h-4 w-4 mr-2" />
+                        <Settings className="h-4 w-4 mr-2" />
                         Dashboard
                       </Link>
                     )}
+
+                    {/* For admins */}
                     {user.role === "admin" && (
                       <Link
                         to="/admin/dashboard"
-                        className="block px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
+                        className="flex items-center px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <Settings className="inline h-4 w-4 mr-2" />
+                        <Settings className="h-4 w-4 mr-2" />
                         Admin Panel
                       </Link>
                     )}
+
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
+                      className="flex items-center w-full text-left px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
                     >
-                      <LogOut className="inline h-4 w-4 mr-2" />
+                      <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </button>
                   </div>
@@ -189,6 +214,18 @@ const Navbar = () => {
                   </p>
                 </div>
 
+                {/* For customer/users */}
+                {user.role === "customer" && (
+                  <Link
+                    to="/my-bookings"
+                    className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    My Bookings
+                  </Link>
+                )}
+
+                {/* For venue owners */}
                 {user.role === "owner" && (
                   <Link
                     to="/owner/dashboard"
@@ -198,6 +235,8 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 )}
+
+                {/* For admins */}
                 {user.role === "admin" && (
                   <Link
                     to="/admin/dashboard"
