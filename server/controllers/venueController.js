@@ -48,8 +48,13 @@ exports.getAllVenues = async (req, res) => {
     let query = {};
 
     if (status) {
-      query.status = status;
+      if (status === "all") {
+        // Don't filter by status - show all venues
+      } else {
+        query.status = status;
+      }
     } else {
+      // Default: only show approved venues for public listing
       query.status = "approved";
     }
 

@@ -31,7 +31,7 @@ const ManageVenues = () => {
   const fetchVenues = async () => {
     try {
       setLoading(true);
-      const response = await venueAPI.getOwnerVenues({ status: "" });
+      const response = await venueAPI.getOwnerVenues();
       setVenues(response.data.data || []);
     } catch (error) {
       console.error("Error fetching venues:", error);
