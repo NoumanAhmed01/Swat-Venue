@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -11,19 +11,41 @@ import {
   CheckCircle,
 } from "lucide-react";
 import VenueCard from "../components/VenueCard";
-import venuesData from "../data/venues.json";
+import { venueAPI } from "../utils/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Home = () => {
-  // State to manage search form inputs
   const [searchForm, setSearchForm] = useState({
     location: "",
     date: "",
     guests: "",
     amenities: [],
   });
+  const [featuredVenues, setFeaturedVenues] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get first 3 venues for "Featured Venues" section
-  const featuredVenues = venuesData.slice(0, 3);
+  useEffect(() => {
+    fetchFeaturedVenues();
+  }, []);
+
+  const fetchFeaturedVenues = async () => {
+    try {
+      setLoading(true);
+      const response = await venueAPI.getAll();
+      if (response.data.success) {
+        const venues = response.data.data || [];
+        const sortedByRating = venues
+          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+          .slice(0, 3);
+        setFeaturedVenues(sortedByRating);
+      }
+    } catch (error) {
+      console.error("Error fetching featured venues:", error);
+      setFeaturedVenues([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // List of available amenities (checkbox filters)
   const amenitiesList = [
@@ -243,11 +265,23 @@ const Home = () => {
             valley
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {featuredVenues.map((venue) => (
-              <VenueCard key={venue.id} venue={venue} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
+          ) : featuredVenues.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400">
+                No featured venues available at the moment.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {featuredVenues.map((venue) => (
+                <VenueCard key={venue._id || venue.id} venue={venue} />
+              ))}
+            </div>
+          )}
 
           <Link
             to="/venues"

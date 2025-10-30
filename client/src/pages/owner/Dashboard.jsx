@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import {
@@ -10,65 +10,112 @@ import {
   Eye,
   TrendingUp,
   MessageSquare,
+  Clock,
+  CheckCircle,
 } from "lucide-react";
+import { bookingAPI, venueAPI, inquiryAPI } from "../../utils/api";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const OwnerDashboard = () => {
-  // Mock data - in real app, this would come from API
-  const stats = [
+  const [stats, setStats] = useState({
+    venues: 0,
+    bookings: 0,
+    revenue: 0,
+    inquiries: 0,
+  });
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+
+      const [venuesResponse, inquiriesResponse] = await Promise.all([
+        venueAPI.getOwnerVenues(),
+        inquiryAPI.getOwnerInquiries().catch(() => ({ data: { data: [] } })),
+      ]);
+
+      const venues = venuesResponse.data.data || [];
+      const inquiries = inquiriesResponse.data.data || [];
+
+      let allBookings = [];
+      let totalRevenue = 0;
+
+      for (const venue of venues) {
+        try {
+          const bookingsResponse = await bookingAPI.getVenueBookings(
+            venue._id || venue.id
+          );
+          if (bookingsResponse.data.success) {
+            const venueBookings = bookingsResponse.data.data.map((booking) => ({
+              ...booking,
+              venueName: venue.name,
+            }));
+            allBookings.push(...venueBookings);
+
+            totalRevenue += venueBookings
+              .filter(
+                (b) => b.status === "confirmed" || b.status === "completed"
+              )
+              .reduce((sum, b) => sum + (b.amount || 0), 0);
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching bookings for venue ${venue.name}:`,
+            error
+          );
+        }
+      }
+
+      allBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setStats({
+        venues: venues.length,
+        bookings: allBookings.length,
+        revenue: totalRevenue,
+        inquiries: inquiries.length,
+      });
+
+      setRecentBookings(allBookings.slice(0, 5));
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statsData = [
     {
       title: "Total Venues",
-      value: "3",
-      change: "+1 this month",
+      value: stats.venues.toString(),
+      change: `${stats.venues} active`,
       icon: Building,
       color: "bg-blue-500",
     },
     {
       title: "Total Bookings",
-      value: "24",
-      change: "+12% from last month",
+      value: stats.bookings.toString(),
+      change: `All time bookings`,
       icon: Calendar,
       color: "bg-green-500",
     },
     {
       title: "Revenue",
-      value: "₨2,45,000",
-      change: "+18% from last month",
+      value: `₨${stats.revenue.toLocaleString()}`,
+      change: "From confirmed bookings",
       icon: DollarSign,
       color: "bg-emerald-500",
     },
     {
       title: "Inquiries",
-      value: "8",
-      change: "3 pending responses",
+      value: stats.inquiries.toString(),
+      change: "Customer inquiries",
       icon: MessageSquare,
       color: "bg-orange-500",
-    },
-  ];
-
-  const recentBookings = [
-    {
-      id: 1,
-      venue: "Royal Banquet Hall",
-      customer: "Ahmad Hassan",
-      date: "2025-02-15",
-      status: "confirmed",
-      amount: "₨75,000",
-    },
-    {
-      id: 2,
-      venue: "Garden Pavilion",
-      customer: "Fatima Khan",
-      date: "2025-02-20",
-      status: "pending",
-      amount: "₨35,000",
-    },
-    {
-      id: 3,
-      venue: "Royal Banquet Hall",
-      customer: "Ali Rahman",
-      date: "2025-02-25",
-      status: "confirmed",
-      amount: "₨75,000",
     },
   ];
 
@@ -96,6 +143,14 @@ const OwnerDashboard = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <>
       <Helmet>
@@ -120,7 +175,7 @@ const OwnerDashboard = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => (
+            {statsData.map((stat, index) => (
               <div
                 key={index}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6"
@@ -211,36 +266,57 @@ const OwnerDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentBookings.map((booking) => (
-                        <tr
-                          key={booking.id}
-                          className="border-b border-gray-100 dark:border-gray-700"
-                        >
-                          <td className="py-3 px-4 text-gray-900 dark:text-white">
-                            {booking.venue}
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                            {booking.customer}
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                            {new Date(booking.date).toLocaleDateString()}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                booking.status === "confirmed"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                              }`}
-                            >
-                              {booking.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-gray-900 dark:text-white font-semibold">
-                            {booking.amount}
+                      {recentBookings.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="5"
+                            className="py-8 text-center text-gray-500 dark:text-gray-400"
+                          >
+                            No bookings yet
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        recentBookings.map((booking) => (
+                          <tr
+                            key={booking._id}
+                            className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          >
+                            <td className="py-3 px-4 text-gray-900 dark:text-white">
+                              {booking.venueName}
+                            </td>
+                            <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                              {booking.customerName}
+                            </td>
+                            <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                              {new Date(booking.eventDate).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                  booking.status === "confirmed"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    : booking.status === "pending"
+                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                    : booking.status === "completed"
+                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                }`}
+                              >
+                                {booking.status === "confirmed" && (
+                                  <CheckCircle className="h-3 w-3" />
+                                )}
+                                {booking.status === "pending" && (
+                                  <Clock className="h-3 w-3" />
+                                )}
+                                {booking.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">
+                              ₨{booking.amount?.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
