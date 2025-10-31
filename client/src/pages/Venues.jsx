@@ -5,7 +5,6 @@ import { Filter, Grid2x2 as Grid, List } from "lucide-react";
 import VenueCard from "../components/VenueCard";
 import FilterSidebar from "../components/FilterSidebar";
 import { VenueCardSkeleton } from "../components/SkeletonLoader";
-import venuesData from "../data/venues.json";
 import { venueAPI } from "../utils/api";
 
 const Venues = () => {
