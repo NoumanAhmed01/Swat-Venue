@@ -7,6 +7,7 @@ const {
   getAllBookings,
   updateBookingStatus,
   getReservedDates,
+  deleteBooking,
 } = require("../controllers/bookingController");
 const { protect, authorize } = require("../middleware/auth");
 
@@ -26,5 +27,6 @@ router.patch(
   authorize("owner", "admin"),
   updateBookingStatus
 );
+router.delete("/:id", protect, deleteBooking);
 
 module.exports = router;

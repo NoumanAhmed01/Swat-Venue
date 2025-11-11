@@ -235,6 +235,76 @@ const Home = () => {
           </Link>
         </div>
       </section>
+
+      {/* Why Choose SwatVenue Section */}
+      <section className="py-20 bg-gray-50 dark:bg-surface-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
+            Why Choose SwatVenue?
+          </h2>
+          <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16">
+            We make finding and booking your dream venue simple and stress-free
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-surface-800 p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="w-16 h-16 bg-gold-100 dark:bg-gold-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <feature.icon className="h-8 w-8 text-gold-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-text-light dark:text-text-dark">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-primary-900 to-primary-800 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          Own a Venue? List it on SwatVenue
+        </h2>
+        <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+          Join hundreds of venue owners who are growing their business with our
+          platform. It's free to list and easy to manage.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            to="/auth/register?role=owner"
+            className="inline-flex items-center justify-center space-x-2 bg-gold-500 text-white hover:bg-gold-600 px-8 py-4 rounded-lg font-semibold transition-colors duration-200"
+          >
+            <span>List Your Venue</span>
+            <ArrowRight className="h-5 w-5" />
+          </Link>
+          <Link
+            to="/contact"
+            className="inline-flex items-center justify-center space-x-2 border-2 border-white text-white hover:bg-white hover:text-primary-900 px-8 py-4 rounded-lg font-semibold transition-colors duration-200"
+          >
+            <span>Learn More</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Blob animation styling */}
+      <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+      `}</style>
     </>
   );
 };

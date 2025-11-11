@@ -261,9 +261,13 @@ const Venues = () => {
                       : "space-y-6"
                   }
                 >
-                  {currentVenues.map((venue) => (
+                  {currentVenues.map((venue, index) => (
                     <VenueCard
-                      key={venue.id}
+                      key={
+                        venue._id?.toString() ||
+                        venue.id?.toString() ||
+                        `venue-${index}`
+                      }
                       venue={venue}
                       className={
                         viewMode === "list" ? "lg:flex lg:flex-row lg:h-64" : ""
