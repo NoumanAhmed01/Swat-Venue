@@ -38,7 +38,12 @@ export const authAPI = {
   register: (userData) => api.post("/auth/register", userData),
   login: (credentials) => api.post("/auth/login", credentials),
   getMe: () => api.get("/auth/me"),
-  forgotPassword: (email) => api.post("/auth/forgot-password", { email }),
+
+  // Forgot password flow
+  forgotPassword: (email) => api.post("/auth/forgot-password", { email }), // sends OTP to email
+  verifyOtp: (email, otp) => api.post("/auth/verify-otp", { email, otp }), // verify OTP
+  resetPassword: (email, newPassword) =>
+    api.post("/auth/reset-password", { email, newPassword }), // set new password after OTP verification
 };
 
 export const venueAPI = {

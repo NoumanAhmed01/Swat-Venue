@@ -57,7 +57,7 @@ const sendOTPEmail = async (email, otp, name) => {
           <p><strong>This code will expire in 10 minutes.</strong></p>
           <p>If you didn't request this password reset, please ignore this email.</p>
           <div class="footer">
-            <p>&copy; 2024 SwatVenue. All rights reserved.</p>
+            <p>&copy; 2025 SwatVenue. All rights reserved.</p>
             <p>Mingora, Swat, Khyber Pakhtunkhwa, Pakistan</p>
           </div>
         </div>

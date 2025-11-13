@@ -1,52 +1,52 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import toast from "react-hot-toast";
-import { Mail, ArrowLeft, MapPin } from "lucide-react";
+import { Lock, ArrowLeft, MapPin } from "lucide-react";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import { authAPI } from "../../utils/api"; // ✅ Import your api.js
+import { authAPI } from "../../utils/api";
 
-const forgotPasswordSchema = yup.object({
-  email: yup.string().email("Invalid email").required("Email is required"),
+const resetSchema = yup.object({
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(6, "At least 6 characters"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Passwords must match")
+    .required("Confirm your password"),
 });
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email || "";
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(forgotPasswordSchema),
+    resolver: yupResolver(resetSchema),
   });
 
   const onSubmit = async (data) => {
     try {
-      await authAPI.forgotPassword(data.email); // ✅ call backend
-      toast.success("OTP has been sent to your email!");
-
-      // move to verify OTP page
-      navigate("/auth/verify-otp", { state: { email: data.email } });
+      await authAPI.resetPassword(email, data.password);
+      toast.success("Password reset successfully!");
+      navigate("/auth/login");
     } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to send OTP. Try again."
-      );
+      toast.error(error.response?.data?.message || "Failed to reset password.");
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>Forgot Password - SwatVenue</title>
-        <meta
-          name="description"
-          content="Reset your SwatVenue account password."
-        />
+        <title>Reset Password - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-surface-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -62,10 +62,10 @@ const ForgotPassword = () => {
               </span>
             </Link>
             <h2 className="text-3xl font-bold text-primary-900 dark:text-text-dark">
-              Forgot your password?
+              Reset Password
             </h2>
             <p className="mt-2 text-sm text-text-light dark:text-text-dark">
-              Enter your email address to receive an OTP.
+              Enter your new password to secure your account.
             </p>
           </div>
 
@@ -73,20 +73,40 @@ const ForgotPassword = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
-                  Email Address
+                  New Password
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    type="email"
-                    {...register("email")}
+                    type="password"
+                    {...register("password")}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-surface-700 dark:text-text-dark"
-                    placeholder="Enter your email"
+                    placeholder="Enter new password"
                   />
                 </div>
-                {errors.email && (
+                {errors.password && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="password"
+                    {...register("confirmPassword")}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-surface-700 dark:text-text-dark"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
@@ -96,7 +116,7 @@ const ForgotPassword = () => {
                 disabled={isSubmitting}
                 className="w-full bg-gold-500 hover:bg-gold-600 disabled:bg-gold-400 text-white px-4 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
               >
-                {isSubmitting ? <LoadingSpinner size="sm" /> : "Send OTP"}
+                {isSubmitting ? <LoadingSpinner size="sm" /> : "Reset Password"}
               </button>
             </form>
 
@@ -116,4 +136,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;

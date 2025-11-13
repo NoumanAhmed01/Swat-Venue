@@ -10,6 +10,7 @@ import {
   UserCheck,
   Clock,
   CheckCircle,
+  Mail,
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -118,6 +119,13 @@ const AdminDashboard = () => {
       icon: Building,
       link: "/admin/approvals",
       color: "bg-green-600 hover:bg-green-700",
+    },
+    {
+      title: "Contact Management",
+      description: "Manage user contacts and inquiries",
+      icon: Mail,
+      link: "/admin/contacts",
+      color: "bg-orange-600 hover:bg-orange-700",
     },
     {
       title: "Analytics",

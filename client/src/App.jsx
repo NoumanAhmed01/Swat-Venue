@@ -21,6 +21,8 @@ import Privacy from "./pages/Privacy";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import VerifyOtp from "./pages/auth/VerifyOtp";
 
 // Owner Pages
 import OwnerDashboard from "./pages/owner/Dashboard";
@@ -38,6 +40,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import VenueApprovals from "./pages/admin/VenueApprovals";
 import Analytics from "./pages/admin/Analytics";
 import AdminBookings from "./pages/admin/AdminBookings";
+import ContactManagement from "./pages/admin/ContactManagement";
 
 function App() {
   return (
@@ -87,6 +90,11 @@ function App() {
                     path="/auth/forgot-password"
                     element={<ForgotPassword />}
                   />
+                  <Route
+                    path="/auth/reset-password"
+                    element={<ResetPassword />}
+                  />
+                  <Route path="/auth/verify-otp" element={<VerifyOtp />} />
 
                   {/* Owner Routes */}
                   <Route
@@ -178,6 +186,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={["admin"]}>
                         <AdminBookings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/contacts"
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <ContactManagement />
                       </ProtectedRoute>
                     }
                   />
