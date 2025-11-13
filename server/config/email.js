@@ -73,7 +73,11 @@ const sendOTPEmail = async (email, otp, name) => {
   });
 };
 
-const sendBookingConfirmationEmail = async (booking, venue, customer) => {
+const sendBookingConfirmationEmailToCustomer = async (
+  booking,
+  venue,
+  customer
+) => {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -160,8 +164,51 @@ const sendBookingConfirmationEmail = async (booking, venue, customer) => {
   });
 };
 
+// Venue Owner Notification Email
+const sendBookingNotificationToOwner = async (booking, venue, owner) => {
+  const html = `
+   <div class="container">
+  <div class="header">
+    <h1>🏛️ SwatVenue</h1>
+    <p>New Booking Received</p>
+  </div>
+  <div class="content">
+    <p>Hello ${owner.name},</p>
+    <p>You have a new booking request for your venue "${venue.name}"!</p>
+    <div class="booking-details">
+      <h3>Booking Details</h3>
+      <div class="detail-row"><span>Customer:</span><strong>${
+        booking.customerName
+      }</strong></div>
+      <div class="detail-row"><span>Event Date:</span><strong>${new Date(
+        booking.eventDate
+      ).toLocaleDateString()}</strong></div>
+      <div class="detail-row"><span>Event Type:</span>${booking.eventType}</div>
+      <div class="detail-row"><span>Guest Count:</span>${
+        booking.guestCount
+      }</div>
+      <div class="detail-row"><span>Phone:</span>${booking.phone}</div>
+      <div class="detail-row"><span>Email:</span>${booking.email}</div>
+    </div>
+    <p>Please review the booking in your dashboard.</p>
+    <div class="footer">
+      <p>&copy; 2025 SwatVenue. All rights reserved.</p>
+    </div>
+  </div>
+</div>
+
+  `;
+
+  return await sendEmail({
+    to: owner.email,
+    subject: `New Booking for ${venue.name}`,
+    html,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendOTPEmail,
-  sendBookingConfirmationEmail,
+  sendBookingConfirmationEmailToCustomer,
+  sendBookingNotificationToOwner,
 };

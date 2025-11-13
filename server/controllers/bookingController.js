@@ -1,5 +1,9 @@
 const Booking = require("../models/Booking");
 const Venue = require("../models/Venue");
+const {
+  sendBookingConfirmationEmailToCustomer,
+  sendBookingNotificationToOwner,
+} = require("../config/email");
 
 exports.createBooking = async (req, res) => {
   try {
@@ -36,8 +40,26 @@ exports.createBooking = async (req, res) => {
     });
 
     const populatedBooking = await Booking.findById(booking._id)
-      .populate("venue", "name location price")
+      .populate({
+        path: "venue",
+        select: "name location price owner",
+        populate: { path: "owner", select: "name email" }, // populate owner details
+      })
       .populate("customer", "name email phone");
+
+    // Send email to customer
+    await sendBookingConfirmationEmailToCustomer(
+      populatedBooking,
+      populatedBooking.venue,
+      populatedBooking.customer
+    );
+
+    // Send email to venue owner
+    await sendBookingNotificationToOwner(
+      populatedBooking,
+      populatedBooking.venue,
+      populatedBooking.venue.owner
+    );
 
     res.status(201).json({
       success: true,
