@@ -50,10 +50,20 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ email }).select("+password");
 
+    // 1. FIRST check if user exists
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // 2. THEN check if account is active
+    if (user.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is deactivated. Please contact administrator.",
+      });
+    }
+
+    // 3. Then check password
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {

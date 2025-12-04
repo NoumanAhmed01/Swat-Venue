@@ -31,7 +31,7 @@ const VenueApprovals = () => {
       const token = localStorage.getItem("token");
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      const response = await fetch(`${API_URL}/api/venues?status=all`, {
+      const response = await fetch(`${API_URL}/venues?status=all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

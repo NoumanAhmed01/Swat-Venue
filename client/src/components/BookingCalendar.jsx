@@ -1,57 +1,57 @@
 import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar"; // 📅 React Calendar library for interactive date selection
+import Calendar from "react-calendar"; // 📅 React Calendar library
 import "react-calendar/dist/Calendar.css";
-import { Info } from "lucide-react"; // ℹ️ Lucide icons for better UI visuals
-import reservedDatesData from "../data/reservedDates.json"; // 📁 Local JSON file storing reserved dates
+import { Info } from "lucide-react"; // ℹ️ Lucide icons
+import { bookingAPI } from "../utils/api"; // 📡 Backend API to fetch reserved dates
 
-// 💡 BookingCalendar Component
-// Displays a calendar showing available, reserved, and past dates for a specific venue
 const BookingCalendar = ({
   venueId,
   selectedDate,
   onDateSelect,
   reservedDates: propReservedDates,
 }) => {
-  // State to store reserved dates for this venue
   const [reservedDates, setReservedDates] = useState([]);
 
-  // 🧠 useEffect runs when venueId changes to load relevant reserved dates
+  // Fetch reserved dates from backend or use passed prop
   useEffect(() => {
-    if (propReservedDates) {
-      setReservedDates(propReservedDates);
-    } else {
-      const venueReservations = reservedDatesData.find(
-        (v) => v.venueId === venueId
-      );
-      setReservedDates(venueReservations?.reservedDates || []);
-    }
+    const fetchReservedDates = async () => {
+      if (propReservedDates) {
+        setReservedDates(
+          propReservedDates.map((d) => new Date(d).toISOString().split("T")[0])
+        );
+      } else {
+        try {
+          const response = await bookingAPI.getReservedDates(venueId);
+          if (response.data.success) {
+            const reserved = response.data.data.map(
+              (d) => new Date(d).toISOString().split("T")[0]
+            );
+            setReservedDates(reserved);
+          }
+        } catch (error) {
+          console.error("Error fetching reserved dates:", error);
+          setReservedDates([]);
+        }
+      }
+    };
+    if (venueId) fetchReservedDates();
   }, [venueId, propReservedDates]);
 
-  // ✅ Check if a date is already reserved
   const isDateReserved = (date) => {
     const dateString = date.toISOString().split("T")[0];
-    return reservedDates.some((reservedDate) => {
-      const reserved =
-        typeof reservedDate === "string"
-          ? reservedDate
-          : new Date(reservedDate).toISOString().split("T")[0];
-      return reserved === dateString;
-    });
+    return reservedDates.includes(dateString);
   };
 
-  // ⚠️ Check if the date is in the past
   const isDatePast = (date) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // normalize today's date
+    today.setHours(0, 0, 0, 0);
     return date < today;
   };
 
-  // 🚫 Disable past or reserved dates
   const tileDisabled = ({ date }) => {
     return isDatePast(date) || isDateReserved(date);
   };
 
-  // 🎨 Apply dynamic class to each date tile based on its status
   const tileClassName = ({ date }) => {
     const baseClasses = "relative";
 
@@ -63,25 +63,20 @@ const BookingCalendar = ({
     return `${baseClasses} available-date`;
   };
 
-  // 📆 Handle user selecting a date
   const handleDateChange = (value) => {
     if (value instanceof Date && !isDateReserved(value) && !isDatePast(value)) {
-      if (onDateSelect) {
-        onDateSelect(value);
-      }
+      if (onDateSelect) onDateSelect(value);
     }
   };
 
   return (
     <div className="booking-calendar">
-      {/* 📋 Calendar Legend Section */}
+      {/* Legend */}
       <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
         <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 flex items-center">
           <Info className="h-4 w-4 mr-2" />
           Date Availability
         </h4>
-
-        {/* Legend Indicators */}
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -98,7 +93,7 @@ const BookingCalendar = ({
         </div>
       </div>
 
-      {/* 📅 Main Calendar UI */}
+      {/* Calendar */}
       <div className="calendar-container">
         <Calendar
           onChange={handleDateChange}
@@ -106,12 +101,12 @@ const BookingCalendar = ({
           tileDisabled={tileDisabled}
           tileClassName={tileClassName}
           minDate={new Date()}
-          maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)} // 1 year from now
+          maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)}
           className="custom-calendar"
         />
       </div>
 
-      {/* 📊 Booking Summary Section */}
+      {/* Booking Summary */}
       <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -131,51 +126,38 @@ const BookingCalendar = ({
         </div>
       </div>
 
-      {/* 🧠 Inline styling for React Calendar customization */}
+      {/* Styles */}
       <style jsx>{`
         .custom-calendar {
           width: 100%;
           border: none;
           font-family: inherit;
         }
-
         .custom-calendar .react-calendar__navigation {
           display: flex;
           height: 44px;
           margin-bottom: 1em;
         }
-
         .custom-calendar .react-calendar__navigation button {
           min-width: 44px;
           background: none;
           border: none;
           font-size: 16px;
           font-weight: 600;
-          color: #374151;
+          color: #0f172a; /* Navy for navigation */
         }
-
-        .dark .custom-calendar .react-calendar__navigation button {
-          color: #f3f4f6;
-        }
-
         .custom-calendar .react-calendar__navigation button:hover {
-          background-color: #f3f4f6;
+          background-color: #f5f5f5;
           border-radius: 6px;
         }
-
-        .dark .custom-calendar .react-calendar__navigation button:hover {
-          background-color: #374151;
-        }
-
         .custom-calendar .react-calendar__month-view__weekdays {
           text-align: center;
           text-transform: uppercase;
           font-weight: bold;
           font-size: 0.75em;
-          color: #6b7280;
+          color: #6b7280; /* Gray */
           margin-bottom: 0.5em;
         }
-
         .custom-calendar .react-calendar__tile {
           max-width: 100%;
           padding: 10px 6px;
@@ -187,67 +169,33 @@ const BookingCalendar = ({
           margin: 1px;
           transition: all 0.2s ease;
         }
-
         .custom-calendar .react-calendar__tile:hover {
           transform: scale(1.05);
         }
-
         .custom-calendar .available-date {
-          background-color: #f0fdf4;
-          color: #166534;
+          background-color: #d4af37; /* Gold */
+          color: white;
           cursor: pointer;
         }
-
         .custom-calendar .available-date:hover {
-          background-color: #dcfce7;
+          background-color: #b8912e;
         }
-
-        .dark .custom-calendar .available-date {
-          background-color: #14532d;
-          color: #bbf7d0;
-        }
-
-        .dark .custom-calendar .available-date:hover {
-          background-color: #166534;
-        }
-
         .custom-calendar .reserved-date {
-          background-color: #fef2f2;
-          color: #dc2626;
+          background-color: #dc2626; /* Red */
+          color: white;
+          cursor: not-allowed;
+          opacity: 0.8;
+        }
+        .custom-calendar .past-date {
+          background-color: #6b7280; /* Gray */
+          color: white;
           cursor: not-allowed;
           opacity: 0.6;
         }
-
-        .dark .custom-calendar .reserved-date {
-          background-color: #7f1d1d;
-          color: #fca5a5;
-        }
-
-        .custom-calendar .past-date {
-          background-color: #f9fafb;
-          color: #9ca3af;
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
-
-        .dark .custom-calendar .past-date {
-          background-color: #374151;
-          color: #6b7280;
-        }
-
         .custom-calendar .selected-date {
-          background-color: #059669 !important;
+          background-color: #0b2545 !important; /* Navy */
           color: white !important;
           font-weight: bold;
-        }
-
-        .custom-calendar .react-calendar__tile--active {
-          background-color: #059669;
-          color: white;
-        }
-
-        .custom-calendar .react-calendar__tile--active:hover {
-          background-color: #047857;
         }
       `}</style>
     </div>

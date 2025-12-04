@@ -206,9 +206,60 @@ const sendBookingNotificationToOwner = async (booking, venue, owner) => {
   });
 };
 
+const sendContactNotificationEmail = async (contact) => {
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
+      .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+      .header { background: linear-gradient(135deg, #0F1C2E 0%, #1a2942 100%); color: white; text-align: center; padding: 30px; }
+      .content { padding: 30px; }
+      .content h2 { margin-top: 0; color: #0F1C2E; }
+      .detail-box { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+      .detail-box p { margin: 8px 0; }
+      .footer { text-align: center; color: #666; font-size: 12px; padding: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🏛️ SwatVenue</h1>
+        <p>New Contact Message</p>
+      </div>
+      <div class="content">
+        <h2>Hi Nouman,</h2>
+        <p>You have received a new message from your website contact form:</p>
+        <div class="detail-box">
+          <p><strong>Name:</strong> ${contact.name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p>
+          <p><strong>Subject:</strong> ${contact.subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${contact.message}</p>
+        </div>
+        <p>Please respond to the user as soon as possible.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2025 SwatVenue. All rights reserved.</p>
+        <p>Mingora, Swat, Khyber Pakhtunkhwa, Pakistan</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+
+  return await sendEmail({
+    to: process.env.EMAIL_USER,
+    subject: `New Contact Message from ${contact.name}`,
+    html,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendOTPEmail,
   sendBookingConfirmationEmailToCustomer,
   sendBookingNotificationToOwner,
+  sendContactNotificationEmail,
 };

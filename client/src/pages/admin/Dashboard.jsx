@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import {
@@ -6,104 +6,130 @@ import {
   Building,
   Calendar,
   DollarSign,
-  TrendingUp,
-  UserCheck,
-  Clock,
-  CheckCircle,
   Mail,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+import { userAPI, venueAPI, bookingAPI } from "../../utils/api";
 
 const AdminDashboard = () => {
-  // Mock data - in real app, this would come from API
-  const stats = [
-    {
-      title: "Total Users",
-      value: "1,234",
-      change: "+12% from last month",
-      icon: Users,
-      color: "bg-blue-500",
-    },
+  const [stats, setStats] = useState([
+    { title: "Total Users", value: "0", icon: Users, color: "bg-blue-500" },
     {
       title: "Total Venues",
-      value: "456",
-      change: "+8% from last month",
+      value: "0",
       icon: Building,
       color: "bg-green-500",
     },
     {
       title: "Total Bookings",
-      value: "2,890",
-      change: "+23% from last month",
+      value: "0",
       icon: Calendar,
       color: "bg-purple-500",
     },
     {
       title: "Platform Revenue",
-      value: "₨12,45,000",
-      change: "+18% from last month",
+      value: "₨0",
       icon: DollarSign,
-      color: "bg-emerald-500",
+      color: "bg-amber-500",
     },
-  ];
+  ]);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: "venue_approval",
-      message: 'New venue "Mountain View Resort" approved',
-      time: "2 hours ago",
-      icon: CheckCircle,
-      color: "text-green-600",
-    },
-    {
-      id: 2,
-      type: "user_registration",
-      message: "New venue owner registered: Ahmad Hassan",
-      time: "4 hours ago",
-      icon: UserCheck,
-      color: "text-blue-600",
-    },
-    {
-      id: 3,
-      type: "venue_pending",
-      message: 'Venue "Garden Palace" pending approval',
-      time: "6 hours ago",
-      icon: Clock,
-      color: "text-yellow-600",
-    },
-    {
-      id: 4,
-      type: "booking",
-      message: "New booking at Royal Banquet Hall",
-      time: "8 hours ago",
-      icon: Calendar,
-      color: "text-purple-600",
-    },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const pendingApprovals = [
-    {
-      id: 1,
-      venueName: "Crystal Palace",
-      ownerName: "Malik Hassan",
-      location: "Mingora, Swat",
-      submittedAt: "2025-01-20",
-    },
-    {
-      id: 2,
-      venueName: "Green Valley Resort",
-      ownerName: "Rahman Shah",
-      location: "Kalam, Swat",
-      submittedAt: "2025-01-19",
-    },
-    {
-      id: 3,
-      venueName: "Riverside Banquet Hall",
-      ownerName: "Imran Ali",
-      location: "Bahrain, Swat",
-      submittedAt: "2025-01-18",
-    },
-  ];
+        // Fetch all data in parallel
+        const [usersRes, venuesRes, bookingsRes] = await Promise.allSettled([
+          userAPI.getAll(),
+          venueAPI.getAll(),
+          bookingAPI.getAllBookings(),
+        ]);
+
+        // Extract data from responses
+        const extractData = (response) => {
+          if (
+            response.status === "fulfilled" &&
+            response.value?.data?.success
+          ) {
+            return {
+              count: response.value.data.count || 0,
+              data: response.value.data.data || [],
+            };
+          }
+          return { count: 0, data: [] };
+        };
+
+        const users = extractData(usersRes);
+        const venues = extractData(venuesRes);
+        const bookings = extractData(bookingsRes);
+
+        // Get pending venues
+        const pendingVenues = venues.data.filter(
+          (venue) =>
+            venue.status === "pending" ||
+            venue.approvalStatus === "pending" ||
+            venue.isApproved === false
+        );
+
+        // Calculate revenue
+        const revenue = bookings.data.reduce(
+          (sum, booking) =>
+            sum +
+            (booking.amount ||
+              booking.totalPrice ||
+              booking.total ||
+              booking.price ||
+              booking.bookingAmount ||
+              0),
+          0
+        );
+
+        // Set stats
+        setStats([
+          {
+            title: "Total Users",
+            value: users.count.toLocaleString(),
+            icon: Users,
+            color: "bg-blue-500",
+          },
+          {
+            title: "Total Venues",
+            value: venues.count.toLocaleString(),
+            icon: Building,
+            color: "bg-green-500",
+          },
+          {
+            title: "Total Bookings",
+            value: bookings.count.toLocaleString(),
+            icon: Calendar,
+            color: "bg-purple-500",
+          },
+          {
+            title: "Platform Revenue",
+            value: `₨${revenue.toLocaleString()}`,
+            icon: DollarSign,
+            color: "bg-amber-500",
+          },
+        ]);
+
+        // Set pending approvals
+        setPendingApprovals(pendingVenues);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        setError("Failed to load dashboard data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const quickActions = [
     {
@@ -115,7 +141,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Venue Approvals",
-      description: "Review and approve venue listings",
+      description: `Review and approve ${pendingApprovals.length} venue listings`,
       icon: Building,
       link: "/admin/approvals",
       color: "bg-green-600 hover:bg-green-700",
@@ -127,14 +153,40 @@ const AdminDashboard = () => {
       link: "/admin/contacts",
       color: "bg-orange-600 hover:bg-orange-700",
     },
-    {
-      title: "Analytics",
-      description: "View platform analytics and reports",
-      icon: TrendingUp,
-      link: "/admin/analytics",
-      color: "bg-purple-600 hover:bg-purple-700",
-    },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-amber-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading dashboard data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            Error Loading Dashboard
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-medium"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -174,7 +226,7 @@ const AdminDashboard = () => {
                       {stat.value}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {stat.change}
+                      Real-time data
                     </p>
                   </div>
                   <div className={`p-3 rounded-full ${stat.color}`}>
@@ -212,33 +264,6 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Recent Activities */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Recent Activities
-                </h2>
-                <div className="space-y-4">
-                  {recentActivities.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-start space-x-3"
-                    >
-                      <activity.icon
-                        className={`h-5 w-5 mt-0.5 ${activity.color}`}
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-900 dark:text-white">
-                          {activity.message}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {activity.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Pending Approvals */}
@@ -250,89 +275,137 @@ const AdminDashboard = () => {
                   </h2>
                   <Link
                     to="/admin/approvals"
-                    className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+                    className="text-amber-600 hover:text-amber-700 text-sm font-medium"
                   >
-                    View all
+                    View all ({pendingApprovals.length})
                   </Link>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Venue Name
-                        </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Owner
-                        </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Location
-                        </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Submitted
-                        </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pendingApprovals.map((venue) => (
-                        <tr
-                          key={venue.id}
-                          className="border-b border-gray-100 dark:border-gray-700"
-                        >
-                          <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">
-                            {venue.venueName}
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                            {venue.ownerName}
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                            {venue.location}
-                          </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                            {new Date(venue.submittedAt).toLocaleDateString()}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex space-x-2">
-                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200">
-                                Approve
-                              </button>
-                              <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200">
-                                Reject
-                              </button>
-                            </div>
-                          </td>
+                {pendingApprovals.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                            Venue Name
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                            Owner
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                            Location
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                            Submitted
+                          </th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
+                            Actions
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {pendingApprovals.map((venue, index) => {
+                          const venueName =
+                            venue.name ||
+                            venue.venueName ||
+                            venue.title ||
+                            `Venue ${index + 1}`;
+
+                          const ownerName =
+                            venue.owner?.name ||
+                            venue.ownerName ||
+                            venue.user?.name ||
+                            "Unknown Owner";
+
+                          const location =
+                            venue.location?.city ||
+                            venue.location ||
+                            venue.address ||
+                            "Unknown Location";
+
+                          const submittedAt =
+                            venue.createdAt ||
+                            venue.submittedAt ||
+                            venue.updatedAt ||
+                            new Date();
+
+                          return (
+                            <tr
+                              key={venue._id || venue.id || index}
+                              className="border-b border-gray-100 dark:border-gray-700"
+                            >
+                              <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">
+                                {venueName}
+                              </td>
+                              <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                                {ownerName}
+                              </td>
+                              <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                                {location}
+                              </td>
+                              <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                                {new Date(submittedAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex space-x-2">
+                                  <button
+                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200"
+                                    onClick={() =>
+                                      console.log(
+                                        "Approve venue:",
+                                        venue._id || venue.id
+                                      )
+                                    }
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200"
+                                    onClick={() =>
+                                      console.log(
+                                        "Reject venue:",
+                                        venue._id || venue.id
+                                      )
+                                    }
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full mb-4">
+                      <svg
+                        className="w-8 h-8 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        ></path>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      All Caught Up!
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No pending venue approvals at the moment.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-
-          {/* Platform Overview Chart Placeholder */}
-          {/* <div className="mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Platform Overview
-              </h2>
-              <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Platform analytics chart would appear here
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Integration with charting library needed
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </>

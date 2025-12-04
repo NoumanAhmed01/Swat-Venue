@@ -12,6 +12,18 @@ const venueSchema = new mongoose.Schema(
       required: [true, "Location is required"],
       trim: true,
     },
+    // ✅ New field for Mapbox geocoding
+    geoLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [lng, lat]
+      },
+    },
+
     address: {
       type: String,
       required: [true, "Address is required"],
@@ -90,5 +102,6 @@ const venueSchema = new mongoose.Schema(
 );
 
 venueSchema.index({ name: "text", location: "text", description: "text" });
-
+// Geospatial index for Mapbox
+venueSchema.index({ geoLocation: "2dsphere" });
 module.exports = mongoose.model("Venue", venueSchema);

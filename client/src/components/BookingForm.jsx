@@ -274,21 +274,27 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
                 )}
               </button>
               {showCalendar && (
-                <div className="absolute z-50 mt-2 left-0 right-0 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 shadow-xl">
-                  {loadingDates ? (
-                    <div className="flex items-center justify-center py-4">
-                      <LoadingSpinner size="sm" />
-                    </div>
-                  ) : (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 relative">
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+
                     <BookingCalendar
                       venueId={venue._id || venue.id}
                       selectedDate={selectedDate}
-                      onDateSelect={handleDateSelect}
+                      onDateSelect={(date) => {
+                        handleDateSelect(date);
+                      }}
                       reservedDates={reservedDates}
                     />
-                  )}
+                  </div>
                 </div>
               )}
+
               {!selectedDate && (
                 <p className="text-red-500 text-xs mt-1">
                   Please select an event date

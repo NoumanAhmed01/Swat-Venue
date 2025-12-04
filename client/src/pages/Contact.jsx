@@ -6,6 +6,7 @@ import * as yup from "yup";
 import toast from "react-hot-toast";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { contactAPI } from "../utils/api";
 
 // ✅ Validation schema using Yup
 const contactSchema = yup.object({
@@ -29,12 +30,19 @@ const Contact = () => {
   // ✅ Handles form submission
   const onSubmit = async (data) => {
     try {
-      // Simulate API call (you can replace with your backend endpoint)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      toast.success("Message sent successfully! We'll get back to you soon.");
-      reset();
+      const response = await contactAPI.create(data);
+      if (response.data.success) {
+        toast.success(
+          response.data.message ||
+            "Message sent successfully! We'll get back to you soon."
+        );
+        reset();
+      }
     } catch (error) {
-      toast.error("Failed to send message. Please try again.");
+      const errorMsg =
+        error.response?.data?.message ||
+        "Failed to send message. Please try again.";
+      toast.error(errorMsg);
     }
   };
 

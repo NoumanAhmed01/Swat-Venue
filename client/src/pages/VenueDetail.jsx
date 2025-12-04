@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
+import Map from "../components/Map";
 import {
   MapPin,
   Users,
@@ -60,6 +61,7 @@ const VenueDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [fullscreenImage, setFullscreenImage] = useState(null);
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -193,7 +195,7 @@ const VenueDetail = () => {
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Back Button */}
-        <div className="bg-white dark:bg-surface-800 px-4 py-3 border-b border-gray-200 dark:border-surface-700">
+        {/* <div className="bg-white dark:bg-surface-800 px-4 py-3 border-b border-gray-200 dark:border-surface-700">
           <div className="max-w-7xl mx-auto">
             <Link
               to="/venues"
@@ -203,10 +205,10 @@ const VenueDetail = () => {
               <span>Back to Venues</span>
             </Link>
           </div>
-        </div>
+        </div> */}
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main */}
             <div className="lg:col-span-2 space-y-8">
@@ -214,7 +216,7 @@ const VenueDetail = () => {
               <div className="bg-white dark:bg-surface-800 rounded-2xl overflow-hidden">
                 {/* Unified Media Gallery (Images + Videos) */}
                 <div className="bg-white dark:bg-surface-800 rounded-2xl overflow-hidden">
-                  <div className="p-4">
+                  <div className="p-4 sm:p-6">
                     <div className="relative rounded-2xl overflow-hidden">
                       {(() => {
                         const allMedia = [
@@ -231,150 +233,172 @@ const VenueDetail = () => {
                         const currentMedia = allMedia[currentImageIndex];
 
                         return (
-                          <div className="aspect-w-16 aspect-h-9 relative">
-                            {currentMedia.type === "image" ? (
-                              <img
-                                src={currentMedia.url}
-                                alt={`${venue.name} - Media ${
-                                  currentImageIndex + 1
-                                }`}
-                                className="w-full h-96 object-cover"
-                              />
-                            ) : (
-                              <video
-                                controls
-                                className="w-full h-96 object-contain bg-black"
-                                poster={venue.images?.[0]}
-                              >
-                                <source
+                          <div className="relative">
+                            <div className="aspect-video relative rounded-xl overflow-hidden bg-gray-100 dark:bg-surface-700">
+                              {currentMedia.type === "image" ? (
+                                <img
                                   src={currentMedia.url}
-                                  type="video/mp4"
+                                  alt={`${venue.name} - Media ${
+                                    currentImageIndex + 1
+                                  }`}
+                                  className="w-full h-64 md:h-80 lg:h-96 object-center cursor-pointer"
+                                  onClick={() =>
+                                    setFullscreenImage(currentMedia.url)
+                                  }
                                 />
-                                Your browser does not support the video tag.
-                              </video>
-                            )}
-
-                            {/* Navigation Buttons */}
-                            {allMedia.length > 1 && (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    setCurrentImageIndex((prev) =>
-                                      prev === 0
-                                        ? allMedia.length - 1
-                                        : prev - 1
-                                    )
-                                  }
-                                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
-                                >
-                                  <ChevronLeft className="h-6 w-6" />
-                                </button>
-
-                                <button
-                                  onClick={() =>
-                                    setCurrentImageIndex((prev) =>
-                                      prev === allMedia.length - 1
-                                        ? 0
-                                        : prev + 1
-                                    )
-                                  }
-                                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
-                                >
-                                  <ChevronRight className="h-6 w-6" />
-                                </button>
-
-                                {/* Indicator Dots */}
-                                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                                  {allMedia.map((_, index) => (
-                                    <button
-                                      key={index}
-                                      onClick={() =>
-                                        setCurrentImageIndex(index)
-                                      }
-                                      className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                                        index === currentImageIndex
-                                          ? "bg-white"
-                                          : "bg-white bg-opacity-50"
-                                      }`}
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-black">
+                                  <video
+                                    controls
+                                    className="w-full h-64 md:h-80 lg:h-96 object-contain"
+                                    poster={venue.images?.[0]}
+                                  >
+                                    <source
+                                      src={currentMedia.url}
+                                      type="video/mp4"
                                     />
-                                  ))}
+                                    Your browser does not support the video tag.
+                                  </video>
                                 </div>
-                              </>
+                              )}
+
+                              {/* Navigation Buttons */}
+                              {allMedia.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      setCurrentImageIndex((prev) =>
+                                        prev === 0
+                                          ? allMedia.length - 1
+                                          : prev - 1
+                                      )
+                                    }
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm"
+                                  >
+                                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                                  </button>
+
+                                  <button
+                                    onClick={() =>
+                                      setCurrentImageIndex((prev) =>
+                                        prev === allMedia.length - 1
+                                          ? 0
+                                          : prev + 1
+                                      )
+                                    }
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 backdrop-blur-sm"
+                                  >
+                                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                                  </button>
+
+                                  {/* Indicator Dots */}
+                                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                    {allMedia.map((_, index) => (
+                                      <button
+                                        key={index}
+                                        onClick={() =>
+                                          setCurrentImageIndex(index)
+                                        }
+                                        className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-200 ${
+                                          index === currentImageIndex
+                                            ? "bg-white scale-125"
+                                            : "bg-white/50"
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Thumbnails */}
+                            {venue.images?.length +
+                              (venue.videos?.length || 0) >
+                              1 && (
+                              <div className="mt-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    ...(venue.images || []).map((url) => ({
+                                      type: "image",
+                                      url,
+                                    })),
+                                    ...(venue.videos || []).map((url) => ({
+                                      type: "video",
+                                      url,
+                                      thumbnail: venue.images?.[0] || "",
+                                    })),
+                                  ]
+                                    .slice(0, 4)
+                                    .map((media, index) => (
+                                      <button
+                                        key={index}
+                                        onClick={() =>
+                                          setCurrentImageIndex(index)
+                                        }
+                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                                          index === currentImageIndex
+                                            ? "border-gold-500 ring-2 ring-gold-500/20"
+                                            : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
+                                        }`}
+                                      >
+                                        {media.type === "image" ? (
+                                          <img
+                                            src={media.url}
+                                            alt={`Media ${index + 1}`}
+                                            className="w-full h-20 object-cover"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full relative bg-black">
+                                            {media.thumbnail && (
+                                              <img
+                                                src={media.thumbnail}
+                                                alt={`Video ${index + 1}`}
+                                                className="w-full h-full object-cover opacity-60"
+                                              />
+                                            )}
+                                            <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white absolute inset-0 m-auto" />
+                                          </div>
+                                        )}
+
+                                        {/* Count overlay if more media exist */}
+                                        {index === 3 &&
+                                          venue.images.length +
+                                            (venue.videos?.length || 0) >
+                                            4 && (
+                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                              <span className="text-white font-semibold text-sm sm:text-base">
+                                                +
+                                                {venue.images.length +
+                                                  (venue.videos?.length || 0) -
+                                                  4}
+                                              </span>
+                                            </div>
+                                          )}
+                                      </button>
+                                    ))}
+                                </div>
+                              </div>
                             )}
                           </div>
                         );
                       })()}
-
-                      {/* Thumbnails (first 4 items) */}
-                      {venue.images?.length + (venue.videos?.length || 0) >
-                        1 && (
-                        <div className="grid grid-cols-4 gap-2 mt-4">
-                          {[
-                            ...(venue.images || []).map((url) => ({
-                              type: "image",
-                              url,
-                            })),
-                            ...(venue.videos || []).map((url) => ({
-                              type: "video",
-                              url,
-                            })),
-                          ]
-                            .slice(0, 4)
-                            .map((media, index) => (
-                              <button
-                                key={index}
-                                onClick={() => setCurrentImageIndex(index)}
-                                className={`relative rounded-lg overflow-hidden ${
-                                  index === currentImageIndex
-                                    ? "ring-2 ring-gold-500"
-                                    : ""
-                                }`}
-                              >
-                                {media.type === "image" ? (
-                                  <img
-                                    src={media.url}
-                                    alt={`Media ${index + 1}`}
-                                    className="w-full h-20 object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-20 bg-black flex items-center justify-center">
-                                    <Play className="h-8 w-8 text-white" />
-                                  </div>
-                                )}
-
-                                {/* Count overlay if more media exist */}
-                                {index === 3 &&
-                                  venue.images.length +
-                                    (venue.videos?.length || 0) >
-                                    4 && (
-                                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold">
-                                      +
-                                      {venue.images.length +
-                                        (venue.videos?.length || 0) -
-                                        4}
-                                    </div>
-                                  )}
-                              </button>
-                            ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Venue Info */}
-              <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h1 className="text-3xl font-bold text-primary-900 dark:text-text-dark mb-2">
+              <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
+                  <div className="flex-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-primary-900 dark:text-text-dark mb-2">
                       {venue.name}
                     </h1>
-                    <div className="flex items-center text-text-light dark:text-text-dark mb-4">
-                      <MapPin className="h-5 w-5 mr-2" />
+                    <div className="flex items-start text-text-light dark:text-text-dark mb-4">
+                      <MapPin className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                       <span>{venue.address}</span>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm">
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
                       <div className="flex items-center">
                         <Star className="h-5 w-5 text-yellow-400 fill-current mr-1" />
                         <span className="font-semibold">{venue.rating}</span>
@@ -401,20 +425,20 @@ const VenueDetail = () => {
               </div>
 
               {/* Amenities */}
-              <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
+              <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 sm:p-8">
                 <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark mb-6">
                   Amenities & Features
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {venue.amenities.map((amenity, index) => {
                     const IconComponent = amenityIcons[amenity] || Check;
                     return (
                       <div
                         key={index}
-                        className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-surface-700 rounded-lg"
+                        className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-surface-700 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-600 transition-colors duration-200"
                       >
-                        <IconComponent className="h-5 w-5 text-gold-600" />
-                        <span className="text-primary-900 dark:text-text-dark">
+                        <IconComponent className="h-5 w-5 text-gold-600 flex-shrink-0" />
+                        <span className="text-primary-900 dark:text-text-dark text-sm sm:text-base">
                           {amenity}
                         </span>
                       </div>
@@ -431,18 +455,18 @@ const VenueDetail = () => {
               />
 
               {/* Location Map Placeholder */}
-              <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
+              <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 sm:p-8">
                 <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark mb-6">
                   Location
                 </h3>
-                <div className="bg-gray-200 dark:bg-surface-700 h-64 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Interactive map would appear here
-                    </p>
-                    <p className="text-sm text-gray-400">{venue.address}</p>
-                  </div>
+                <div className="rounded-lg overflow-hidden h-64 sm:h-80">
+                  <Map
+                    key={venue.geoLocation?.coordinates?.join(",")}
+                    center={
+                      venue.geoLocation?.coordinates || [72.36015, 34.77175]
+                    }
+                    zoom={12}
+                  />
                 </div>
               </div>
             </div>
@@ -461,7 +485,7 @@ const VenueDetail = () => {
                 </div>
                 <button
                   onClick={() => setBookingModalOpen(true)}
-                  className="w-full bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                  className="w-full bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg"
                 >
                   Book Now
                 </button>
@@ -470,16 +494,16 @@ const VenueDetail = () => {
                   <h3 className="text-lg font-semibold text-primary-900 dark:text-text-dark mb-4">
                     Contact Information
                   </h3>
-                  <div className="flex flex-col space-y-2">
+                  <div className="flex flex-col space-y-3">
                     <div className="flex items-center space-x-2">
-                      <Phone className="h-5 w-5 text-gold-600" />
-                      <span className="text-gray-500 dark:text-gray-400">
+                      <Phone className="h-5 w-5 text-gold-600 flex-shrink-0" />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm sm:text-base truncate">
                         {venue.phone}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Mail className="h-5 w-5 text-gold-600" />
-                      <span className="text-gray-500 dark:text-gray-400">
+                      <Mail className="h-5 w-5 text-gold-600 flex-shrink-0" />
+                      <span className="text-gray-500 dark:text-gray-400 text-sm sm:text-base truncate">
                         {venue.ownerName}
                       </span>
                     </div>
@@ -489,6 +513,30 @@ const VenueDetail = () => {
             </div>
           </div>
         </div>
+        {/* Fullscreen Image Modal */}
+        {fullscreenImage && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFullscreenImage(null);
+              }}
+              className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X className="h-8 w-8" />
+            </button>
+
+            <img
+              src={fullscreenImage}
+              alt="Fullscreen view"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
 
         {/* Booking Modal - Updated UI  */}
         {bookingModalOpen && (

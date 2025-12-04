@@ -6,6 +6,9 @@ const {
   deleteVideoFromCloudinary,
   extractPublicId,
 } = require("../config/cloudinary");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapToken = process.env.MAPBOX_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 const uploadToCloudinary = async (file, folder, resourceType = "image") => {
   return new Promise((resolve, reject) => {
@@ -122,6 +125,7 @@ exports.createVenue = async (req, res) => {
     const imageUrls = [];
     const videoUrls = [];
 
+    // Upload images to Cloudinary
     if (req.files && req.files.images) {
       for (const file of req.files.images) {
         const url = await uploadToCloudinary(file, "images", "image");
@@ -129,6 +133,7 @@ exports.createVenue = async (req, res) => {
       }
     }
 
+    // Upload videos to Cloudinary
     if (req.files && req.files.videos) {
       for (const file of req.files.videos) {
         const url = await uploadToCloudinary(file, "videos", "video");
@@ -136,6 +141,39 @@ exports.createVenue = async (req, res) => {
       }
     }
 
+    // -------------------------------
+    // 1️⃣ GET ADDRESS FROM FRONTEND
+    // -------------------------------
+    const { address } = req.body;
+    console.log("📌 Received address from frontend:", address); // <--- ADD THIS
+
+    if (!address) {
+      return res.status(400).json({ message: "Address is required!" });
+    }
+    console.log("Received address:", req.body.address);
+
+    // -------------------------------
+    // 2️⃣ GEOCODE ADDRESS → COORDINATES
+    // -------------------------------
+    const geoData = await geocodingClient
+      .forwardGeocode({
+        query: address,
+        limit: 1,
+      })
+      .send();
+
+    // If no match found
+    if (!geoData.body.features.length) {
+      return res
+        .status(400)
+        .json({ message: "Unable to find location for this address" });
+    }
+
+    const coordinates = geoData.body.features[0].center; // [lng, lat]
+    console.log("📌 Mapbox returned coordinates:", coordinates); // <--- ADD THIS
+    // -------------------------------
+    // 3️⃣ PREPARE VENUE DATA
+    // -------------------------------
     const venueData = {
       ...req.body,
       owner: req.user.id,
@@ -143,14 +181,20 @@ exports.createVenue = async (req, res) => {
       phone: req.body.phone || req.user.phone,
       images: imageUrls,
       videos: videoUrls,
+      geoLocation: {
+        type: "Point",
+        coordinates: coordinates, // [lng, lat]
+      },
     };
 
     if (typeof venueData.amenities === "string") {
       venueData.amenities = JSON.parse(venueData.amenities);
     }
 
+    // Create Venue
     const venue = await Venue.create(venueData);
 
+    // Link venue to user
     await User.findByIdAndUpdate(req.user.id, {
       $push: { venues: venue._id },
     });

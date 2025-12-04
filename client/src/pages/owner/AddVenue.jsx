@@ -78,9 +78,10 @@ const AddVenue = () => {
 
   const locations = [
     "Mingora, Swat",
-    "Kalam, Swat",
+    "Kabal, Swat",
     "Saidu Sharif, Swat",
     "Bahrain, Swat",
+    "Kalam, Swat",
     "Malam Jabba, Swat",
     "Dir, Upper Dir",
     "Chitral",
@@ -144,7 +145,7 @@ const AddVenue = () => {
       const token = localStorage.getItem("token");
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      const response = await fetch(`${API_URL}/api/venues`, {
+      const response = await fetch(`${API_URL}/venues`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -193,12 +194,12 @@ const AddVenue = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-hidden">
           {/* Header */}
           <div className="mb-8">
             <button
               onClick={() => navigate("/owner/dashboard")}
-              className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 mb-4"
+              className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 mb-4"
             >
               <ArrowLeft className="h-5 w-5" />
               <span>Back to Dashboard</span>
@@ -213,13 +214,33 @@ const AddVenue = () => {
 
           {/* Progress Steps */}
           <div className="mb-8">
-            <div className="flex items-center justify-between">
+            {/* Mobile View - Show only current step */}
+            <div className="lg:hidden flex items-center justify-center mb-6">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gold-600 text-white border-2 border-gold-600">
+                    {currentStep === 1 && <Building className="h-6 w-6" />}
+                    {currentStep === 2 && <Camera className="h-6 w-6" />}
+                    {currentStep === 3 && <DollarSign className="h-6 w-6" />}
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-gold-600">
+                  Step {currentStep} of {steps.length}
+                </p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {steps[currentStep - 1].title}
+                </p>
+              </div>
+            </div>
+
+            {/* Desktop View - Show all steps */}
+            <div className="hidden lg:flex items-center justify-between">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex items-center">
                   <div
                     className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                       currentStep >= step.number
-                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        ? "bg-gold-600 border-gold-600 text-white"
                         : "border-gray-300 dark:border-gray-600 text-gray-400"
                     }`}
                   >
@@ -229,7 +250,7 @@ const AddVenue = () => {
                     <p
                       className={`text-sm font-medium ${
                         currentStep >= step.number
-                          ? "text-emerald-600"
+                          ? "text-gold-600"
                           : "text-gray-500 dark:text-gray-400"
                       }`}
                     >
@@ -243,7 +264,7 @@ const AddVenue = () => {
                     <div
                       className={`w-16 h-0.5 ml-6 ${
                         currentStep > step.number
-                          ? "bg-emerald-600"
+                          ? "bg-gold-600"
                           : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     />
@@ -270,7 +291,7 @@ const AddVenue = () => {
                       </label>
                       <input
                         {...register("name")}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="Enter venue name"
                       />
                       {errors.name && (
@@ -286,7 +307,7 @@ const AddVenue = () => {
                       </label>
                       <select
                         {...register("location")}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       >
                         <option value="">Select location</option>
                         {locations.map((location) => (
@@ -310,7 +331,7 @@ const AddVenue = () => {
                     <textarea
                       rows={3}
                       {...register("address")}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="Enter complete address"
                     />
                     {errors.address && (
@@ -327,7 +348,7 @@ const AddVenue = () => {
                     <textarea
                       rows={4}
                       {...register("description")}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="Describe your venue, its features, and what makes it special"
                     />
                     {errors.description && (
@@ -344,7 +365,7 @@ const AddVenue = () => {
                     <input
                       type="number"
                       {...register("capacity")}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="Enter maximum guest capacity"
                     />
                     {errors.capacity && (
@@ -384,7 +405,7 @@ const AddVenue = () => {
                         />
                         <label
                           htmlFor="image-upload"
-                          className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
+                          className="inline-flex items-center space-x-2 bg-gold-600 hover:bg-gold-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
                         >
                           <Plus className="h-5 w-5" />
                           <span>Choose Images</span>
@@ -435,7 +456,7 @@ const AddVenue = () => {
                         />
                         <label
                           htmlFor="video-upload"
-                          className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
+                          className="inline-flex items-center space-x-2 bg-gold-600 hover:bg-gold-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200"
                         >
                           <Plus className="h-5 w-5" />
                           <span>Choose Videos</span>
@@ -480,7 +501,7 @@ const AddVenue = () => {
                             type="checkbox"
                             checked={selectedAmenities.includes(amenity)}
                             onChange={() => handleAmenityToggle(amenity)}
-                            className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                            className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
                           />
                           <span className="text-sm text-gray-700 dark:text-gray-300">
                             {amenity}
@@ -512,7 +533,7 @@ const AddVenue = () => {
                       <input
                         type="number"
                         {...register("price")}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                         placeholder="Enter price in PKR"
                       />
                       {errors.price && (
@@ -528,7 +549,7 @@ const AddVenue = () => {
                       </label>
                       <select
                         {...register("priceType")}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       >
                         <option value="per day">Per Day</option>
                         <option value="per event">Per Event</option>
@@ -549,7 +570,7 @@ const AddVenue = () => {
                     <input
                       type="tel"
                       {...register("phone")}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                       placeholder="Enter contact number"
                     />
                     {errors.phone && (
@@ -577,7 +598,7 @@ const AddVenue = () => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors duration-200"
+                    className="flex items-center space-x-2 bg-gold-600 hover:bg-gold-700 text-white px-6 py-3 rounded-lg transition-colors duration-200"
                   >
                     <span>Next</span>
                     <ArrowRight className="h-5 w-5" />
@@ -586,7 +607,7 @@ const AddVenue = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-6 py-3 rounded-lg transition-colors duration-200"
+                    className="flex items-center space-x-2 bg-gold-600 hover:bg-gold-700 disabled:bg-gold-400 text-white px-6 py-3 rounded-lg transition-colors duration-200"
                   >
                     {isSubmitting ? (
                       <LoadingSpinner size="sm" />

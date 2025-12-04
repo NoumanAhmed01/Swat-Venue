@@ -1,15 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Filter, X } from "lucide-react";
 
-const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
-  const [filters, setFilters] = useState({
-    location: "",
-    minPrice: "",
-    maxPrice: "",
-    minCapacity: "",
-    maxCapacity: "",
-    amenities: [],
-  });
+const FilterSidebar = ({
+  isOpen,
+  onClose,
+  onFiltersChange,
+  initialFilters,
+}) => {
+  // Initialize with initialFilters if provided
+  const [filters, setFilters] = useState(
+    initialFilters || {
+      location: "",
+      minPrice: "",
+      maxPrice: "",
+      minCapacity: "",
+      maxCapacity: "",
+      amenities: [],
+    }
+  );
+
+  // Update local filters when initialFilters changes (from parent)
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
 
   const amenitiesList = [
     "AC",
@@ -42,7 +57,10 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    onFiltersChange(newFilters);
+    // Don't apply filters immediately on mobile - let user close sidebar first
+    if (window.innerWidth >= 1024) {
+      onFiltersChange(newFilters);
+    }
   };
 
   const handleAmenityToggle = (amenity) => {
@@ -65,8 +83,24 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
     onFiltersChange(emptyFilters);
   };
 
+  // Apply filters and close sidebar on mobile
+  const applyAndClose = () => {
+    onFiltersChange(filters);
+    onClose();
+  };
+
+  // For mobile: handle checkbox clicks without closing
+  const handleCheckboxClick = (e, amenity) => {
+    e.stopPropagation();
+    e.preventDefault();
+    handleAmenityToggle(amenity);
+  };
+
   const sidebarContent = (
-    <div className="h-full overflow-y-auto px-4 pb-6 no-scrollbar">
+    <div
+      className="h-full overflow-y-auto px-4 pb-6 no-scrollbar"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Header */}
       <div className="sticky top-0 bg-white dark:bg-surface-800 z-10 p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -91,10 +125,20 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
             </button>
           </div>
         </div>
+
+        {/* Apply Button for Mobile */}
+        <div className="mt-4 lg:hidden">
+          <button
+            onClick={applyAndClose}
+            className="w-full bg-gold-600 hover:bg-gold-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200"
+          >
+            Apply Filters
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="pt-4 space-y-6">
+      <div className="pt-4 space-y-6" onClick={(e) => e.stopPropagation()}>
         {/* Location Filter */}
         <div>
           <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
@@ -104,6 +148,7 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
             value={filters.location}
             onChange={(e) => handleFilterChange("location", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+            onClick={(e) => e.stopPropagation()}
           >
             <option value="">All Locations</option>
             {locations.map((location) => (
@@ -126,6 +171,7 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
               value={filters.minPrice}
               onChange={(e) => handleFilterChange("minPrice", e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+              onClick={(e) => e.stopPropagation()}
             />
             <input
               type="number"
@@ -133,6 +179,7 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
               value={filters.maxPrice}
               onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -151,6 +198,7 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
                 handleFilterChange("minCapacity", e.target.value)
               }
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+              onClick={(e) => e.stopPropagation()}
             />
             <input
               type="number"
@@ -160,6 +208,7 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
                 handleFilterChange("maxCapacity", e.target.value)
               }
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -169,22 +218,30 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
           <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
             Amenities
           </label>
-          <div className="space-y-2 max-h-64 overflow-y-auto pr-2 no-scrollbar ">
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-2 no-scrollbar">
             {amenitiesList.map((amenity) => (
-              <label
+              <div
                 key={amenity}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200"
+                onClick={(e) => handleCheckboxClick(e, amenity)}
               >
-                <input
-                  type="checkbox"
-                  checked={filters.amenities.includes(amenity)}
-                  onChange={() => handleAmenityToggle(amenity)}
-                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 focus:ring-2 h-4 w-4"
-                />
-                <span className="text-sm text-text-light dark:text-text-dark font-medium">
+                <div className="flex items-center h-5">
+                  <input
+                    type="checkbox"
+                    checked={filters.amenities.includes(amenity)}
+                    onChange={() => handleAmenityToggle(amenity)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 focus:ring-2 h-4 w-4"
+                    id={`amenity-${amenity}`}
+                  />
+                </div>
+                <label
+                  htmlFor={`amenity-${amenity}`}
+                  className="text-sm text-text-light dark:text-text-dark font-medium cursor-pointer select-none flex-1"
+                >
                   {amenity}
-                </span>
-              </label>
+                </label>
+              </div>
             ))}
           </div>
         </div>
@@ -193,24 +250,14 @@ const FilterSidebar = ({ isOpen, onClose, onFiltersChange }) => {
   );
 
   return (
-    <>
-      {isOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Sidebar Drawer */}
-      <aside
-        className={`sticky top-[4.5rem] self-start h-[calc(100vh-2rem)] w-80 bg-white dark:bg-surface-800 shadow-md border border-gray-200 dark:border-surface-700 rounded-lg overflow-hidden
-          transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
-      >
-        {sidebarContent}
-      </aside>
-    </>
+    <aside
+      className={`h-full bg-white dark:bg-surface-800 overflow-hidden
+        transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}
+    >
+      {sidebarContent}
+    </aside>
   );
 };
 

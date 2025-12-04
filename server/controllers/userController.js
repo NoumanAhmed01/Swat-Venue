@@ -1,13 +1,13 @@
-const User = require('../models/User');
+const User = require("../models/User");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort('-createdAt');
+    const users = await User.find().select("-password").sort("-createdAt");
 
     res.json({
       success: true,
       count: users.length,
-      data: users
+      data: users,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -16,15 +16,17 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password').populate('venues');
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate("venues");
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -39,15 +41,15 @@ exports.updateUser = async (req, res) => {
       req.params.id,
       { name, phone, email },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select("-password");
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -59,14 +61,14 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     await user.deleteOne();
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      message: "User deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -81,15 +83,15 @@ exports.updateUserRole = async (req, res) => {
       req.params.id,
       { role },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select("-password");
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -99,9 +101,9 @@ exports.updateUserRole = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    const customers = await User.countDocuments({ role: 'customer' });
-    const owners = await User.countDocuments({ role: 'owner' });
-    const admins = await User.countDocuments({ role: 'admin' });
+    const customers = await User.countDocuments({ role: "customer" });
+    const owners = await User.countDocuments({ role: "owner" });
+    const admins = await User.countDocuments({ role: "admin" });
 
     res.json({
       success: true,
@@ -109,8 +111,31 @@ exports.getStats = async (req, res) => {
         totalUsers,
         customers,
         owners,
-        admins
-      }
+        admins,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

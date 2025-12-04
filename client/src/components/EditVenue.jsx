@@ -171,7 +171,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
       const token = localStorage.getItem("token");
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      const response = await fetch(`${API_URL}/api/venues/${venueId}`, {
+      const response = await fetch(`${API_URL}/venues/${venueId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

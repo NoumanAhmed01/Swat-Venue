@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Filter, Grid2x2 as Grid, List } from "lucide-react";
+import { Filter, Grid2x2 as Grid, List, X } from "lucide-react";
 import VenueCard from "../components/VenueCard";
 import FilterSidebar from "../components/FilterSidebar";
 import { VenueCardSkeleton } from "../components/SkeletonLoader";
@@ -16,7 +16,14 @@ const Venues = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    location: "",
+    minPrice: "",
+    maxPrice: "",
+    minCapacity: "",
+    maxCapacity: "",
+    amenities: [],
+  });
 
   const venuesPerPage = 12;
 
@@ -120,6 +127,10 @@ const Venues = () => {
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
     applyFilters(venues, newFilters);
+    // Close mobile sidebar after applying filters
+    if (window.innerWidth < 1024) {
+      setFilterSidebarOpen(false);
+    }
   };
 
   const handleSortChange = (newSortBy) => {
@@ -168,12 +179,39 @@ const Venues = () => {
         />
       </Helmet>
 
+      {/* Mobile Filter Sidebar Modal */}
+      {filterSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setFilterSidebarOpen(false)}
+          />
+
+          {/* Sidebar */}
+          <div
+            className="fixed inset-y-0 left-0 w-80 max-w-full bg-white dark:bg-surface-800 shadow-xl overflow-y-auto"
+            onClick={(e) => {
+              // Stop clicks inside the sidebar from reaching the backdrop
+              e.stopPropagation();
+            }}
+          >
+            <FilterSidebar
+              isOpen={filterSidebarOpen}
+              onClose={() => setFilterSidebarOpen(false)}
+              onFiltersChange={handleFiltersChange}
+              initialFilters={filters} // Pass current filters
+            />
+          </div>
+        </div>
+      )}
+
       <div className="bg-gray-50 dark:bg-surface-900">
         <div className="flex">
           {/* 🧱 Sidebar (Sticky, Scrolls Independently) */}
           <aside className="hidden lg:block w-80 h-[calc(100vh-80px)] sticky top-[70px] overflow-y-auto border-r border-gray-200 dark:border-surface-700 no-scrollbar mb-2 rounded-lg">
             <FilterSidebar
-              isOpen={filterSidebarOpen}
+              isOpen={true}
               onClose={() => setFilterSidebarOpen(false)}
               onFiltersChange={handleFiltersChange}
             />
@@ -200,16 +238,25 @@ const Venues = () => {
                 >
                   <Filter className="h-5 w-5" />
                   <span>Filters</span>
+                  {Object.values(filters).some(
+                    (value) =>
+                      (Array.isArray(value) && value.length > 0) ||
+                      (typeof value === "string" && value !== "")
+                  ) && (
+                    <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      Active
+                    </span>
+                  )}
                 </button>
 
-                <div className="flex items-center space-x-4">
-                  {/* View Toggle */}
-                  <div className="flex bg-white dark:bg-surface-800 rounded-lg border border-gray-300 dark:border-surface-600">
+                <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end">
+                  {/* View Toggle - Hidden on mobile */}
+                  <div className="hidden sm:flex bg-white dark:bg-surface-800 rounded-lg border border-gray-300 dark:border-surface-600">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`p-2 rounded-l-lg ${
                         viewMode === "grid"
-                          ? "bg-gold-500 text-white"
+                          ? "bg-amber-500 text-white"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
                       }`}
                     >
@@ -219,7 +266,7 @@ const Venues = () => {
                       onClick={() => setViewMode("list")}
                       className={`p-2 rounded-r-lg ${
                         viewMode === "list"
-                          ? "bg-gold-500 text-white"
+                          ? "bg-amber-500 text-white"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
                       }`}
                     >
@@ -231,7 +278,7 @@ const Venues = () => {
                   <select
                     value={sortBy}
                     onChange={(e) => handleSortChange(e.target.value)}
-                    className="bg-white dark:bg-surface-800 border border-gray-300 dark:border-surface-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:text-text-dark"
+                    className="bg-white dark:bg-surface-800 border border-gray-300 dark:border-surface-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:text-text-dark w-full sm:w-auto"
                   >
                     <option value="name">Sort by Name</option>
                     <option value="price-low">Price: Low to High</option>
@@ -298,7 +345,7 @@ const Venues = () => {
                         onClick={() => setCurrentPage(pageNum)}
                         className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
                           currentPage === pageNum
-                            ? "bg-gold-500 text-white"
+                            ? "bg-amber-500 text-white"
                             : "border border-gray-300 dark:border-surface-600 hover:bg-gray-50 dark:hover:bg-surface-700"
                         }`}
                       >

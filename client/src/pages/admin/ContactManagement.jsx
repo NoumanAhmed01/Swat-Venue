@@ -7,6 +7,7 @@ import {
   Eye,
   Trash2,
   Clock,
+  X,
   CheckCircle,
   AlertCircle,
   MessageSquare,
@@ -94,9 +95,7 @@ const ContactManagement = () => {
   const handleDeleteContact = async (contactId) => {
     if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
-        await contactAPI.updateStatus(contactId, {
-          status: "deleted",
-        });
+        await contactAPI.delete(contactId);
 
         setContacts(contacts.filter((c) => c._id !== contactId));
         setSuccessMessage("Contact deleted successfully");
@@ -260,7 +259,7 @@ const ContactManagement = () => {
                         <td className="py-4 px-6">
                           <a
                             href={`mailto:${contact.email}`}
-                            className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+                            className="text-sm text-gold-600 hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300"
                           >
                             {contact.email}
                           </a>
@@ -323,7 +322,7 @@ const ContactManagement = () => {
           </div>
 
           {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -386,13 +385,24 @@ const ContactManagement = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedContact && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-96 overflow-y-auto">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-96 overflow-y-auto">
+            {/* Cross Button */}
+            <button
+              onClick={() => setShowDetailModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white rounded-full transition-colors"
+              title="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Contact Details
               </h2>
             </div>
 
+            {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -437,19 +447,6 @@ const ContactManagement = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                  Your Response
-                </label>
-                <textarea
-                  value={responseText}
-                  onChange={(e) => setResponseText(e.target.value)}
-                  placeholder="Type your response here..."
-                  className="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  rows="4"
-                />
-              </div>
-
               {/* Status */}
               <div>
                 <label className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-2">
@@ -467,12 +464,6 @@ const ContactManagement = () => {
 
             {/* Modal Actions */}
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                Close
-              </button>
               <button
                 onClick={() => handleStatusUpdate("reviewed")}
                 disabled={updatingId === selectedContact._id}

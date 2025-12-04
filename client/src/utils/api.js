@@ -86,6 +86,7 @@ export const contactAPI = {
   create: (data) => api.post("/contacts", data),
   getAll: () => api.get("/contacts"),
   updateStatus: (id, data) => api.patch(`/contacts/${id}`, data),
+  delete: (id) => api.delete(`/contacts/${id}`),
 };
 
 export const userAPI = {
@@ -95,6 +96,7 @@ export const userAPI = {
   delete: (id) => api.delete(`/users/${id}`),
   updateRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
   getStats: () => api.get("/users/stats"),
+  updateStatus: (id, data) => api.patch(`/users/${id}/status`, data),
 };
 
 export default api;

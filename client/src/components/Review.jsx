@@ -29,6 +29,16 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
   const [hoveredRating, setHoveredRating] = useState(0);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
 
+  const getInitials = (name) => {
+    if (!name || name === "Anonymous") return "A";
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   const {
     register,
     handleSubmit,
@@ -119,8 +129,8 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
     <div className="bg-white dark:bg-surface-800 rounded-2xl p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark">
-          Customer Reviews ({reviews.length})
+        <h3 className="text-lg sm:text-xl font-semibold text-primary-900 dark:text-text-dark">
+          Customer Reviews
         </h3>
         <div className="flex items-center space-x-2">
           <Star className="h-5 w-5 text-yellow-400 fill-current" />
@@ -143,44 +153,63 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
         </div>
       ) : (
         <>
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => (
               <div
                 key={review._id}
-                className="border-b border-gray-200 dark:border-surface-700 pb-6 last:border-b-0"
+                className="border-b border-gray-200 dark:border-surface-700 pb-4 sm:pb-6 last:border-b-0"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 className="font-semibold text-primary-900 dark:text-text-dark">
-                      {review.customerName ||
-                        review.customer?.name ||
-                        "Anonymous"}
-                    </h4>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < review.rating
-                                ? "text-yellow-400 fill-current"
-                                : "text-gray-300 dark:text-gray-600"
-                            }`}
-                          />
-                        ))}
+                  {/* Left side: Profile + Name + Rating */}
+                  <div className="flex items-start space-x-3 flex-1 mr-3">
+                    {/* Profile Icon */}
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold text-xs sm:text-sm">
+                        {getInitials(
+                          review.customerName || review.customer?.name
+                        )}
                       </div>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {review.eventType}
-                      </span>
+                    </div>
+
+                    {/* Name and Rating */}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-primary-900 dark:text-text-dark text-sm sm:text-base">
+                        {review.customerName ||
+                          review.customer?.name ||
+                          "Anonymous"}
+                      </h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                                i < review.rating
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-300 dark:text-gray-600"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          {review.eventType}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(
-                      review.date || review.createdAt
-                    ).toLocaleDateString()}
-                  </span>
+
+                  {/* Right side: Date */}
+                  <div className="flex-shrink-0">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(
+                        review.date || review.createdAt
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-text-light dark:text-text-dark leading-relaxed">
+
+                {/* Review Comment */}
+                <p className="text-text-light dark:text-text-dark text-sm sm:text-base leading-relaxed pl-0 sm:pl-11">
                   {review.comment}
                 </p>
               </div>

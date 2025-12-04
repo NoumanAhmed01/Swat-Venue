@@ -1,4 +1,5 @@
-const Contact = require('../models/Contact');
+const Contact = require("../models/Contact");
+const { sendContactNotificationEmail } = require("../config/email");
 
 exports.createContact = async (req, res) => {
   try {
@@ -8,12 +9,14 @@ exports.createContact = async (req, res) => {
       name,
       email,
       subject,
-      message
+      message,
     });
+    // Send notification email to admin
+    await sendContactNotificationEmail(contact);
 
     res.status(201).json({
       success: true,
-      data: contact
+      data: contact,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -22,12 +25,12 @@ exports.createContact = async (req, res) => {
 
 exports.getAllContacts = async (req, res) => {
   try {
-    const contacts = await Contact.find().sort('-createdAt');
+    const contacts = await Contact.find().sort("-createdAt");
 
     res.json({
       success: true,
       count: contacts.length,
-      data: contacts
+      data: contacts,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -45,14 +48,26 @@ exports.updateContactStatus = async (req, res) => {
     );
 
     if (!contact) {
-      return res.status(404).json({ message: 'Contact message not found' });
+      return res.status(404).json({ message: "Contact message not found" });
     }
 
     res.json({
       success: true,
-      data: contact
+      data: contact,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// delete contact
+exports.deleteContact = async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndDelete(req.params.id);
+    if (!contact) return res.status(404).json({ message: "Contact not found" });
+
+    res.status(200).json({ message: "Contact deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
