@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { venueAPI } from "../utils/api";
+import { venueAPI } from "../../utils/api";
 
 const DeleteConfirmation = ({ venue, onClose, onVenueDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);

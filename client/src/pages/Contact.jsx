@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 import { contactAPI } from "../utils/api";
 
 // ✅ Validation schema using Yup

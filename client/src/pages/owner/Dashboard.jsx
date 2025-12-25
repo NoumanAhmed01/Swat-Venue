@@ -14,7 +14,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { bookingAPI, venueAPI, inquiryAPI } from "../../utils/api";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const OwnerDashboard = () => {
   const [stats, setStats] = useState({
@@ -110,13 +110,6 @@ const OwnerDashboard = () => {
       icon: DollarSign,
       color: "bg-emerald-500",
     },
-    {
-      title: "Inquiries",
-      value: stats.inquiries.toString(),
-      change: "Customer inquiries",
-      icon: MessageSquare,
-      color: "bg-orange-500",
-    },
   ];
 
   const quickActions = [
@@ -133,13 +126,6 @@ const OwnerDashboard = () => {
       icon: Building,
       link: "/owner/manage-venues",
       color: "bg-blue-600 hover:bg-blue-700",
-    },
-    {
-      title: "View Inquiries",
-      description: "Respond to customer inquiries",
-      icon: MessageSquare,
-      link: "/owner/inquiries",
-      color: "bg-orange-600 hover:bg-orange-700",
     },
   ];
 
@@ -323,26 +309,6 @@ const OwnerDashboard = () => {
               </div>
             </div>
           </div>
-
-          {/* Performance Chart Placeholder */}
-          {/* <div className="mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Revenue Overview
-              </h2>
-              <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Revenue chart would appear here
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Integration with charting library needed
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </>

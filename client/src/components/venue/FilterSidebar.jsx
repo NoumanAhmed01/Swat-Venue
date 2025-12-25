@@ -1,3 +1,4 @@
+// src/components/venue/FilterSidebar.jsx
 import React, { useState, useEffect } from "react";
 import { Filter, X } from "lucide-react";
 
@@ -8,23 +9,42 @@ const FilterSidebar = ({
   initialFilters,
 }) => {
   // Initialize with initialFilters if provided
-  const [filters, setFilters] = useState(
-    initialFilters || {
-      location: "",
-      minPrice: "",
-      maxPrice: "",
-      minCapacity: "",
-      maxCapacity: "",
-      amenities: [],
-    }
-  );
+  const [filters, setFilters] = useState({
+    location: "",
+    minPrice: "",
+    maxPrice: "",
+    minCapacity: "",
+    maxCapacity: "",
+    amenities: [],
+  });
+
+  // Track if we're on desktop (responsive)
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Update local filters when initialFilters changes (from parent)
   useEffect(() => {
     if (initialFilters) {
-      setFilters(initialFilters);
+      // Don't include search in sidebar filters
+      const { search, ...sidebarFilters } = initialFilters;
+      setFilters(sidebarFilters);
     }
   }, [initialFilters]);
+
+  // Check screen size on mount and when window resizes
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    // Initial check
+    checkScreenSize();
+
+    // Add resize listener
+    window.addEventListener("resize", checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   const amenitiesList = [
     "AC",
@@ -57,9 +77,9 @@ const FilterSidebar = ({
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    // Don't apply filters immediately on mobile - let user close sidebar first
-    if (window.innerWidth >= 1024) {
-      onFiltersChange(newFilters);
+    // Apply filters immediately on desktop
+    if (isDesktop) {
+      onFiltersChange({ ...newFilters, search: initialFilters?.search || "" });
     }
   };
 
@@ -67,7 +87,14 @@ const FilterSidebar = ({
     const newAmenities = filters.amenities.includes(amenity)
       ? filters.amenities.filter((a) => a !== amenity)
       : [...filters.amenities, amenity];
-    handleFilterChange("amenities", newAmenities);
+
+    const newFilters = { ...filters, amenities: newAmenities };
+    setFilters(newFilters);
+
+    // Apply filters immediately on desktop
+    if (isDesktop) {
+      onFiltersChange({ ...newFilters, search: initialFilters?.search || "" });
+    }
   };
 
   const clearFilters = () => {
@@ -80,20 +107,13 @@ const FilterSidebar = ({
       amenities: [],
     };
     setFilters(emptyFilters);
-    onFiltersChange(emptyFilters);
+    onFiltersChange({ ...emptyFilters, search: initialFilters?.search || "" });
   };
 
   // Apply filters and close sidebar on mobile
   const applyAndClose = () => {
-    onFiltersChange(filters);
+    onFiltersChange({ ...filters, search: initialFilters?.search || "" });
     onClose();
-  };
-
-  // For mobile: handle checkbox clicks without closing
-  const handleCheckboxClick = (e, amenity) => {
-    e.stopPropagation();
-    e.preventDefault();
-    handleAmenityToggle(amenity);
   };
 
   const sidebarContent = (
@@ -126,19 +146,21 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Apply Button for Mobile */}
-        <div className="mt-4 lg:hidden">
-          <button
-            onClick={applyAndClose}
-            className="w-full bg-gold-600 hover:bg-gold-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200"
-          >
-            Apply Filters
-          </button>
-        </div>
+        {/* Apply Button for Mobile - Only show when NOT desktop */}
+        {!isDesktop && (
+          <div className="mt-4">
+            <button
+              onClick={applyAndClose}
+              className="w-full bg-gold-600 hover:bg-gold-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200"
+            >
+              Apply Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
-      <div className="pt-4 space-y-6" onClick={(e) => e.stopPropagation()}>
+      <div className="pt-4 space-y-6">
         {/* Location Filter */}
         <div>
           <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
@@ -148,7 +170,6 @@ const FilterSidebar = ({
             value={filters.location}
             onChange={(e) => handleFilterChange("location", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
-            onClick={(e) => e.stopPropagation()}
           >
             <option value="">All Locations</option>
             {locations.map((location) => (
@@ -168,18 +189,18 @@ const FilterSidebar = ({
             <input
               type="number"
               placeholder="Min"
+              min="0"
               value={filters.minPrice}
               onChange={(e) => handleFilterChange("minPrice", e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
-              onClick={(e) => e.stopPropagation()}
             />
             <input
               type="number"
               placeholder="Max"
+              min="0"
               value={filters.maxPrice}
               onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
-              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -193,22 +214,22 @@ const FilterSidebar = ({
             <input
               type="number"
               placeholder="Min"
+              min="1"
               value={filters.minCapacity}
               onChange={(e) =>
                 handleFilterChange("minCapacity", e.target.value)
               }
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
-              onClick={(e) => e.stopPropagation()}
             />
             <input
               type="number"
               placeholder="Max"
+              min="1"
               value={filters.maxCapacity}
               onChange={(e) =>
                 handleFilterChange("maxCapacity", e.target.value)
               }
               className="px-3 py-2 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
-              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -223,14 +244,13 @@ const FilterSidebar = ({
               <div
                 key={amenity}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200"
-                onClick={(e) => handleCheckboxClick(e, amenity)}
+                onClick={() => handleAmenityToggle(amenity)}
               >
                 <div className="flex items-center h-5">
                   <input
                     type="checkbox"
                     checked={filters.amenities.includes(amenity)}
-                    onChange={() => handleAmenityToggle(amenity)}
-                    onClick={(e) => e.stopPropagation()}
+                    onChange={() => {}} // Handled by onClick
                     className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 focus:ring-2 h-4 w-4"
                     id={`amenity-${amenity}`}
                   />

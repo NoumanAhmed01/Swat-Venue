@@ -10,9 +10,9 @@ import {
   CheckCircle,
   Star,
 } from "lucide-react";
-import VenueCard from "../components/VenueCard";
+import VenueCard from "../components/venue/VenueCard";
 import { venueAPI } from "../utils/api";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Home = () => {
   const [searchForm, setSearchForm] = useState({

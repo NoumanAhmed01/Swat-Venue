@@ -12,7 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const VenueApprovals = () => {
   const [venues, setVenues] = useState([]);

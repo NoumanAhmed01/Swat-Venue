@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { bookingAPI } from "../utils/api";
+import { bookingAPI } from "../../utils/api";
 
 const DeleteBookingModal = ({ booking, onClose, onBookingDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);

@@ -13,7 +13,7 @@ import {
   ArrowRight,
   HelpCircle,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
 
 const forgotPasswordSchema = yup.object({

@@ -14,7 +14,7 @@ import {
   Key,
   ChevronDown,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { userAPI } from "../../utils/api";
 import toast from "react-hot-toast";
 

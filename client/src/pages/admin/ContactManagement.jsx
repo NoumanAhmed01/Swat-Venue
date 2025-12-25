@@ -12,7 +12,7 @@ import {
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { contactAPI } from "../../utils/api";
 
 const ContactManagement = () => {

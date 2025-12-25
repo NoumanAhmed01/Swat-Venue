@@ -17,7 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 // Validation schema using Yup
 const loginSchema = yup.object({

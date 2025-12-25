@@ -12,10 +12,9 @@ import {
   MessageSquare,
   User,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { bookingAPI } from "../utils/api";
+import { useAuth } from "../../context/AuthContext";
+import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";
-import LoadingSpinner from "./LoadingSpinner";
 
 const bookingSchema = yup.object({
   name: yup.string().required("Name is required"),

@@ -12,12 +12,10 @@ import {
   DollarSign,
   Star,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import EditVenue from "../../components/EditVenue";
-import DeleteConfirmation from "../../components/DeleteConfirmation";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import EditVenue from "../../components/venue/EditVenue";
+import DeleteConfirmation from "../../components/common/DeleteConfirmation";
 import { venueAPI } from "../../utils/api";
-import venuesData from "../../data/venues.json";
-
 const ManageVenues = () => {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);

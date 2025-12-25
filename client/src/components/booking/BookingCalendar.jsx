@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar"; // 📅 React Calendar library
 import "react-calendar/dist/Calendar.css";
 import { Info } from "lucide-react"; // ℹ️ Lucide icons
-import { bookingAPI } from "../utils/api"; // 📡 Backend API to fetch reserved dates
+import { bookingAPI } from "../../utils/api"; // 📡 Backend API to fetch reserved dates
 
 const BookingCalendar = ({
   venueId,

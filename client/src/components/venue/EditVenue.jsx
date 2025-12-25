@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
 import { X, Loader2, Plus, Trash2, Camera, Video } from "lucide-react";
-import { venueAPI } from "../utils/api";
+import { venueAPI } from "../../utils/api";
 
 const venueSchema = yup.object({
   name: yup.string().required("Venue name is required"),

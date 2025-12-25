@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import ToastProvider from "./components/Toast";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ToastProvider from "./components/common/Toast";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 // Pages
 import Home from "./pages/Home";
@@ -28,7 +28,6 @@ import VerifyOtp from "./pages/auth/VerifyOtp";
 import OwnerDashboard from "./pages/owner/Dashboard";
 import AddVenue from "./pages/owner/AddVenue";
 import ManageVenues from "./pages/owner/ManageVenues";
-import ViewInquiries from "./pages/owner/ViewInquiries";
 import ManageBooking from "./pages/owner/ManageBooking";
 
 // User Pages
@@ -118,14 +117,6 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={["owner"]}>
                         <ManageVenues />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/owner/inquiries"
-                    element={
-                      <ProtectedRoute allowedRoles={["owner"]}>
-                        <ViewInquiries />
                       </ProtectedRoute>
                     }
                   />

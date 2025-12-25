@@ -4,8 +4,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast from "react-hot-toast";
 import { Star, ChevronDown, MessageSquare } from "lucide-react";
-import { reviewAPI } from "../utils/api";
-import { useAuth } from "../context/AuthContext";
+import { reviewAPI } from "../../utils/api";
+import { useAuth } from "../../context/AuthContext";
 
 const reviewSchema = yup.object({
   rating: yup

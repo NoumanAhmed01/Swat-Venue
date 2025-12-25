@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
-import logo3 from "../assets/logo3.png";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import logo3 from "../../assets/logo3.png";
 
 // Importing icons from lucide-react (lightweight, modern React icon set)
 import {

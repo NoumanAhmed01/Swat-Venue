@@ -14,7 +14,7 @@ import {
   ArrowRight,
   Clock,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
 
 const verifySchema = yup.object({

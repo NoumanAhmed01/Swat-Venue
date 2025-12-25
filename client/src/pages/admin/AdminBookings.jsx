@@ -15,7 +15,7 @@ import {
   Building,
 } from "lucide-react";
 import { bookingAPI } from "../../utils/api";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import toast from "react-hot-toast";
 
 const AdminBookings = () => {

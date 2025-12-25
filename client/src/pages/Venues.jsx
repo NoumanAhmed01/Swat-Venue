@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from "react";
+// src/pages/user/Venues.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Filter, Grid2x2 as Grid, List, X } from "lucide-react";
-import VenueCard from "../components/VenueCard";
-import FilterSidebar from "../components/FilterSidebar";
-import { VenueCardSkeleton } from "../components/SkeletonLoader";
+import { Filter, Search } from "lucide-react";
+import VenueCard from "../components/venue/VenueCard";
+import FilterSidebar from "../components/venue/FilterSidebar";
+import Pagination from "../components/venue/Pagination"; // NEW IMPORT
+import { VenueCardSkeleton } from "../components/common/SkeletonLoader";
 import { venueAPI } from "../utils/api";
+import {
+  filterVenues,
+  sortVenues,
+  getFiltersFromSearchParams,
+} from "../utils/venueFilter";
 
 const Venues = () => {
   const [searchParams] = useSearchParams();
   const [venues, setVenues] = useState([]);
-  const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterSidebarOpen, setFilterSidebarOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
+    search: "",
     location: "",
     minPrice: "",
     maxPrice: "",
@@ -27,14 +33,13 @@ const Venues = () => {
 
   const venuesPerPage = 12;
 
+  // Fetch venues on mount
   useEffect(() => {
     const fetchVenues = async () => {
       try {
         setLoading(true);
         const response = await venueAPI.getAll();
-        const data = response.data.data;
-        setVenues(data);
-        setFilteredVenues(data);
+        setVenues(response.data.data || []);
       } catch (error) {
         console.error("Failed to fetch venues:", error);
       } finally {
@@ -45,109 +50,92 @@ const Venues = () => {
     fetchVenues();
   }, []);
 
+  // Initialize filters from URL params
   useEffect(() => {
-    // Apply search params on load
-    const location = searchParams.get("location");
-    const guests = searchParams.get("guests");
-    if (location || guests) {
-      const newFilters = {
-        ...filters,
-        ...(location && { location }),
-        ...(guests && { minCapacity: guests }),
-      };
-      setFilters(newFilters);
-      applyFilters(venues, newFilters);
+    if (venues.length > 0) {
+      const initialFilters = getFiltersFromSearchParams(searchParams);
+      setFilters(initialFilters);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, venues]);
 
-  const applyFilters = (venuesList, filterOptions) => {
-    let filtered = [...venuesList];
+  // Apply filtering and sorting with useMemo for performance
+  const filteredAndSortedVenues = useMemo(() => {
+    let filtered = filterVenues(venues, filters);
+    filtered = sortVenues(filtered, sortBy);
+    return filtered;
+  }, [venues, filters, sortBy]);
 
-    if (filterOptions.location) {
-      filtered = filtered.filter((venue) =>
-        venue.location
-          .toLowerCase()
-          .includes(filterOptions.location.toLowerCase())
-      );
-    }
-
-    if (filterOptions.minPrice) {
-      filtered = filtered.filter(
-        (venue) => venue.price >= parseInt(filterOptions.minPrice)
-      );
-    }
-
-    if (filterOptions.maxPrice) {
-      filtered = filtered.filter(
-        (venue) => venue.price <= parseInt(filterOptions.maxPrice)
-      );
-    }
-
-    if (filterOptions.minCapacity) {
-      filtered = filtered.filter(
-        (venue) => venue.capacity >= parseInt(filterOptions.minCapacity)
-      );
-    }
-
-    if (filterOptions.maxCapacity) {
-      filtered = filtered.filter(
-        (venue) => venue.capacity <= parseInt(filterOptions.maxCapacity)
-      );
-    }
-
-    if (filterOptions.amenities && filterOptions.amenities.length > 0) {
-      filtered = filtered.filter((venue) =>
-        filterOptions.amenities.some((amenity) =>
-          venue.amenities.includes(amenity)
-        )
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        case "rating":
-          return b.rating - a.rating;
-        case "capacity":
-          return b.capacity - a.capacity;
-        default:
-          return a.name.localeCompare(b.name);
-      }
-    });
-
-    setFilteredVenues(filtered);
-    setCurrentPage(1);
-  };
-
+  // Handle filter changes
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
-    applyFilters(venues, newFilters);
-    // Close mobile sidebar after applying filters
+    setCurrentPage(1);
+
     if (window.innerWidth < 1024) {
       setFilterSidebarOpen(false);
     }
   };
 
+  // Handle sort changes
   const handleSortChange = (newSortBy) => {
     setSortBy(newSortBy);
-    applyFilters(venues, filters);
+    setCurrentPage(1);
   };
 
-  // Pagination
-  const totalPages = Math.ceil(filteredVenues.length / venuesPerPage);
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const newFilters = { ...filters, search: e.target.value };
+    setFilters(newFilters);
+    setCurrentPage(1);
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      if (window.innerWidth < 1024) {
+        setFilterSidebarOpen(false);
+      }
+    }
+  };
+
+  // Reset filters (excluding search)
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      ...filters,
+      location: "",
+      minPrice: "",
+      maxPrice: "",
+      minCapacity: "",
+      maxCapacity: "",
+      amenities: [],
+    };
+    setFilters(emptyFilters);
+    handleFiltersChange(emptyFilters);
+  };
+
+  // Clear search only
+  const handleClearSearch = () => {
+    const newFilters = { ...filters, search: "" };
+    setFilters(newFilters);
+    handleFiltersChange(newFilters);
+  };
+
+  // Check if any filter is active (excluding search)
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === "search") return false;
+    if (key === "amenities") {
+      return value.length > 0;
+    }
+    return value !== "" && value !== null && value !== undefined;
+  });
+
+  const totalPages = Math.ceil(filteredAndSortedVenues.length / venuesPerPage);
   const startIndex = (currentPage - 1) * venuesPerPage;
   const endIndex = startIndex + venuesPerPage;
-  const currentVenues = filteredVenues.slice(startIndex, endIndex);
+  const currentVenues = filteredAndSortedVenues.slice(startIndex, endIndex);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-surface-900 flex">
-        {/* Sidebar Skeleton */}
         <div className="hidden lg:block w-80 border-r border-gray-200 dark:border-surface-700 p-4">
           <div className="space-y-4 animate-pulse">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -159,7 +147,6 @@ const Venues = () => {
           </div>
         </div>
 
-        {/* Venue Skeletons */}
         <div className="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <VenueCardSkeleton key={i} />
@@ -182,188 +169,199 @@ const Venues = () => {
       {/* Mobile Filter Sidebar Modal */}
       {filterSidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setFilterSidebarOpen(false)}
           />
-
-          {/* Sidebar */}
           <div
             className="fixed inset-y-0 left-0 w-80 max-w-full bg-white dark:bg-surface-800 shadow-xl overflow-y-auto"
-            onClick={(e) => {
-              // Stop clicks inside the sidebar from reaching the backdrop
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
           >
             <FilterSidebar
               isOpen={filterSidebarOpen}
               onClose={() => setFilterSidebarOpen(false)}
               onFiltersChange={handleFiltersChange}
-              initialFilters={filters} // Pass current filters
+              initialFilters={filters}
             />
           </div>
         </div>
       )}
 
-      <div className="bg-gray-50 dark:bg-surface-900">
+      <div className="bg-gray-50 dark:bg-surface-900 min-h-screen">
         <div className="flex">
-          {/* 🧱 Sidebar (Sticky, Scrolls Independently) */}
-          <aside className="hidden lg:block w-80 h-[calc(100vh-80px)] sticky top-[70px] overflow-y-auto border-r border-gray-200 dark:border-surface-700 no-scrollbar mb-2 rounded-lg">
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-80 h-[calc(100vh-80px)] sticky top-[70px] overflow-y-auto border-r border-gray-200 dark:border-surface-700">
             <FilterSidebar
               isOpen={true}
               onClose={() => setFilterSidebarOpen(false)}
               onFiltersChange={handleFiltersChange}
+              initialFilters={filters}
             />
           </aside>
 
-          {/* 🌟 Main Content (Scrollable Area) */}
+          {/* Main Content */}
           <main className="flex-1">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               {/* Header */}
               <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                  Event Venues in Swat
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {filteredVenues.length} venues found
-                </p>
-              </div>
-
-              {/* Controls */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                <button
-                  onClick={() => setFilterSidebarOpen(true)}
-                  className="lg:hidden flex items-center space-x-2 bg-white dark:bg-surface-800 px-4 py-2 rounded-lg border border-gray-300 dark:border-surface-600 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors duration-200"
-                >
-                  <Filter className="h-5 w-5" />
-                  <span>Filters</span>
-                  {Object.values(filters).some(
-                    (value) =>
-                      (Array.isArray(value) && value.length > 0) ||
-                      (typeof value === "string" && value !== "")
-                  ) && (
-                    <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      Active
-                    </span>
-                  )}
-                </button>
-
-                <div className="flex items-center space-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                  {/* View Toggle - Hidden on mobile */}
-                  <div className="hidden sm:flex bg-white dark:bg-surface-800 rounded-lg border border-gray-300 dark:border-surface-600">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-l-lg ${
-                        viewMode === "grid"
-                          ? "bg-amber-500 text-white"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
-                      }`}
-                    >
-                      <Grid className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-r-lg ${
-                        viewMode === "list"
-                          ? "bg-amber-500 text-white"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-700"
-                      }`}
-                    >
-                      <List className="h-5 w-5" />
-                    </button>
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                      Event Venues in Swat
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {filteredAndSortedVenues.length}{" "}
+                      {filteredAndSortedVenues.length === 1
+                        ? "venue"
+                        : "venues"}{" "}
+                      found
+                      {hasActiveFilters && " (with filters applied)"}
+                    </p>
                   </div>
+                </div>
 
-                  {/* Sort Dropdown */}
-                  <select
-                    value={sortBy}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className="bg-white dark:bg-surface-800 border border-gray-300 dark:border-surface-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:text-text-dark w-full sm:w-auto"
-                  >
-                    <option value="name">Sort by Name</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="capacity">Largest Capacity</option>
-                  </select>
+                {/* Mobile Search Bar */}
+                <div className="lg:hidden mb-4">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      value={filters.search}
+                      onChange={handleSearchChange}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Search venues..."
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-surface-800 dark:text-text-dark"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Venue Grid/List */}
-              {filteredVenues.length === 0 ? (
+              {/* Controls Row */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                {/* Mobile: Filter + Sort in same line */}
+                <div className="w-full lg:hidden flex items-center justify-between gap-4">
+                  <button
+                    onClick={() => setFilterSidebarOpen(true)}
+                    className="flex items-center space-x-2 bg-white dark:bg-surface-800 px-4 py-2 rounded-lg border border-gray-300 dark:border-surface-600 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors duration-200 flex-shrink-0"
+                  >
+                    <Filter className="h-5 w-5 text-gold-400 dark:text-gold-500" />
+                    <span className="text-black dark:text-white">Filters</span>
+                    {hasActiveFilters && (
+                      <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">
+                        Active
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="flex-1">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => handleSortChange(e.target.value)}
+                      className="w-full bg-white dark:bg-surface-800 border border-gray-300 dark:border-surface-600 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:text-text-dark"
+                    >
+                      <option value="name">Sort by Name</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="rating">Highest Rated</option>
+                      <option value="capacity">Largest Capacity</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Desktop: Search + Sort in same row */}
+                <div className="hidden lg:flex w-full flex-row items-center justify-between gap-4">
+                  <div className="flex-1 max-w-md">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        value={filters.search}
+                        onChange={handleSearchChange}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Search by venue name..."
+                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-surface-800 dark:text-text-dark"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="w-48">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => handleSortChange(e.target.value)}
+                      className="w-full bg-white dark:bg-surface-800 border border-gray-300 dark:border-surface-600 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:text-text-dark"
+                    >
+                      <option value="name">Sort by Name</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="rating">Highest Rated</option>
+                      <option value="capacity">Largest Capacity</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* No Results */}
+              {filteredAndSortedVenues.length === 0 ? (
                 <div className="text-center py-16">
-                  <Filter className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                  <Search className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                     No venues found
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Try adjusting your filters to find more venues.
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    {filters.search.trim() !== ""
+                      ? `No results found for "${filters.search}". Try different search terms.`
+                      : "Try adjusting your filters to find more venues."}
                   </p>
+                  {(hasActiveFilters || filters.search.trim() !== "") && (
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      {filters.search.trim() !== "" && (
+                        <button
+                          onClick={handleClearSearch}
+                          className="bg-gray-200 dark:bg-surface-700 hover:bg-gray-300 dark:hover:bg-surface-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+                        >
+                          Clear Search
+                        </button>
+                      )}
+                      {hasActiveFilters && (
+                        <button
+                          onClick={handleClearFilters}
+                          className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+                        >
+                          Clear All Filters
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div
-                  className={
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                      : "space-y-6"
-                  }
-                >
-                  {currentVenues.map((venue, index) => (
-                    <VenueCard
-                      key={
-                        venue._id?.toString() ||
-                        venue.id?.toString() ||
-                        `venue-${index}`
-                      }
-                      venue={venue}
-                      className={
-                        viewMode === "list" ? "lg:flex lg:flex-row lg:h-64" : ""
-                      }
+                <>
+                  {/* Venue Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {currentVenues.map((venue, index) => (
+                      <VenueCard
+                        key={
+                          venue._id?.toString() ||
+                          venue.id?.toString() ||
+                          `venue-${index}`
+                        }
+                        venue={venue}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Pagination - Using extracted component */}
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
                     />
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 mt-12">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 border border-gray-300 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                  >
-                    Previous
-                  </button>
-
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNum =
-                      Math.max(1, Math.min(totalPages - 4, currentPage - 2)) +
-                      i;
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
-                          currentPage === pageNum
-                            ? "bg-amber-500 text-white"
-                            : "border border-gray-300 dark:border-surface-600 hover:bg-gray-50 dark:hover:bg-surface-700"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-
-                  <button
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, currentPage + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 border border-gray-300 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                  >
-                    Next
-                  </button>
-                </div>
+                  )}
+                </>
               )}
             </div>
           </main>

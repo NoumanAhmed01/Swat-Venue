@@ -16,8 +16,8 @@ import {
   Eye,
 } from "lucide-react";
 import { bookingAPI, venueAPI } from "../../utils/api";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import DeleteBookingModal from "../../components/DeleteBookingModal";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import DeleteBookingModal from "../../components/booking/DeleteBookingModal";
 
 const ManageBooking = () => {
   const [bookings, setBookings] = useState([]);

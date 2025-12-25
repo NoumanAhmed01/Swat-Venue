@@ -17,7 +17,7 @@ import {
   ArrowRight,
   Video,
 } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const venueSchema = yup.object({
   name: yup.string().required("Venue name is required"),
