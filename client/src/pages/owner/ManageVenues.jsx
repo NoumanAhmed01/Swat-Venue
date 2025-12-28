@@ -9,11 +9,10 @@ import {
   Plus,
   MapPin,
   Users,
-  DollarSign,
   Star,
 } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import EditVenue from "../../components/venue/EditVenue";
+import EditVenue from "./EditVenue";
 import DeleteConfirmation from "../../components/common/DeleteConfirmation";
 import { venueAPI } from "../../utils/api";
 const ManageVenues = () => {
@@ -95,7 +94,7 @@ const ManageVenues = () => {
             </div>
             <Link
               to="/owner/add-venue"
-              className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+              className="inline-flex items-center space-x-2 bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
             >
               <Plus className="h-5 w-5" />
               <span>Add New Venue</span>
@@ -168,7 +167,7 @@ const ManageVenues = () => {
                       </div>
                       <div className="flex items-center">
                         <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium dark:text-white">
                           {venue.rating}
                         </span>
                       </div>
@@ -176,7 +175,7 @@ const ManageVenues = () => {
 
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <p className="text-2xl font-bold text-emerald-600">
+                        <p className="text-2xl font-bold text-gold-600">
                           ₨{venue.price.toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -231,9 +230,17 @@ const ManageVenues = () => {
 
         {deletingVenue && (
           <DeleteConfirmation
-            venue={deletingVenue}
+            item={{
+              id: deletingVenue._id || deletingVenue.id,
+              name: deletingVenue.name,
+            }}
+            itemType="venue"
+            deleteAPI={venueAPI.delete}
             onClose={handleCloseDelete}
-            onVenueDeleted={handleVenueDeleted}
+            onDelete={() => {
+              // Optional: Add any immediate UI updates here
+              handleVenueDeleted(); // This calls fetchVenues() to refresh the list
+            }}
           />
         )}
       </div>

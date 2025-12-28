@@ -75,12 +75,12 @@ export const bookingAPI = {
   delete: (id) => api.delete(`/bookings/${id}`),
 };
 
-export const inquiryAPI = {
-  create: (data) => api.post("/inquiries", data),
-  getVenueInquiries: (venueId) => api.get(`/inquiries/venue/${venueId}`),
-  getOwnerInquiries: () => api.get("/inquiries/owner/my-inquiries"),
-  updateStatus: (id, data) => api.patch(`/inquiries/${id}/status`, data),
-};
+// export const inquiryAPI = {
+//   create: (data) => api.post("/inquiries", data),
+//   getVenueInquiries: (venueId) => api.get(`/inquiries/venue/${venueId}`),
+//   getOwnerInquiries: () => api.get("/inquiries/owner/my-inquiries"),
+//   updateStatus: (id, data) => api.patch(`/inquiries/${id}/status`, data),
+// };
 
 export const contactAPI = {
   create: (data) => api.post("/contacts", data),

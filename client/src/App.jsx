@@ -28,7 +28,7 @@ import VerifyOtp from "./pages/auth/VerifyOtp";
 import OwnerDashboard from "./pages/owner/Dashboard";
 import AddVenue from "./pages/owner/AddVenue";
 import ManageVenues from "./pages/owner/ManageVenues";
-import ManageBooking from "./pages/owner/ManageBooking";
+import ManageBooking from "./pages/owner/ManageBooking/ManageBooking";
 
 // User Pages
 import MyBookings from "./pages/user/MyBookings";
@@ -37,7 +37,6 @@ import MyBookings from "./pages/user/MyBookings";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import VenueApprovals from "./pages/admin/VenueApprovals";
-import Analytics from "./pages/admin/Analytics";
 import AdminBookings from "./pages/admin/AdminBookings";
 import ContactManagement from "./pages/admin/ContactManagement";
 
@@ -164,14 +163,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/admin/analytics"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <Analytics />
-                      </ProtectedRoute>
-                    }
-                  />
+
                   <Route
                     path="/admin/bookings"
                     element={

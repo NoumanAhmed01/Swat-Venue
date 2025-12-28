@@ -12,6 +12,7 @@ import { bookingAPI } from "../../utils/api";
 import BookingCard from "./BookingCard";
 import DeleteBookingModal from "../../components/booking/DeleteBookingModal";
 import toast from "react-hot-toast";
+import StatsCard from "../../components/common/StatsCard"; // Import the reusable component
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -40,18 +41,10 @@ const MyBookings = () => {
   const filteredBookings =
     filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
 
-  const stats = [
-    { key: "all", label: "All", icon: Calendar },
-    { key: "pending", label: "Pending", icon: Clock },
-    { key: "confirmed", label: "Confirmed", icon: CheckCircle },
-    { key: "completed", label: "Completed", icon: CalendarCheck },
-    { key: "cancelled", label: "Cancelled", icon: XCircle },
-  ];
-
   return (
     <>
       <Helmet>
-        <title>My Bookings</title>
+        <title>My Bookings - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-surface-900 py-10">
@@ -66,47 +59,79 @@ const MyBookings = () => {
             </p>
           </div>
 
-          {/* Stats / Filters */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-            {stats.map((s) => {
-              const Icon = s.icon;
-              const count =
-                s.key === "all"
-                  ? bookings.length
-                  : bookings.filter((b) => b.status === s.key).length;
+          {/* Stats / Filters using reusable StatsCard */}
+          <div className="mb-10">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {/* All Bookings */}
+              <StatsCard
+                title="All Bookings"
+                value={bookings.length}
+                icon={Calendar}
+                color="gold"
+                isActive={filter === "all"}
+                onClick={() => setFilter("all")}
+              />
 
-              return (
-                <button
-                  key={s.key}
-                  onClick={() => setFilter(s.key)}
-                  className={`rounded-xl border p-4 text-left transition ${
-                    filter === s.key
-                      ? "border-gold-500 bg-white dark:bg-surface-800"
-                      : "bg-white dark:bg-surface-800 border-gray-200 dark:border-surface-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-500">{s.label}</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {count}
-                      </p>
-                    </div>
-                    <Icon className="h-6 w-6 text-gold-500" />
-                  </div>
-                </button>
-              );
-            })}
+              {/* Pending Bookings */}
+              <StatsCard
+                title="Pending"
+                value={bookings.filter((b) => b.status === "pending").length}
+                icon={Clock}
+                color="amber"
+                isActive={filter === "pending"}
+                onClick={() => setFilter("pending")}
+              />
+
+              {/* Confirmed Bookings */}
+              <StatsCard
+                title="Confirmed"
+                value={bookings.filter((b) => b.status === "confirmed").length}
+                icon={CheckCircle}
+                color="green"
+                isActive={filter === "confirmed"}
+                onClick={() => setFilter("confirmed")}
+              />
+
+              {/* Completed Bookings */}
+              <StatsCard
+                title="Completed"
+                value={bookings.filter((b) => b.status === "completed").length}
+                icon={CalendarCheck}
+                color="blue"
+                isActive={filter === "completed"}
+                onClick={() => setFilter("completed")}
+              />
+
+              {/* Cancelled Bookings */}
+              <StatsCard
+                title="Cancelled"
+                value={bookings.filter((b) => b.status === "cancelled").length}
+                icon={XCircle}
+                color="red"
+                isActive={filter === "cancelled"}
+                onClick={() => setFilter("cancelled")}
+              />
+            </div>
           </div>
 
           {/* Content */}
           {loading ? (
-            <p className="text-center text-gray-500">Loading bookings...</p>
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+              <p className="text-gray-500 dark:text-gray-400 mt-3">
+                Loading your bookings...
+              </p>
+            </div>
           ) : filteredBookings.length === 0 ? (
-            <div className="bg-white dark:bg-surface-800 p-12 rounded-xl text-center border">
-              <Calendar className="mx-auto h-10 w-10 text-gold-500 mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="bg-white dark:bg-surface-800 p-12 rounded-xl text-center border border-gray-200 dark:border-surface-700">
+              <Calendar className="mx-auto h-12 w-12 text-gold-500 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 No bookings found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {filter === "all"
+                  ? "You haven't made any bookings yet."
+                  : `You don't have any ${filter} bookings.`}
               </p>
             </div>
           ) : (

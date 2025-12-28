@@ -5,20 +5,19 @@ import {
   Building,
   Calendar,
   DollarSign,
-  Users,
   Plus,
   Eye,
-  TrendingUp,
-  MessageSquare,
-  Clock,
+  AlertCircle,
   CheckCircle,
+  Clock,
 } from "lucide-react";
-import { bookingAPI, venueAPI, inquiryAPI } from "../../utils/api";
+import { bookingAPI, venueAPI } from "../../utils/api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const OwnerDashboard = () => {
   const [stats, setStats] = useState({
-    venues: 0,
+    totalVenues: 0,
+    pendingVenues: 0,
     bookings: 0,
     revenue: 0,
     inquiries: 0,
@@ -34,13 +33,15 @@ const OwnerDashboard = () => {
     try {
       setLoading(true);
 
-      const [venuesResponse, inquiriesResponse] = await Promise.all([
-        venueAPI.getOwnerVenues(),
-        inquiryAPI.getOwnerInquiries().catch(() => ({ data: { data: [] } })),
-      ]);
+      const [venuesResponse] = await Promise.all([venueAPI.getOwnerVenues()]);
 
       const venues = venuesResponse.data.data || [];
       const inquiries = inquiriesResponse.data.data || [];
+
+      // Calculate pending venues
+      const pendingVenues = venues.filter(
+        (venue) => venue.status === "pending" || venue.status === "under_review"
+      ).length;
 
       let allBookings = [];
       let totalRevenue = 0;
@@ -74,7 +75,8 @@ const OwnerDashboard = () => {
       allBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       setStats({
-        venues: venues.length,
+        totalVenues: venues.length,
+        pendingVenues: pendingVenues,
         bookings: allBookings.length,
         revenue: totalRevenue,
         inquiries: inquiries.length,
@@ -91,10 +93,17 @@ const OwnerDashboard = () => {
   const statsData = [
     {
       title: "Total Venues",
-      value: stats.venues.toString(),
-      change: `${stats.venues} active`,
+      value: stats.totalVenues.toString(),
+      change: `${stats.totalVenues} venues`,
       icon: Building,
       color: "bg-blue-500",
+    },
+    {
+      title: "Pending Venues",
+      value: stats.pendingVenues.toString(),
+      change: "Awaiting approval",
+      icon: AlertCircle,
+      color: "bg-amber-500",
     },
     {
       title: "Total Bookings",
@@ -108,7 +117,7 @@ const OwnerDashboard = () => {
       value: `₨${stats.revenue.toLocaleString()}`,
       change: "From confirmed bookings",
       icon: DollarSign,
-      color: "bg-emerald-500",
+      color: "bg-gold-500",
     },
   ];
 
@@ -118,7 +127,7 @@ const OwnerDashboard = () => {
       description: "List a new venue on the platform",
       icon: Plus,
       link: "/owner/add-venue",
-      color: "bg-emerald-600 hover:bg-emerald-700",
+      color: "bg-gold-600 hover:bg-gold-700",
     },
     {
       title: "Manage Venues",
@@ -126,6 +135,13 @@ const OwnerDashboard = () => {
       icon: Building,
       link: "/owner/manage-venues",
       color: "bg-blue-600 hover:bg-blue-700",
+    },
+    {
+      title: "Manage Bookings",
+      description: "View and manage all bookings",
+      icon: Eye,
+      link: "/owner/booking",
+      color: "bg-green-600 hover:bg-green-700",
     },
   ];
 
@@ -159,7 +175,7 @@ const OwnerDashboard = () => {
             </p>
           </div>
 
-          {/* Stats Grid */}
+          {/* Stats Grid - Now 4 cards with Pending Venues */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {statsData.map((stat, index) => (
               <div
@@ -187,7 +203,7 @@ const OwnerDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Quick Actions */}
+            {/* Quick Actions - Now with Manage Bookings */}
             <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
@@ -224,7 +240,7 @@ const OwnerDashboard = () => {
                   </h2>
                   <Link
                     to="/owner/booking"
-                    className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+                    className="text-gold-600 hover:text-gold-700 text-sm font-medium"
                   >
                     View all
                   </Link>
@@ -297,7 +313,7 @@ const OwnerDashboard = () => {
                                 {booking.status}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">
+                            <td className="py-3 px-4 text-gold-600 dark:text-gold-400 font-semibold">
                               ₨{booking.amount?.toLocaleString()}
                             </td>
                           </tr>

@@ -78,7 +78,7 @@ const VenueCard = ({ venue, className = "" }) => {
           {/* 🏷️ Amenities */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
-              {venue.amenities.slice(0, 3).map((amenity, index) => (
+              {venue.amenities.slice(0, 2).map((amenity, index) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-gray-100 dark:bg-surface-700 text-text-light dark:text-text-dark text-xs rounded-full"
@@ -86,8 +86,8 @@ const VenueCard = ({ venue, className = "" }) => {
                   {amenity}
                 </span>
               ))}
-              {/* Show extra count if amenities exceed 3 */}
-              {venue.amenities.length > 3 && (
+              {/* Show extra count if amenities exceed 2 */}
+              {venue.amenities.length > 2 && (
                 <span className="px-2 py-1 bg-gray-100 dark:bg-surface-700 text-text-light dark:text-text-dark text-xs rounded-full">
                   +{venue.amenities.length - 3} more
                 </span>
@@ -96,7 +96,7 @@ const VenueCard = ({ venue, className = "" }) => {
           </div>
         </div>
 
-        {/* 📞 Buttons Section */}
+        {/* Buttons Section */}
         <div className="flex gap-3">
           {/* Navigate to Venue Details Page */}
           <Link
@@ -105,11 +105,6 @@ const VenueCard = ({ venue, className = "" }) => {
           >
             View Details
           </Link>
-
-          {/* Contact Button */}
-          <button className="p-2 border border-gray-300 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors duration-200">
-            <Phone className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          </button>
         </div>
       </div>
     </div>
