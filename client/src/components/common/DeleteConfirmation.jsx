@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle, X, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "./Toast";
 
 const DeleteConfirmation = ({
   item,

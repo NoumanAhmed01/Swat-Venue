@@ -11,7 +11,7 @@ import {
 import { bookingAPI } from "../../utils/api";
 import BookingCard from "./BookingCard";
 import DeleteBookingModal from "../../components/booking/DeleteBookingModal";
-import toast from "react-hot-toast";
+import { toast } from "../../components/common/Toast";
 import StatsCard from "../../components/common/StatsCard"; // Import the reusable component
 
 const MyBookings = () => {

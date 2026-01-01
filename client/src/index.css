@@ -11,3 +11,77 @@
     display: none;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Toast Animations */
+@keyframes slide-in {
+  0% {
+    transform: translateX(calc(100% + 1rem)) scale(0.95);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes slide-out {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: translateX(calc(100% + 1rem)) scale(0.95);
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Smooth bounce animation for attention */
+@keyframes gentle-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-progress {
+  animation: progress linear forwards;
+  transform-origin: left;
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 3s ease-in-out infinite;
+}
+
+/* Add a subtle glow effect for premium feel */
+.toast-glow {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+    0 0 15px rgba(255, 255, 255, 0.1);
+}

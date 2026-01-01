@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import toast from "react-hot-toast";
+import { toast } from "../components/common/Toast";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { contactAPI } from "../utils/api";

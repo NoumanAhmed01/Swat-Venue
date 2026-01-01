@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import logo3 from "../../assets/logo3.png";
+import logo from "../../assets/logo.svg";
 
 // Importing icons from lucide-react (lightweight, modern React icon set)
 import {
@@ -46,7 +46,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* --- LOGO --- */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src={logo3} alt="logo" className="h-30 w-36" />
+            <img src={logo} alt="logo" className="h-30 w-36" />
           </Link>
 
           {/* --- DESKTOP NAVIGATION LINKS --- */}

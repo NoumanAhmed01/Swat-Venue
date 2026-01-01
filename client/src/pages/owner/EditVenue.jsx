@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import toast from "react-hot-toast";
+import { toast } from "../../components/common/Toast";
 import { X, Loader2, Plus, Trash2 } from "lucide-react";
 import { venueAPI } from "../../utils/api";
 import VenueMediaManager from "./form/VenueMediaManager";

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { bookingAPI } from "../../utils/api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import toast from "react-hot-toast";
+import { toast } from "../../components/common/Toast";
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);

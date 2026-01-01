@@ -2,16 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import toast from "react-hot-toast";
-import {
-  X,
-  Calendar,
-  Users,
-  Mail,
-  Phone,
-  MessageSquare,
-  User,
-} from "lucide-react";
+import { toast } from "../common/Toast";
+import { X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";

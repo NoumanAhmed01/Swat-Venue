@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Phone, Eye, Trash2, ChevronDown, Users, X } from "lucide-react";
 import DeleteConfirmation from "../../components/common/DeleteConfirmation";
-import toast from "react-hot-toast";
 import { userAPI } from "../../utils/api"; // Add this line
 
 const UserTable = ({

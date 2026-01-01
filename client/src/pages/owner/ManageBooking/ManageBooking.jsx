@@ -1,7 +1,7 @@
 // src/pages/owner/ManageBooking/ManageBooking.jsx
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { toast } from "react-hot-toast";
+import { toast } from "../../../components/common/Toast";
 import { CalendarCheck, Clock, Building } from "lucide-react";
 import { bookingAPI, venueAPI } from "../../../utils/api";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";

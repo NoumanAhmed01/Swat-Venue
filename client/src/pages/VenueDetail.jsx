@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import toast from "react-hot-toast";
+import { toast } from "../components/common/Toast";
 import { VenueDetailSkeleton } from "../components/common/SkeletonLoader";
 import Review from "../components/venue/Review";
 import BookingForm from "../components/booking/BookingForm";
@@ -14,6 +14,9 @@ import VenueInfoCard from "../components/venue/VenueInfoCard";
 import VenueAmenities from "../components/venue/VenueAmenities";
 import VenuePricingCard from "../components/venue/VenuePricingCard";
 import VenueLocationMap from "../components/venue/VenueLocationMap";
+
+//Animation
+import { motion, fadeInUp } from "../components/animation/Animation";
 
 const VenueDetail = () => {
   const { id } = useParams();
@@ -112,7 +115,12 @@ const VenueDetail = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        className="min-h-screen bg-gray-50 dark:bg-gray-900"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
@@ -160,7 +168,7 @@ const VenueDetail = () => {
             }}
           />
         )}
-      </div>
+      </motion.div>
     </>
   );
 };

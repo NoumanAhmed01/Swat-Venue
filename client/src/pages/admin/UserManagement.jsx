@@ -14,7 +14,7 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import StatsCard from "../../components/common/StatsCard";
 import UserTable from "./UserTable";
 import { userAPI } from "../../utils/api";
-import toast from "react-hot-toast";
+import { toast } from "../../components/common/Toast";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);

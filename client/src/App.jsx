@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -7,6 +12,10 @@ import ToastProvider from "./components/common/Toast";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+
+// Page Transition Animation - ADDED THESE IMPORTS
+import { AnimatePresence } from "framer-motion";
+import LayoutWrapper from "./components/animation/LayoutWrapper"; // Fixed import path
 
 // Pages
 import Home from "./pages/Home";
@@ -40,152 +49,165 @@ import VenueApprovals from "./pages/admin/VenueApprovals";
 import AdminBookings from "./pages/admin/AdminBookings";
 import ContactManagement from "./pages/admin/ContactManagement";
 
+// IMPORTANT: We need to separate the content into a component because useLocation can't be used directly in App
+function AppContent() {
+  const location = useLocation(); // This hook must be inside Router
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <Helmet>
+        <title>SwatVenue - Find Perfect Event Venues in Swat</title>
+        <meta
+          name="description"
+          content="Discover and book the best banquet halls and event venues in Swat valley. Perfect for weddings, conferences, and special events."
+        />
+        <meta
+          name="keywords"
+          content="venues, banquet halls, events, weddings, Swat, Pakistan"
+        />
+        <meta
+          property="og:title"
+          content="SwatVenue - Find Perfect Event Venues in Swat"
+        />
+        <meta
+          property="og:description"
+          content="Discover and book the best banquet halls and event venues in Swat valley."
+        />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      <Navbar />
+
+      <main className="min-h-screen">
+        {/* ADDED: AnimatePresence for exit animations */}
+        <AnimatePresence mode="wait">
+          {/* ADDED: location and key props for animations */}
+          <Routes location={location} key={location.pathname}>
+            {/* ADDED: LayoutWrapper wraps ALL routes */}
+            <Route element={<LayoutWrapper />}>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/venues" element={<Venues />} />
+              <Route path="/venue/:id" element={<VenueDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+
+              {/* Auth Routes */}
+              <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/register" element={<Register />} />
+              <Route
+                path="/auth/forgot-password"
+                element={<ForgotPassword />}
+              />
+              <Route path="/auth/reset-password" element={<ResetPassword />} />
+              <Route path="/auth/verify-otp" element={<VerifyOtp />} />
+
+              {/* Owner Routes */}
+              <Route
+                path="/owner/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["owner"]}>
+                    <OwnerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/add-venue"
+                element={
+                  <ProtectedRoute allowedRoles={["owner"]}>
+                    <AddVenue />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/manage-venues"
+                element={
+                  <ProtectedRoute allowedRoles={["owner"]}>
+                    <ManageVenues />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/booking"
+                element={
+                  <ProtectedRoute allowedRoles={["owner"]}>
+                    <ManageBooking />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* User Routes */}
+              <Route
+                path="/my-bookings"
+                element={
+                  <ProtectedRoute allowedRoles={["customer"]}>
+                    <MyBookings />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/approvals"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <VenueApprovals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/bookings"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminBookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/contacts"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <ContactManagement />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+          </Routes>
+        </AnimatePresence>
+      </main>
+
+      <Footer />
+      <ToastProvider />
+    </div>
+  );
+}
+
 function App() {
   return (
     <HelmetProvider>
       <ThemeProvider>
         <AuthProvider>
+          {/* IMPORTANT: Router must wrap AppContent */}
           <Router>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-              <Helmet>
-                <title>SwatVenue - Find Perfect Event Venues in Swat</title>
-                <meta
-                  name="description"
-                  content="Discover and book the best banquet halls and event venues in Swat valley. Perfect for weddings, conferences, and special events."
-                />
-                <meta
-                  name="keywords"
-                  content="venues, banquet halls, events, weddings, Swat, Pakistan"
-                />
-                <meta
-                  property="og:title"
-                  content="SwatVenue - Find Perfect Event Venues in Swat"
-                />
-                <meta
-                  property="og:description"
-                  content="Discover and book the best banquet halls and event venues in Swat valley."
-                />
-                <meta property="og:type" content="website" />
-              </Helmet>
-
-              <Navbar />
-
-              <main className="min-h-screen">
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/venues" element={<Venues />} />
-                  <Route path="/venue/:id" element={<VenueDetail />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
-
-                  {/* Auth Routes */}
-                  <Route path="/auth/login" element={<Login />} />
-                  <Route path="/auth/register" element={<Register />} />
-                  <Route
-                    path="/auth/forgot-password"
-                    element={<ForgotPassword />}
-                  />
-                  <Route
-                    path="/auth/reset-password"
-                    element={<ResetPassword />}
-                  />
-                  <Route path="/auth/verify-otp" element={<VerifyOtp />} />
-
-                  {/* Owner Routes */}
-                  <Route
-                    path="/owner/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={["owner"]}>
-                        <OwnerDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/owner/add-venue"
-                    element={
-                      <ProtectedRoute allowedRoles={["owner"]}>
-                        <AddVenue />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/owner/manage-venues"
-                    element={
-                      <ProtectedRoute allowedRoles={["owner"]}>
-                        <ManageVenues />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/owner/booking"
-                    element={
-                      <ProtectedRoute allowedRoles={["owner"]}>
-                        <ManageBooking />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* User Routes */}
-                  <Route
-                    path="/my-bookings"
-                    element={
-                      <ProtectedRoute allowedRoles={["customer"]}>
-                        <MyBookings />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Admin Routes */}
-                  <Route
-                    path="/admin/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/users"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <UserManagement />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/approvals"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <VenueApprovals />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path="/admin/bookings"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <AdminBookings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/contacts"
-                    element={
-                      <ProtectedRoute allowedRoles={["admin"]}>
-                        <ContactManagement />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </main>
-
-              <Footer />
-              <ToastProvider />
-            </div>
+            <AppContent />
           </Router>
         </AuthProvider>
       </ThemeProvider>

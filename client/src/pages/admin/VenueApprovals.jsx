@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { toast } from "react-hot-toast";
+import { toast } from "../../components/common/Toast";
 import {
   Building,
   CheckCircle,
