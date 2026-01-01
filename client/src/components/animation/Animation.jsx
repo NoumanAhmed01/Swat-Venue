@@ -1,4 +1,11 @@
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  useInView,
+} from "framer-motion";
+import { useEffect, useRef } from "react";
 
 // Premium easing curve for smoother animations (only one, not complex)
 const PREMIUM_EASE = [0.25, 0.1, 0.25, 1]; // smooth easeOutBack
@@ -217,6 +224,95 @@ export const TextReveal = ({ text, className = "", as: Component = "p" }) => {
           </motion.span>
         ))}
       </Component>
+    </motion.div>
+  );
+};
+
+// Counter animation component
+export const AnimatedCounter = ({
+  value,
+  suffix = "",
+  duration = 2,
+  className = "",
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.floor(latest));
+
+  useEffect(() => {
+    if (isInView) {
+      animate(count, value, {
+        duration: duration,
+        ease: "easeOut",
+      });
+    }
+  }, [isInView, count, value, duration]);
+
+  return (
+    <span ref={ref} className={className}>
+      <motion.span>{rounded}</motion.span>
+      {suffix}
+    </span>
+  );
+};
+
+// Stat card with counter animation
+export const AnimatedStatCard = ({
+  number,
+  label,
+  duration = 2,
+  className = "",
+  statClassName = "",
+  labelClassName = "",
+}) => {
+  // Extract numeric value and suffix (like +, %, etc.)
+  const numericValue = parseInt(number.replace(/[^0-9]/g, "")) || 0;
+  const suffix = number.replace(/[0-9]/g, "");
+
+  return (
+    <motion.div variants={staggerItem} className={className}>
+      <motion.div
+        className={`text-3xl md:text-4xl font-bold text-gold-600 mb-2 ${statClassName}`}
+        whileHover={{
+          scale: 1.1,
+          transition: { type: "spring", stiffness: 300 },
+        }}
+      >
+        <AnimatedCounter
+          value={numericValue}
+          suffix={suffix}
+          duration={duration}
+        />
+      </motion.div>
+      <div
+        className={`text-gray-600 dark:text-gray-400 font-medium ${labelClassName}`}
+      >
+        {label}
+      </div>
+    </motion.div>
+  );
+};
+
+// Stats container with counters
+export const AnimatedStatsContainer = ({
+  stats,
+  className = "",
+  duration = 2,
+}) => {
+  return (
+    <motion.div
+      variants={staggerContainer}
+      className={`grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 ${className}`}
+    >
+      {stats.map((stat, index) => (
+        <AnimatedStatCard
+          key={index}
+          number={stat.number}
+          label={stat.label}
+          duration={duration}
+        />
+      ))}
     </motion.div>
   );
 };

@@ -9,6 +9,9 @@ import {
   ArrowRight,
   CheckCircle,
   Star,
+  Building,
+  Award,
+  Shield,
 } from "lucide-react";
 import VenueCard from "../components/venue/VenueCard";
 import { venueAPI } from "../utils/api";
@@ -24,6 +27,7 @@ import {
   staggerItem,
   fadeIn,
   motion,
+  AnimatedStatsContainer, // Import the counter animation
 } from "../components/animation/Animation";
 
 const Home = () => {
@@ -101,6 +105,16 @@ const Home = () => {
       description:
         "Access to highest-rated venues with authentic customer reviews",
     },
+  ];
+
+  // Partner logos data (you can replace these with actual venue partner logos)
+  const partners = [
+    { name: "Pearl Continental", logo: Building },
+    { name: "Swat Serena", logo: Award },
+    { name: "Swat View Hotel", logo: Building },
+    { name: "PTDC Motel", logo: Shield },
+    { name: "Rock City Hotel", logo: Building },
+    { name: "Swat Continental", logo: Award },
   ];
 
   return (
@@ -203,32 +217,12 @@ const Home = () => {
               </div>
             </motion.form>
 
-            {/* Stats Section */}
-            <motion.div
-              variants={staggerContainer}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16"
-            >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  variants={staggerItem}
-                  className="text-center"
-                >
-                  <motion.div
-                    className="text-3xl md:text-4xl font-bold text-gold-600 mb-2"
-                    whileHover={{
-                      scale: 1.1,
-                      transition: { type: "spring", stiffness: 300 },
-                    }}
-                  >
-                    {stat.number}
-                  </motion.div>
-                  <div className="text-gray-600 dark:text-gray-400 font-medium">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+            {/* Updated Stats Section with Counter Animation */}
+            <AnimatedStatsContainer
+              stats={stats}
+              duration={2}
+              className="mb-16"
+            />
           </motion.div>
         </div>
       </section>
@@ -296,8 +290,48 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Why Choose SwatVenue Section */}
+      {/* Our Partners Section - NEW SECTION */}
       <section className="py-20 bg-gray-50 dark:bg-surface-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
+                Trusted by Premium Venues
+              </h2>
+              <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto">
+                Partnered with the finest event venues across Swat Valley
+              </p>
+            </div>
+          </AnimatedSection>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8"
+          >
+            {partners.map((partner, index) => (
+              <motion.div
+                key={index}
+                variants={staggerItem}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="bg-white dark:bg-surface-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-gold-100 to-gold-50 dark:from-gold-900/20 dark:to-gold-800/10 rounded-xl flex items-center justify-center mb-4">
+                  <partner.logo className="h-8 w-8 text-gold-600 dark:text-gold-400" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-center">
+                  {partner.name}
+                </h3>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Why Choose SwatVenue Section */}
+      <section className="py-20 bg-white dark:bg-surface-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
