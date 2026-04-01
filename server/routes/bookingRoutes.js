@@ -4,6 +4,7 @@ const {
   createBooking,
   getUserBookings,
   getVenueBookings,
+  getOwnerBookings,
   getAllBookings,
   updateBookingStatus,
   getReservedDates,
@@ -13,6 +14,12 @@ const { protect, authorize } = require("../middleware/auth");
 
 router.post("/", protect, createBooking);
 router.get("/my-bookings", protect, getUserBookings);
+router.get(
+  "/owner/my-bookings",
+  protect,
+  authorize("owner", "admin"),
+  getOwnerBookings
+);
 router.get(
   "/venue/:venueId",
   protect,

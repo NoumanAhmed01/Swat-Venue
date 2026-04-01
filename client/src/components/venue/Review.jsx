@@ -72,7 +72,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
         const userReview = response.data.data?.find(
           (review) =>
             (review.customer?._id === user.id || review.customer === user.id) &&
-            review.venue?._id === venueId // ensure it’s same venue
+            review.venue?._id === venueId, // ensure it’s same venue
         );
         setHasUserReviewed(!!userReview);
       }
@@ -166,7 +166,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                     <div className="flex-shrink-0">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold text-xs sm:text-sm">
                         {getInitials(
-                          review.customerName || review.customer?.name
+                          review.customerName || review.customer?.name,
                         )}
                       </div>
                     </div>
@@ -202,7 +202,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                   <div className="flex-shrink-0">
                     <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       {new Date(
-                        review.date || review.createdAt
+                        review.date || review.createdAt,
                       ).toLocaleDateString()}
                     </span>
                   </div>

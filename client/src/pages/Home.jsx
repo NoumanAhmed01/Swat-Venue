@@ -29,6 +29,7 @@ import {
   motion,
   AnimatedStatsContainer, // Import the counter animation
 } from "../components/animation/Animation";
+import PartnerMarquee from "../components/animation/PartnerMarquee";
 
 const Home = () => {
   const [searchForm, setSearchForm] = useState({
@@ -303,30 +304,7 @@ const Home = () => {
               </p>
             </div>
           </AnimatedSection>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8"
-          >
-            {partners.map((partner, index) => (
-              <motion.div
-                key={index}
-                variants={staggerItem}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="bg-white dark:bg-surface-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-gold-100 to-gold-50 dark:from-gold-900/20 dark:to-gold-800/10 rounded-xl flex items-center justify-center mb-4">
-                  <partner.logo className="h-8 w-8 text-gold-600 dark:text-gold-400" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-center">
-                  {partner.name}
-                </h3>
-              </motion.div>
-            ))}
-          </motion.div>
+          <PartnerMarquee />
         </div>
       </section>
 

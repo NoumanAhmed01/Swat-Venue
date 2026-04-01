@@ -112,6 +112,26 @@ exports.getVenueBookings = async (req, res) => {
   }
 };
 
+exports.getOwnerBookings = async (req, res) => {
+  try {
+    const venues = await Venue.find({ owner: req.user.id }).select("_id");
+    const venueIds = venues.map((v) => v._id);
+
+    const bookings = await Booking.find({ venue: { $in: venueIds } })
+      .populate("venue", "name location price images")
+      .populate("customer", "name email phone")
+      .sort("-createdAt");
+
+    res.json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()

@@ -17,10 +17,9 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 const OwnerDashboard = () => {
   const [stats, setStats] = useState({
     totalVenues: 0,
-    pendingVenues: 0,
+    pendingBookings: 0,
     bookings: 0,
     revenue: 0,
-    inquiries: 0,
   });
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,38 +35,40 @@ const OwnerDashboard = () => {
       const [venuesResponse] = await Promise.all([venueAPI.getOwnerVenues()]);
 
       const venues = venuesResponse.data.data || [];
-      const inquiries = inquiriesResponse.data.data || [];
-
-      // Calculate pending venues
-      const pendingVenues = venues.filter(
-        (venue) => venue.status === "pending" || venue.status === "under_review"
-      ).length;
 
       let allBookings = [];
       let totalRevenue = 0;
+      let pendingBookingsCount = 0;
 
       for (const venue of venues) {
         try {
           const bookingsResponse = await bookingAPI.getVenueBookings(
-            venue._id || venue.id
+            venue._id || venue.id,
           );
           if (bookingsResponse.data.success) {
+            console.log("Full booking:", bookingsResponse.data.data);
             const venueBookings = bookingsResponse.data.data.map((booking) => ({
               ...booking,
               venueName: venue.name,
             }));
             allBookings.push(...venueBookings);
 
+            // Calculate revenue from confirmed/completed bookings
             totalRevenue += venueBookings
               .filter(
-                (b) => b.status === "confirmed" || b.status === "completed"
+                (b) => b.status === "confirmed" || b.status === "completed",
               )
               .reduce((sum, b) => sum + (b.amount || 0), 0);
+
+            // Count pending bookings
+            pendingBookingsCount += venueBookings.filter(
+              (b) => b.status === "pending" || b.status === "under_review",
+            ).length;
           }
         } catch (error) {
           console.error(
             `Error fetching bookings for venue ${venue.name}:`,
-            error
+            error,
           );
         }
       }
@@ -76,10 +77,9 @@ const OwnerDashboard = () => {
 
       setStats({
         totalVenues: venues.length,
-        pendingVenues: pendingVenues,
+        pendingBookings: pendingBookingsCount, // Changed from pendingVenues
         bookings: allBookings.length,
         revenue: totalRevenue,
-        inquiries: inquiries.length,
       });
 
       setRecentBookings(allBookings.slice(0, 5));
@@ -99,13 +99,6 @@ const OwnerDashboard = () => {
       color: "bg-blue-500",
     },
     {
-      title: "Pending Venues",
-      value: stats.pendingVenues.toString(),
-      change: "Awaiting approval",
-      icon: AlertCircle,
-      color: "bg-amber-500",
-    },
-    {
       title: "Total Bookings",
       value: stats.bookings.toString(),
       change: `All time bookings`,
@@ -113,8 +106,16 @@ const OwnerDashboard = () => {
       color: "bg-green-500",
     },
     {
+      title: "Pending Bookings",
+      value: stats.pendingBookings.toString(),
+      change: "Awaiting confirmation",
+      icon: AlertCircle,
+      color: "bg-amber-500",
+    },
+
+    {
       title: "Revenue",
-      value: `₨${stats.revenue.toLocaleString()}`,
+      value: `₨ ${stats.revenue.toLocaleString()}`,
       change: "From confirmed bookings",
       icon: DollarSign,
       color: "bg-gold-500",
@@ -159,7 +160,7 @@ const OwnerDashboard = () => {
         <title>Owner Dashboard - SwatVenue</title>
         <meta
           name="description"
-          content="Manage your venues, bookings, and inquiries on SwatVenue."
+          content="Manage your venues and bookings on SwatVenue."
         />
       </Helmet>
 
@@ -298,10 +299,10 @@ const OwnerDashboard = () => {
                                   booking.status === "confirmed"
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                     : booking.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    : booking.status === "completed"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                      : booking.status === "completed"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                                 }`}
                               >
                                 {booking.status === "confirmed" && (

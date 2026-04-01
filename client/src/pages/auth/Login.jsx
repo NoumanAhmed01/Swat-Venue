@@ -124,7 +124,7 @@ const Login = () => {
                       type="email"
                       {...register("email")}
                       placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className="w-full pl-12 pr-4 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
                     />
                   </div>
                   {errors.email && (
@@ -153,7 +153,7 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
                       placeholder="Enter your password"
-                      className="w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className="w-full pl-12 pr-12 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
                     />
                     <button
                       type="button"

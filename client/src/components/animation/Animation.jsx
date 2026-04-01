@@ -317,5 +317,15 @@ export const AnimatedStatsContainer = ({
   );
 };
 
+export const marqueeAnimation = (from, to) => ({
+  initial: { x: from },
+  animate: { x: to },
+  transition: {
+    duration: 60,
+    repeat: Infinity,
+    ease: "linear",
+  },
+});
+
 // Export motion for direct use
 export { motion };

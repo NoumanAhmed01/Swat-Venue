@@ -1,10 +1,10 @@
+// utils/seed.js
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const User = require("../models/User");
 const Venue = require("../models/Venue");
 const Review = require("../models/Review");
 
-// utils/seed.js
 dotenv.config({ path: require("path").resolve(__dirname, "../.env") });
 
 const connectDB = async () => {
@@ -21,12 +21,13 @@ const seedDatabase = async () => {
   try {
     await connectDB();
 
+    // Clean existing data
     await User.deleteMany();
     await Venue.deleteMany();
     await Review.deleteMany();
-
     console.log("Data destroyed...");
 
+    // Create Users
     const admin = await User.create({
       name: "Admin User",
       email: "admin@swatvenue.com",
@@ -77,9 +78,11 @@ const seedDatabase = async () => {
 
     console.log("Users created...");
 
+    // Create Venues with valid geoLocation
     const venue1 = await Venue.create({
       name: "Royal Banquet Hall",
       location: "Mingora, Swat",
+      geoLocation: { type: "Point", coordinates: [72.1451, 34.7708] },
       address: "Green Chowk, Mingora, Swat, KPK",
       capacity: 500,
       price: 75000,
@@ -103,6 +106,7 @@ const seedDatabase = async () => {
     const venue2 = await Venue.create({
       name: "Mountain View Resort",
       location: "Kalam, Swat",
+      geoLocation: { type: "Point", coordinates: [72.4661, 35.6500] },
       address: "Upper Kalam, Swat Valley, KPK",
       capacity: 200,
       price: 45000,
@@ -132,6 +136,7 @@ const seedDatabase = async () => {
     const venue3 = await Venue.create({
       name: "Grand Palace Hall",
       location: "Saidu Sharif, Swat",
+      geoLocation: { type: "Point", coordinates: [72.3600, 34.7900] },
       address: "Main Bazaar, Saidu Sharif, Swat, KPK",
       capacity: 800,
       price: 120000,
@@ -163,6 +168,7 @@ const seedDatabase = async () => {
     const venue4 = await Venue.create({
       name: "Garden Pavilion",
       location: "Bahrain, Swat",
+      geoLocation: { type: "Point", coordinates: [72.7000, 34.8500] },
       address: "Riverside, Bahrain, Swat Valley, KPK",
       capacity: 150,
       price: 35000,
@@ -189,6 +195,7 @@ const seedDatabase = async () => {
       status: "approved",
     });
 
+    // Push venues to users
     await User.findByIdAndUpdate(owner1._id, { $push: { venues: venue1._id } });
     await User.findByIdAndUpdate(owner2._id, { $push: { venues: venue2._id } });
     await User.findByIdAndUpdate(owner3._id, { $push: { venues: venue3._id } });
@@ -196,6 +203,7 @@ const seedDatabase = async () => {
 
     console.log("Venues created...");
 
+    // Create Reviews
     await Review.create([
       {
         venue: venue1._id,

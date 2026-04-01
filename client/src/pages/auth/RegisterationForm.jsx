@@ -151,7 +151,10 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-6 text-text-light dark:text-text-dark"
+              >
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">

@@ -17,7 +17,9 @@ const VenueInfoCard = ({ venue }) => {
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center">
               <Star className="h-5 w-5 text-yellow-400 fill-current mr-1" />
-              <span className="font-semibold">{venue.rating}</span>
+              <span className="font-semibold text-text-light dark:text-text-dark">
+                {venue.rating}
+              </span>
               <span className="text-gray-500 ml-1">
                 ({venue.reviews} reviews)
               </span>
