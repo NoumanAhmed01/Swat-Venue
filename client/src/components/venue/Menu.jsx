@@ -16,7 +16,7 @@ const Menu = ({ menus, selectedMenu, setSelectedMenu }) => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={staggerContainer}
-      className="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700"
+      className="bg-white dark:bg-surface-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700"
     >
       {/* Header Section */}
       <motion.div

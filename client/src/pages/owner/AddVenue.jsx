@@ -43,6 +43,10 @@ const AddVenue = () => {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState([]);
+  const [menus, setMenus] = useState([
+    { name: "", pricePerHead: "", items: [""] },
+  ]);
+
   const navigate = useNavigate();
 
   const {
@@ -78,6 +82,9 @@ const AddVenue = () => {
         }
       });
 
+      // ✅ ADD THIS: Append Menus
+      formData.append("menus", JSON.stringify(menus));
+
       imageFiles.forEach((file) => {
         formData.append("images", file);
       });
@@ -104,7 +111,7 @@ const AddVenue = () => {
       }
 
       toast.success(
-        "Venue added successfully! It will be reviewed within 24-48 hours."
+        "Venue added successfully! It will be reviewed within 24-48 hours.",
       );
       navigate("/owner/manage-venues");
     } catch (error) {
@@ -240,7 +247,12 @@ const AddVenue = () => {
               )}
 
               {currentStep === 3 && (
-                <VenueStep3 register={register} errors={errors} />
+                <VenueStep3
+                  register={register}
+                  errors={errors}
+                  menus={menus}
+                  setMenus={setMenus}
+                />
               )}
 
               {/* Navigation Buttons */}

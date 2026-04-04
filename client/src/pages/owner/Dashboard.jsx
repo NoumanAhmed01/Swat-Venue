@@ -33,7 +33,6 @@ const OwnerDashboard = () => {
       setLoading(true);
 
       const [venuesResponse] = await Promise.all([venueAPI.getOwnerVenues()]);
-
       const venues = venuesResponse.data.data || [];
 
       let allBookings = [];
@@ -41,35 +40,31 @@ const OwnerDashboard = () => {
       let pendingBookingsCount = 0;
 
       for (const venue of venues) {
+        const venueId = venue._id || venue.id;
+        if (!venueId) continue;
+
         try {
-          const bookingsResponse = await bookingAPI.getVenueBookings(
-            venue._id || venue.id,
-          );
+          const bookingsResponse = await bookingAPI.getVenueBookings(venueId);
           if (bookingsResponse.data.success) {
-            console.log("Full booking:", bookingsResponse.data.data);
             const venueBookings = bookingsResponse.data.data.map((booking) => ({
               ...booking,
               venueName: venue.name,
             }));
             allBookings.push(...venueBookings);
 
-            // Calculate revenue from confirmed/completed bookings
+            // Calculate revenue using totalAmount (fallback to amount)
             totalRevenue += venueBookings
               .filter(
                 (b) => b.status === "confirmed" || b.status === "completed",
               )
-              .reduce((sum, b) => sum + (b.amount || 0), 0);
+              .reduce((sum, b) => sum + (b.totalAmount || b.amount || 0), 0);
 
-            // Count pending bookings
             pendingBookingsCount += venueBookings.filter(
               (b) => b.status === "pending" || b.status === "under_review",
             ).length;
           }
         } catch (error) {
-          console.error(
-            `Error fetching bookings for venue ${venue.name}:`,
-            error,
-          );
+          console.error(`Error fetching bookings for ${venue.name}:`, error);
         }
       }
 
@@ -77,7 +72,7 @@ const OwnerDashboard = () => {
 
       setStats({
         totalVenues: venues.length,
-        pendingBookings: pendingBookingsCount, // Changed from pendingVenues
+        pendingBookings: pendingBookingsCount,
         bookings: allBookings.length,
         revenue: totalRevenue,
       });
@@ -315,7 +310,12 @@ const OwnerDashboard = () => {
                               </span>
                             </td>
                             <td className="py-3 px-4 text-gold-600 dark:text-gold-400 font-semibold">
-                              ₨{booking.amount?.toLocaleString()}
+                              ₨
+                              {(
+                                booking.totalAmount ||
+                                booking.amount ||
+                                0
+                              ).toLocaleString()}
                             </td>
                           </tr>
                         ))

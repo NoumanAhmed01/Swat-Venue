@@ -94,6 +94,9 @@ export const userAPI = {
 
 export const menuAPI = {
   getByVenue: (venueId) => api.get(`/menus/venue/${venueId}`),
+  create: (data) => api.post("/menus", data),
+  update: (id, data) => api.put(`/menus/${id}`, data),
+  delete: (id) => api.delete(`/menus/${id}`),
 };
 
 export default api;

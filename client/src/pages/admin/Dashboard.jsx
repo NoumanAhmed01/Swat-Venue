@@ -11,6 +11,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { userAPI, venueAPI, bookingAPI } from "../../utils/api";
+import { toast } from "../../components/common/Toast";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState([
@@ -38,98 +39,122 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch all data in parallel
+      const [usersRes, venuesRes, bookingsRes] = await Promise.allSettled([
+        userAPI.getAll(),
+        venueAPI.getAll({ status: "all" }),
+        bookingAPI.getAllBookings(),
+      ]);
+
+      // Extract data from responses
+      const extractData = (response) => {
+        if (
+          response.status === "fulfilled" &&
+          response.value?.data?.success
+        ) {
+          return {
+            count: response.value.data.count || 0,
+            data: response.value.data.data || [],
+          };
+        }
+        return { count: 0, data: [] };
+      };
+
+      const users = extractData(usersRes);
+      const venues = extractData(venuesRes);
+      const bookings = extractData(bookingsRes);
+
+      // Get pending venues
+      const pendingVenues = venues.data.filter(
+        (venue) =>
+          venue.status === "pending" ||
+          venue.approvalStatus === "pending" ||
+          venue.isApproved === false
+      );
+
+      // Calculate revenue
+      const revenue = bookings.data.reduce(
+        (sum, booking) =>
+          sum +
+          (booking.amount ||
+            booking.totalPrice ||
+            booking.total ||
+            booking.price ||
+            booking.bookingAmount ||
+            0),
+        0
+      );
+
+      // Set stats
+      setStats([
+        {
+          title: "Total Users",
+          value: users.count.toLocaleString(),
+          icon: Users,
+          color: "bg-blue-500",
+        },
+        {
+          title: "Total Venues",
+          value: venues.count.toLocaleString(),
+          icon: Building,
+          color: "bg-green-500",
+        },
+        {
+          title: "Total Bookings",
+          value: bookings.count.toLocaleString(),
+          icon: Calendar,
+          color: "bg-purple-500",
+        },
+        {
+          title: "Platform Revenue",
+          value: `₨${revenue.toLocaleString()}`,
+          icon: DollarSign,
+          color: "bg-amber-500",
+        },
+      ]);
+
+      // Set pending approvals
+      setPendingApprovals(pendingVenues);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      setError("Failed to load dashboard data. Please try again.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch all data in parallel
-        const [usersRes, venuesRes, bookingsRes] = await Promise.allSettled([
-          userAPI.getAll(),
-          venueAPI.getAll(),
-          bookingAPI.getAllBookings(),
-        ]);
-
-        // Extract data from responses
-        const extractData = (response) => {
-          if (
-            response.status === "fulfilled" &&
-            response.value?.data?.success
-          ) {
-            return {
-              count: response.value.data.count || 0,
-              data: response.value.data.data || [],
-            };
-          }
-          return { count: 0, data: [] };
-        };
-
-        const users = extractData(usersRes);
-        const venues = extractData(venuesRes);
-        const bookings = extractData(bookingsRes);
-
-        // Get pending venues
-        const pendingVenues = venues.data.filter(
-          (venue) =>
-            venue.status === "pending" ||
-            venue.approvalStatus === "pending" ||
-            venue.isApproved === false
-        );
-
-        // Calculate revenue
-        const revenue = bookings.data.reduce(
-          (sum, booking) =>
-            sum +
-            (booking.amount ||
-              booking.totalPrice ||
-              booking.total ||
-              booking.price ||
-              booking.bookingAmount ||
-              0),
-          0
-        );
-
-        // Set stats
-        setStats([
-          {
-            title: "Total Users",
-            value: users.count.toLocaleString(),
-            icon: Users,
-            color: "bg-blue-500",
-          },
-          {
-            title: "Total Venues",
-            value: venues.count.toLocaleString(),
-            icon: Building,
-            color: "bg-green-500",
-          },
-          {
-            title: "Total Bookings",
-            value: bookings.count.toLocaleString(),
-            icon: Calendar,
-            color: "bg-purple-500",
-          },
-          {
-            title: "Platform Revenue",
-            value: `₨${revenue.toLocaleString()}`,
-            icon: DollarSign,
-            color: "bg-amber-500",
-          },
-        ]);
-
-        // Set pending approvals
-        setPendingApprovals(pendingVenues);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        setError("Failed to load dashboard data. Please try again.");
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
+
+  const handleApprove = async (id) => {
+    try {
+      await venueAPI.approve(id);
+      toast.success("Venue approved successfully");
+      fetchDashboardData();
+    } catch (error) {
+      console.error("Error approving venue:", error);
+      toast.error("Failed to approve venue");
+    }
+  };
+
+  const handleReject = async (id) => {
+    if (window.confirm("Are you sure you want to reject this venue?")) {
+      try {
+        await venueAPI.reject(id);
+        toast.success("Venue rejected");
+        fetchDashboardData();
+      } catch (error) {
+        console.error("Error rejecting venue:", error);
+        toast.error("Failed to reject venue");
+      }
+    }
+  };
 
   const quickActions = [
     {
@@ -351,10 +376,7 @@ const AdminDashboard = () => {
                                   <button
                                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200"
                                     onClick={() =>
-                                      console.log(
-                                        "Approve venue:",
-                                        venue._id || venue.id
-                                      )
+                                      handleApprove(venue._id || venue.id)
                                     }
                                   >
                                     Approve
@@ -362,10 +384,7 @@ const AdminDashboard = () => {
                                   <button
                                     className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200"
                                     onClick={() =>
-                                      console.log(
-                                        "Reject venue:",
-                                        venue._id || venue.id
-                                      )
+                                      handleReject(venue._id || venue.id)
                                     }
                                   >
                                     Reject

@@ -1,5 +1,6 @@
 const Venue = require("../models/Venue");
 const User = require("../models/User");
+const Menu = require("../models/Menu");
 const { cloudinary } = require("../config/cloudinary");
 const {
   deleteFromCloudinary,
@@ -193,6 +194,27 @@ exports.createVenue = async (req, res) => {
 
     // Create Venue
     const venue = await Venue.create(venueData);
+
+    // ✅ CREATE MENUS IF PROVIDED
+    if (req.body.menus) {
+      try {
+        const menusData = JSON.parse(req.body.menus);
+        if (Array.isArray(menusData)) {
+          const menusToCreate = menusData
+            .filter((m) => m.name && m.pricePerHead)
+            .map((m) => ({
+              ...m,
+              venue: venue._id,
+            }));
+
+          if (menusToCreate.length > 0) {
+            await Menu.insertMany(menusToCreate);
+          }
+        }
+      } catch (menuError) {
+        console.error("Error creating menus:", menuError);
+      }
+    }
 
     // Link venue to user
     await User.findByIdAndUpdate(req.user.id, {

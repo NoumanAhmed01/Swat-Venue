@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "../../components/common/Toast";
-import { X, Loader2, Plus, Trash2 } from "lucide-react";
-import { venueAPI } from "../../utils/api";
+import { venueAPI, menuAPI } from "../../utils/api";
 import VenueMediaManager from "./form/VenueMediaManager";
+import { X, Loader2, Plus, Trash2, Utensils, CheckCircle } from "lucide-react";
 
 const venueSchema = yup.object({
   name: yup.string().required("Venue name is required"),
@@ -38,6 +38,8 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   const [newVideoFiles, setNewVideoFiles] = useState([]);
   const [deletedImages, setDeletedImages] = useState([]);
   const [deletedVideos, setDeletedVideos] = useState([]);
+  const [menus, setMenus] = useState([]);
+  const [deletedMenuIds, setDeletedMenuIds] = useState([]);
 
   const {
     register,
@@ -50,6 +52,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
 
   useEffect(() => {
     fetchVenue();
+    fetchMenus();
   }, [venueId]);
 
   const fetchVenue = async () => {
@@ -81,6 +84,15 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
     }
   };
 
+  const fetchMenus = async () => {
+    try {
+      const response = await menuAPI.getByVenue(venueId);
+      setMenus(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching menus:", error);
+    }
+  };
+
   const addAmenity = () => {
     if (newAmenity.trim() && !amenitiesList.includes(newAmenity.trim())) {
       setAmenitiesList([...amenitiesList, newAmenity.trim()]);
@@ -90,7 +102,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
 
   const removeAmenity = (amenityToRemove) => {
     setAmenitiesList(
-      amenitiesList.filter((amenity) => amenity !== amenityToRemove)
+      amenitiesList.filter((amenity) => amenity !== amenityToRemove),
     );
   };
 
@@ -118,6 +130,44 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
 
   const removeNewVideo = (index) => {
     setNewVideoFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addMenu = () => {
+    setMenus([...menus, { name: "", pricePerHead: "", items: [""] }]);
+  };
+
+  const removeMenu = (index) => {
+    const menuToRemove = menus[index];
+    if (menuToRemove._id) {
+      setDeletedMenuIds([...deletedMenuIds, menuToRemove._id]);
+    }
+    setMenus(menus.filter((_, i) => i !== index));
+  };
+
+  const updateMenuState = (index, field, value) => {
+    const updatedMenus = [...menus];
+    updatedMenus[index][field] = value;
+    setMenus(updatedMenus);
+  };
+
+  const addMenuItem = (menuIndex) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items.push("");
+    setMenus(updatedMenus);
+  };
+
+  const updateMenuItem = (menuIndex, itemIndex, value) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items[itemIndex] = value;
+    setMenus(updatedMenus);
+  };
+
+  const removeMenuItem = (menuIndex, itemIndex) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items = updatedMenus[menuIndex].items.filter(
+      (_, i) => i !== itemIndex,
+    );
+    setMenus(updatedMenus);
   };
 
   const onSubmit = async (data) => {
@@ -148,21 +198,29 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
         formData.append("videos", file);
       });
 
-      const token = localStorage.getItem("token");
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await venueAPI.update(venueId, formData);
+      const result = response.data;
 
-      const response = await fetch(`${API_URL}/venues/${venueId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      // ✅ HANDLE MENUS
+      // 1. Delete removed menus
+      for (const id of deletedMenuIds) {
+        await menuAPI.delete(id);
+      }
 
-      const result = await response.json();
+      // 2. Create or Update menus
+      for (const menu of menus) {
+        const menuData = {
+          name: menu.name,
+          pricePerHead: menu.pricePerHead,
+          items: menu.items,
+          venue: venueId,
+        };
 
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to update venue");
+        if (menu._id) {
+          await menuAPI.update(menu._id, menuData);
+        } else {
+          await menuAPI.create(menuData);
+        }
       }
 
       toast.success("Venue updated successfully!");
@@ -398,6 +456,135 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
                   </button>
                 </span>
               ))}
+            </div>
+          </div>
+
+          {/* Menu Packages Section */}
+          <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-surface-700">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-primary-900 dark:text-text-dark flex items-center gap-2">
+                <Utensils className="h-5 w-5 text-gold-600" />
+                Menu Packages
+              </h3>
+              <button
+                type="button"
+                onClick={addMenu}
+                className="flex items-center gap-2 text-sm font-bold text-gold-600 hover:text-gold-700 transition-colors"
+              >
+                <Plus className="h-4 w-4" /> Add Another Menu
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {menus.map((menu, menuIndex) => (
+                <div
+                  key={menuIndex}
+                  className="p-6 bg-gray-50 dark:bg-surface-900/50 rounded-2xl border border-gray-200 dark:border-surface-700 relative group"
+                >
+                  <button
+                    type="button"
+                    onClick={() => removeMenu(menuIndex)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2 block">
+                        Menu Name
+                      </label>
+                      <input
+                        value={menu.name}
+                        onChange={(e) =>
+                          updateMenuState(menuIndex, "name", e.target.value)
+                        }
+                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-surface-700 dark:bg-surface-800 text-primary-900 dark:text-text-dark text-sm font-bold focus:border-gold-500 outline-none"
+                        placeholder="e.g., Gold Wedding Menu"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2 block">
+                        Price Per Head (₨)
+                      </label>
+                      <input
+                        type="number"
+                        value={menu.pricePerHead}
+                        onChange={(e) =>
+                          updateMenuState(
+                            menuIndex,
+                            "pricePerHead",
+                            e.target.value,
+                          )
+                        }
+                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-surface-700 dark:bg-surface-800 text-primary-900 dark:text-text-dark text-sm font-bold focus:border-gold-500 outline-none"
+                        placeholder="e.g., 1500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Items in this menu */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-400 block">
+                      Food Items / Dishes
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {menu.items.map((item, itemIndex) => (
+                        <div key={itemIndex} className="flex gap-2">
+                          <div className="flex-grow relative">
+                            <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gold-500" />
+                            <input
+                              value={item}
+                              onChange={(e) =>
+                                updateMenuItem(
+                                  menuIndex,
+                                  itemIndex,
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 dark:border-surface-700 dark:bg-surface-800 text-primary-900 dark:text-text-dark text-xs font-medium focus:border-gold-500 outline-none"
+                              placeholder="e.g., Chicken Biryani"
+                              required
+                            />
+                          </div>
+                          {menu.items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeMenuItem(menuIndex, itemIndex)
+                              }
+                              className="p-2 text-gray-400 hover:text-red-500"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => addMenuItem(menuIndex)}
+                      className="mt-2 text-xs font-bold text-gray-500 hover:text-gold-600 flex items-center gap-1"
+                    >
+                      <Plus className="h-3 w-3" /> Add Item
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {menus.length === 0 && (
+                <div className="text-center py-6 bg-gray-50 dark:bg-surface-900/50 rounded-2xl border border-dashed border-gray-300 dark:border-surface-700">
+                  <p className="text-gray-500 text-sm">No menus added yet.</p>
+                  <button
+                    type="button"
+                    onClick={addMenu}
+                    className="mt-2 text-gold-600 font-bold text-sm hover:underline"
+                  >
+                    Add your first menu
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

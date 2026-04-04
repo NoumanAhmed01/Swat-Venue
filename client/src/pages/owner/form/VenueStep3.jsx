@@ -1,66 +1,195 @@
-// src/pages/owner/forms/VenueStep3.jsx
 import React from "react";
-import { DollarSign, Phone } from "lucide-react";
+import {
+  DollarSign,
+  Phone,
+  Utensils,
+  Plus,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
 
-const VenueStep3 = ({ register, errors }) => {
+const VenueStep3 = ({ register, errors, menus, setMenus }) => {
+  // Handlers for dynamic menu fields
+  const addMenu = () => {
+    setMenus([...menus, { name: "", pricePerHead: "", items: [""] }]);
+  };
+
+  const removeMenu = (index) => {
+    if (menus.length > 1) {
+      setMenus(menus.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateMenu = (index, field, value) => {
+    const updatedMenus = [...menus];
+    updatedMenus[index][field] = value;
+    setMenus(updatedMenus);
+  };
+
+  const addItem = (menuIndex) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items.push("");
+    setMenus(updatedMenus);
+  };
+
+  const updateItem = (menuIndex, itemIndex, value) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items[itemIndex] = value;
+    setMenus(updatedMenus);
+  };
+
+  const removeItem = (menuIndex, itemIndex) => {
+    const updatedMenus = [...menus];
+    updatedMenus[menuIndex].items = updatedMenus[menuIndex].items.filter(
+      (_, i) => i !== itemIndex,
+    );
+    setMenus(updatedMenus);
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-        <DollarSign className="h-5 w-5" />
-        Pricing & Contact
-      </h2>
+    <div className="space-y-10">
+      {/* Basic Pricing Section */}
+      <section className="space-y-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-gold-600" />
+          General Pricing & Contact
+        </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Price *
-          </label>
-          <input
-            type="number"
-            {...register("price")}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="Enter price in PKR"
-          />
-          {errors.price && (
-            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Base Price *
+            </label>
+            <input
+              type="number"
+              {...register("price")}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white"
+              placeholder="Base venue rent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Contact Number *
+            </label>
+            <input
+              type="tel"
+              {...register("phone")}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., +92 300 1234567"
+            />
+          </div>
         </div>
+      </section>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Price Type *
-          </label>
-          <select
-            {...register("priceType")}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+      {/* NEW: Menu Management Section */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Utensils className="h-5 w-5 text-gold-600" />
+            Menu Packages
+          </h2>
+          <button
+            type="button"
+            onClick={addMenu}
+            className="flex items-center gap-2 text-sm font-bold text-gold-600 hover:text-gold-700 transition-colors"
           >
-            <option value="per day">Per Day</option>
-            <option value="per event">Per Event</option>
-            <option value="per hour">Per Hour</option>
-          </select>
-          {errors.priceType && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.priceType.message}
-            </p>
-          )}
+            <Plus className="h-4 w-4" /> Add Another Menu
+          </button>
         </div>
-      </div>
 
-      <div>
-        <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
-          <Phone className="h-4 w-4" />
-          Contact Number *
-        </label>
-        <input
-          type="tel"
-          {...register("phone")}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          placeholder="Enter contact number"
-        />
-        {errors.phone && (
-          <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-        )}
-      </div>
+        <div className="space-y-6">
+          {menus.map((menu, menuIndex) => (
+            <div
+              key={menuIndex}
+              className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700 relative group"
+            >
+              {menus.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeMenu(menuIndex)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 block">
+                    Menu Name
+                  </label>
+                  <input
+                    value={menu.name}
+                    onChange={(e) =>
+                      updateMenu(menuIndex, "name", e.target.value)
+                    }
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-bold focus:border-gold-500 outline-none"
+                    placeholder="e.g., Gold Wedding Menu"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 block">
+                    Price Per Head (₨)
+                  </label>
+                  <input
+                    type="number"
+                    value={menu.pricePerHead}
+                    onChange={(e) =>
+                      updateMenu(menuIndex, "pricePerHead", e.target.value)
+                    }
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-bold focus:border-gold-500 outline-none"
+                    placeholder="e.g., 1500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Items in this menu */}
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 block">
+                  Food Items / Dishes
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {menu.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex gap-2">
+                      <div className="flex-grow relative">
+                        <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gold-500" />
+                        <input
+                          value={item}
+                          onChange={(e) =>
+                            updateItem(menuIndex, itemIndex, e.target.value)
+                          }
+                          className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white text-xs font-medium focus:border-gold-500 outline-none"
+                          placeholder="e.g., Chicken Biryani"
+                          required
+                        />
+                      </div>
+                      {menu.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeItem(menuIndex, itemIndex)}
+                          className="p-2 text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => addItem(menuIndex)}
+                  className="mt-2 text-xs font-bold text-gray-500 hover:text-gold-600 flex items-center gap-1"
+                >
+                  <Plus className="h-3 w-3" /> Add Item
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
