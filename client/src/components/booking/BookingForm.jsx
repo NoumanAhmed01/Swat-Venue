@@ -3,7 +3,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "../common/Toast";
-import { X } from "lucide-react";
+import {
+  X,
+  Calendar as CalendarIcon,
+  Users,
+  CreditCard,
+  Utensils,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";
@@ -22,16 +28,16 @@ const bookingSchema = yup.object({
   message: yup.string(),
 });
 
-const BookingForm = ({ venue, onClose, onSuccess }) => {
+const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [reservedDates, setReservedDates] = useState([]);
-  const [loadingDates, setLoadingDates] = useState(true);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
     setValue,
   } = useForm({
@@ -43,68 +49,65 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
     },
   });
 
+  const guestCount = watch("guestCount");
+
+  // Prevent background scroll when modal is open
   useEffect(() => {
-    if (user) {
-      setValue("name", user.name || "");
-      setValue("email", user.email);
-      if (user.phone) {
-        setValue("phone", user.phone);
-      }
-    }
-  }, [user, setValue]);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   useEffect(() => {
     const fetchReservedDates = async () => {
       try {
-        setLoadingDates(true);
         const response = await bookingAPI.getReservedDates(
-          venue._id || venue.id
+          venue._id || venue.id,
         );
         if (response.data.success) {
           setReservedDates(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching reserved dates:", error);
-      } finally {
-        setLoadingDates(false);
       }
     };
 
-    if (venue) {
-      fetchReservedDates();
-    }
+    if (venue) fetchReservedDates();
   }, [venue]);
 
   const onSubmit = async (data) => {
-    try {
-      if (!selectedDate) {
-        toast.error("Please select an event date from the calendar");
-        return;
-      }
+    if (!selectedDate) return toast.error("Please select an event date");
+    if (!selectedMenu) return toast.error("Please select a menu");
 
+    // ✅ Guest Capacity Check
+    if (Number(data.guestCount) > venue.capacity) {
+      return toast.error(
+        `Guest count cannot exceed venue capacity of ${venue.capacity} people`,
+      );
+    }
+
+    try {
       const bookingData = {
         venue: venue._id || venue.id,
         eventDate: selectedDate.toISOString(),
         eventType: data.eventType,
         guestCount: Number(data.guestCount),
         phone: data.phone,
-        email: data.email,
         name: data.name,
+        email: data.email,
         message: data.message || "",
+        menuId: selectedMenu._id,
       };
 
       const response = await bookingAPI.create(bookingData);
-
       if (response.data.success) {
-        toast.success("Booking request submitted successfully!");
+        toast.success("Booking submitted!");
         onSuccess?.();
         onClose();
       }
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to create booking. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.message || "Booking failed");
     }
   };
 
@@ -113,241 +116,209 @@ const BookingForm = ({ venue, onClose, onSuccess }) => {
     setShowCalendar(false);
   };
 
-  const eventTypes = [
-    "Wedding",
-    "Birthday Party",
-    "Corporate Event",
-    "Conference",
-    "Anniversary",
-    "Engagement",
-    "Reception",
-    "Seminar",
-    "Workshop",
-    "Other",
-  ];
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center z-[100] p-4">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Book This Venue
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Complete the form below to request a booking
-            </p>
-          </div>
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+            Book Your Event
+          </h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-          {/* Name and Email - First Line */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Full Name
-              </label>
-              <input
-                {...register("name")}
-                type="text"
-                className={`w-full p-3 border ${
-                  errors.name
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
-                placeholder="Your full name"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.name.message}
-                </p>
-              )}
+        {/* Summary Section */}
+        <div className="grid grid-cols-2 gap-4  p-4">
+          <div className="p-4 rounded-xl border border-gold-200 bg-gold-50/30 dark:bg-gold-900/10 dark:border-gold-800">
+            <div className="flex items-center gap-2 mb-1">
+              <Utensils className="h-3.5 w-3.5 text-gold-600" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gold-600">
+                Menu
+              </span>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                {...register("email")}
-                placeholder="your@email.com"
-                className={`w-full p-3 border ${
-                  errors.email
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            <p className="text-sm font-bold truncate dark:text-white">
+              {selectedMenu?.name}
+            </p>
+            <p className="text-xs text-gray-500">
+              ₨{selectedMenu?.pricePerHead}/head
+            </p>
           </div>
-
-          {/* Phone and Event Type - Second Line */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                {...register("phone")}
-                placeholder="+92 300 1234567"
-                className={`w-full p-3 border ${
-                  errors.phone
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.phone.message}
-                </p>
-              )}
+          <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 dark:bg-emerald-900/10 dark:border-emerald-800">
+            <div className="flex items-center gap-2 mb-1">
+              <CreditCard className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+                Total
+              </span>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Event Type
-              </label>
-              <select
-                {...register("eventType")}
-                className={`w-full p-3 border ${
-                  errors.eventType
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
-              >
-                <option value="">Select event type</option>
-                {eventTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              {errors.eventType && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.eventType.message}
-                </p>
-              )}
-            </div>
+            <p className="text-sm font-bold dark:text-white">
+              ₨{" "}
+              {(
+                Number(guestCount || 0) * (selectedMenu?.pricePerHead || 0)
+              ).toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-500">Estimated cost</p>
           </div>
+        </div>
 
-          {/* Event Date and Guest Count - Third Line */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Event Date
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowCalendar(!showCalendar)}
-                className={`w-full p-3 border ${
-                  errors.eventDate
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg text-left bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
-              >
-                {selectedDate ? (
-                  selectedDate.toLocaleDateString()
-                ) : (
-                  <span className="text-gray-400">Select event date</span>
+        {/* Form Body */}
+        <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">
+                  Full Name
+                </label>
+                <input
+                  {...register("name")}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.name.message}
+                  </p>
                 )}
-              </button>
-              {showCalendar && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 relative">
-                    <button
-                      onClick={() => setShowCalendar(false)}
-                      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">
+                  Email
+                </label>
+                <input
+                  {...register("email")}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                    <BookingCalendar
-                      venueId={venue._id || venue.id}
-                      selectedDate={selectedDate}
-                      onDateSelect={(date) => {
-                        handleDateSelect(date);
-                      }}
-                      reservedDates={reservedDates}
-                    />
-                  </div>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">
+                  Phone
+                </label>
+                <input
+                  {...register("phone")}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.phone.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">
+                  Event Type
+                </label>
+                <select
+                  {...register("eventType")}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                >
+                  <option value="">Select...</option>
+                  <option value="Wedding">Wedding</option>
+                  <option value="Birthday">Birthday</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
 
-              {!selectedDate && (
-                <p className="text-red-500 text-xs mt-1">
-                  Please select an event date
-                </p>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">
+                  Event Date
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowCalendar(true)}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm text-left flex justify-between items-center"
+                >
+                  {selectedDate
+                    ? selectedDate.toLocaleDateString()
+                    : "Choose Date"}
+                  <CalendarIcon className="h-4 w-4 text-gray-400" />
+                </button>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block justify-between">
+                  <span>Guests</span>
+                  <span className="text-gold-600 font-black">
+                    Max: {venue.capacity}
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  {...register("guestCount")}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${Number(guestCount) > venue.capacity ? "border-red-500 bg-red-50" : "border-gray-200 dark:border-gray-700"} dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none`}
+                />
+                {Number(guestCount) > venue.capacity && (
+                  <p className="text-red-500 text-[10px] font-bold mt-1">
+                    Exceeds venue capacity!
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Number of Guests
+              <label className="text-xs font-bold text-gray-500 mb-1 block">
+                Message (Optional)
               </label>
-              <input
-                type="number"
-                {...register("guestCount")}
-                placeholder="e.g., 150"
-                min="1"
-                max={venue.capacity}
-                className={`w-full p-3 border ${
-                  errors.guestCount
-                    ? "border-red-500"
-                    : "border-gray-300 dark:border-gray-600"
-                } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm`}
+              <textarea
+                {...register("message")}
+                rows="2"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none resize-none"
               />
-              {errors.guestCount && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.guestCount.message}
-                </p>
-              )}
             </div>
-          </div>
 
-          {/* Additional Message - Full Width */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Additional Message (Optional)
-            </label>
-            <textarea
-              {...register("message")}
-              placeholder="Any special requirements?"
-              rows="3"
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm resize-none"
-            ></textarea>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
             <button
               type="submit"
-              disabled={isSubmitting || !selectedDate}
-              className="flex-1 bg-gold-500 hover:bg-gold-600 text-white px-4 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={
+                isSubmitting ||
+                !selectedDate ||
+                Number(guestCount) > venue.capacity
+              }
+              className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4 shadow-lg shadow-gold-500/20"
             >
-              {isSubmitting ? "Submitting..." : "Book Now"}
+              {isSubmitting ? "Confirming..." : "Complete Booking"}
             </button>
+          </form>
+        </div>
+
+        {/* Internal Calendar Overlay */}
+        {showCalendar && (
+          <div className="absolute inset-0 bg-white dark:bg-gray-800 z-[110] flex flex-col p-6 overflow-hidden">
+            <div className="flex justify-between items-center mb-4 flex-shrink-0">
+              <h4 className="font-bold dark:text-white">Select Event Date</h4>
+              <button
+                onClick={() => setShowCalendar(false)}
+                className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors hover:text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto no-scrollbar">
+              <BookingCalendar
+                venueId={venue._id || venue.id}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+                reservedDates={reservedDates}
+              />
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

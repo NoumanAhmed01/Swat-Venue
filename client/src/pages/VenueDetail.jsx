@@ -1,12 +1,13 @@
 // src/pages/user/VenueDetail.jsx
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from "../components/common/Toast";
 import { VenueDetailSkeleton } from "../components/common/SkeletonLoader";
 import Review from "../components/venue/Review";
 import BookingForm from "../components/booking/BookingForm";
-import { venueAPI } from "../utils/api";
+import { venueAPI, menuAPI } from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 
 // Import new components
 import VenueMediaGallery from "../components/venue/VenueMediaGallery";
@@ -14,13 +15,18 @@ import VenueInfoCard from "../components/venue/VenueInfoCard";
 import VenueAmenities from "../components/venue/VenueAmenities";
 import VenuePricingCard from "../components/venue/VenuePricingCard";
 import VenueLocationMap from "../components/venue/VenueLocationMap";
+import Menu from "../components/venue/Menu";
 
 //Animation
 import { motion, fadeInUp } from "../components/animation/Animation";
 
 const VenueDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [venue, setVenue] = useState(null);
+  const [menus, setMenus] = useState([]); // ✅ NEW
+  const [selectedMenu, setSelectedMenu] = useState(null); // ✅ NEW
   const [loading, setLoading] = useState(true);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
@@ -39,6 +45,20 @@ const VenueDetail = () => {
     };
 
     fetchVenue();
+  }, [id]);
+
+  // ✅ FETCH MENUS
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const res = await menuAPI.getByVenue(id);
+        setMenus(res.data.data);
+      } catch (err) {
+        console.error("Error fetching menus", err);
+      }
+    };
+
+    fetchMenus();
   }, [id]);
 
   const handleReviewSubmitted = async () => {
@@ -137,6 +157,13 @@ const VenueDetail = () => {
               {/* Amenities */}
               <VenueAmenities amenities={venue.amenities || []} />
 
+              {/* ✅ MENU ADDED HERE */}
+              <Menu
+                menus={menus}
+                selectedMenu={selectedMenu}
+                setSelectedMenu={setSelectedMenu}
+              />
+
               {/* Reviews */}
               <Review
                 venueId={venue._id || venue.id}
@@ -152,23 +179,37 @@ const VenueDetail = () => {
             <div className="space-y-6">
               <VenuePricingCard
                 venue={venue}
-                onBookNow={() => setBookingModalOpen(true)}
+                onBookNow={() => {
+                  // ✅ CHECK AUTHENTICATION
+                  if (!user) {
+                    toast("Please login to book this venue", { type: "info" });
+                    navigate("/auth/login", {
+                      state: { from: `/venue/${id}` },
+                    });
+                    return;
+                  }
+
+                  // ✅ CHECK MENU SELECTED
+                  if (!selectedMenu) {
+                    toast.error("Please select a menu first");
+                    return;
+                  }
+                  setBookingModalOpen(true);
+                }}
               />
             </div>
           </div>
         </div>
-
-        {/* Booking Modal */}
-        {bookingModalOpen && (
-          <BookingForm
-            venue={venue}
-            onClose={() => setBookingModalOpen(false)}
-            onSuccess={() => {
-              toast.success("Booking request submitted successfully!");
-            }}
-          />
-        )}
       </motion.div>
+
+      {/* Booking Modal - Moved outside motion.div to fix z-index/fixed positioning issues */}
+      {bookingModalOpen && (
+        <BookingForm
+          venue={venue}
+          selectedMenu={selectedMenu} // ✅ PASS MENU
+          onClose={() => setBookingModalOpen(false)}
+        />
+      )}
     </>
   );
 };

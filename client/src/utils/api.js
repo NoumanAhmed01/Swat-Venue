@@ -19,7 +19,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
@@ -31,7 +31,7 @@ api.interceptors.response.use(
       window.location.href = "/auth/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const authAPI = {
@@ -75,13 +75,6 @@ export const bookingAPI = {
   delete: (id) => api.delete(`/bookings/${id}`),
 };
 
-// export const inquiryAPI = {
-//   create: (data) => api.post("/inquiries", data),
-//   getVenueInquiries: (venueId) => api.get(`/inquiries/venue/${venueId}`),
-//   getOwnerInquiries: () => api.get("/inquiries/owner/my-inquiries"),
-//   updateStatus: (id, data) => api.patch(`/inquiries/${id}/status`, data),
-// };
-
 export const contactAPI = {
   create: (data) => api.post("/contacts", data),
   getAll: () => api.get("/contacts"),
@@ -97,6 +90,10 @@ export const userAPI = {
   updateRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
   getStats: () => api.get("/users/stats"),
   updateStatus: (id, data) => api.patch(`/users/${id}/status`, data),
+};
+
+export const menuAPI = {
+  getByVenue: (venueId) => api.get(`/menus/venue/${venueId}`),
 };
 
 export default api;

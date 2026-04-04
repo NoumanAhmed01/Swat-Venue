@@ -108,8 +108,8 @@ const BookingCard = ({
             <div className="text-right">
               <p className="text-lg font-bold text-gold-600 dark:text-gold-400">
                 Rs.{" "}
-                {typeof booking.amount === "number"
-                  ? booking.amount.toLocaleString()
+                {typeof (booking.totalAmount || booking.amount) === "number"
+                  ? (booking.totalAmount || booking.amount).toLocaleString()
                   : "0"}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -241,21 +241,39 @@ const BookingCard = ({
                         </p>
                       </div>
                     </div>
-                    {booking.venueLocation && (
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-                          <MapPin className="h-4 w-4 text-purple-500" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Location
-                          </p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {booking.venueLocation}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Menu Details */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-gold-500" />
+                  Menu & Pricing
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-3 bg-gold-50 dark:bg-gold-900/10 rounded-lg border border-gold-100 dark:border-gold-900/20">
+                    <p className="text-xs text-gold-600 dark:text-gold-400 font-medium">
+                      Selected Menu
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      {booking.menuDetails?.name ||
+                        booking.menu?.name ||
+                        "Standard Menu"}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-100 dark:border-emerald-900/20">
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                      Per Head Charge
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      ₨{" "}
+                      {(
+                        booking.pricePerHead ||
+                        booking.menuDetails?.pricePerHead ||
+                        0
+                      ).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 const Booking = require("../models/Booking");
 const Venue = require("../models/Venue");
+const Menu = require("../models/Menu");
 const {
   sendBookingConfirmationEmailToCustomer,
   sendBookingNotificationToOwner,
@@ -7,14 +8,35 @@ const {
 
 exports.createBooking = async (req, res) => {
   try {
-    const { venue, eventDate, eventType, guestCount, message, phone, email } =
-      req.body;
+    const {
+      venue,
+      eventDate,
+      eventType,
+      guestCount,
+      message,
+      phone,
+      name,
+      email,
+      menuId,
+    } = req.body;
 
     const venueExists = await Venue.findById(venue);
     if (!venueExists) {
       return res.status(404).json({ message: "Venue not found" });
     }
 
+    // 🔥 MENU VALIDATION
+    const menu = await Menu.findById(menuId);
+    if (!menu) {
+      return res.status(404).json({ message: "Menu not found" });
+    }
+
+    // 🔥 ENSURE MENU BELONGS TO VENUE
+    if (menu.venue.toString() !== venue) {
+      return res.status(400).json({ message: "Invalid menu for this venue" });
+    }
+
+    // 🔥 DATE CHECK
     const existingBooking = await Booking.findOne({
       venue,
       eventDate,
@@ -25,40 +47,54 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ message: "This date is already booked" });
     }
 
+    // 🔥 PRICE CALCULATION
+    const pricePerHead = menu.pricePerHead;
+    const totalAmount = pricePerHead * guestCount;
+
+    // 🔥 CREATE BOOKING
     const booking = await Booking.create({
       venue,
       customer: req.user.id,
-      customerName: req.user.name,
+      customerName: name,
       eventDate,
       eventType,
       guestCount,
       message,
       phone: phone || req.user.phone,
       email: email || req.user.email,
-      amount: venueExists.price,
+
+      menu: menu._id,
+      menuDetails: {
+        name: menu.name,
+        pricePerHead: menu.pricePerHead,
+      },
+
+      pricePerHead,
+      totalAmount,
+
       status: "pending",
     });
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate({
         path: "venue",
-        select: "name location price owner",
-        populate: { path: "owner", select: "name email" }, // populate owner details
+        select: "name location owner",
+        populate: { path: "owner", select: "name email" },
       })
-      .populate("customer", "name email phone");
+      .populate("customer", "name email phone")
+      .populate("menu", "name pricePerHead");
 
-    // Send email to customer
+    // Emails (no change needed)
     await sendBookingConfirmationEmailToCustomer(
       populatedBooking,
       populatedBooking.venue,
-      populatedBooking.customer
+      populatedBooking.customer,
     );
 
-    // Send email to venue owner
     await sendBookingNotificationToOwner(
       populatedBooking,
       populatedBooking.venue,
-      populatedBooking.venue.owner
+      populatedBooking.venue.owner,
     );
 
     res.status(201).json({
@@ -73,7 +109,8 @@ exports.createBooking = async (req, res) => {
 exports.getUserBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ customer: req.user.id })
-      .populate("venue", "name location price images")
+      .populate("venue", "name location images price")
+      .populate("menu", "name pricePerHead")
       .sort("-createdAt");
 
     res.json({
@@ -100,6 +137,7 @@ exports.getVenueBookings = async (req, res) => {
 
     const bookings = await Booking.find({ venue: req.params.venueId })
       .populate("customer", "name email phone")
+      .populate("menu", "name pricePerHead")
       .sort("-createdAt");
 
     res.json({
@@ -120,6 +158,7 @@ exports.getOwnerBookings = async (req, res) => {
     const bookings = await Booking.find({ venue: { $in: venueIds } })
       .populate("venue", "name location price images")
       .populate("customer", "name email phone")
+      .populate("menu", "name pricePerHead")
       .sort("-createdAt");
 
     res.json({

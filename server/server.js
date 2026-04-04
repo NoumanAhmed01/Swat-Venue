@@ -15,7 +15,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -39,6 +39,7 @@ app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/bookings", require("./routes/bookingRoutes"));
 app.use("/api/contacts", require("./routes/contactRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/menus", require("./routes/menuRoutes"));
 
 app.use(errorHandler);
 
@@ -48,7 +49,7 @@ const server = app.listen(PORT, () => {
   console.log(
     `Server running in ${
       process.env.NODE_ENV || "development"
-    } mode on port ${PORT}`
+    } mode on port ${PORT}`,
   );
 });
 

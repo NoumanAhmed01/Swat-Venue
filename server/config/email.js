@@ -126,13 +126,21 @@ const sendBookingConfirmationEmailToCustomer = async (
               <span>Event Type:</span>
               <span>${booking.eventType}</span>
             </div>
-            <div class="detail-row">
+            <div className="detail-row">
+              <span>Menu:</span>
+              <strong>${booking.menuDetails?.name || "Standard Menu"}</strong>
+            </div>
+            <div className="detail-row">
+              <span>Per Head:</span>
+              <span>₨${(booking.pricePerHead || 0).toLocaleString()}</span>
+            </div>
+            <div className="detail-row">
               <span>Guest Count:</span>
               <span>${booking.guestCount}</span>
             </div>
-            <div class="detail-row">
-              <span>Amount:</span>
-              <strong>₨${booking.amount.toLocaleString()}</strong>
+            <div className="detail-row">
+              <span>Total Amount:</span>
+              <strong>₨${(booking.totalAmount || 0).toLocaleString()}</strong>
             </div>
             <div class="detail-row">
               <span>Status:</span>

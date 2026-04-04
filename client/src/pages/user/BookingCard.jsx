@@ -84,7 +84,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
 
         {/* AMOUNT */}
         <div className="absolute top-3 right-3 bg-black/80 text-white px-3 py-1 rounded-lg text-xs font-semibold">
-          ₨ {booking.amount?.toLocaleString()}
+          ₨ {(booking.totalAmount || booking.amount)?.toLocaleString()}
         </div>
       </div>
 

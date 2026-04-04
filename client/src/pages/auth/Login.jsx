@@ -43,7 +43,8 @@ const Login = () => {
       const result = await login(data.email, data.password);
       if (result.success) {
         toast("Login successful!", { type: "success" });
-        const from = location.state?.from?.pathname || "/";
+        const from =
+          location.state?.from?.pathname || location.state?.from || "/";
         navigate(from, { replace: true });
       } else {
         toast.error(result.message || "Invalid email or password");
