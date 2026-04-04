@@ -18,26 +18,54 @@ exports.register = async (req, res) => {
       password,
       phone,
       role: role || "customer",
+      isVerified: false, // Force false initially
     });
 
-    const token = generateToken(user._id);
+    // Generate verification OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await OTP.deleteMany({ email });
+    await OTP.create({ email, otp, otpType: "verify" });
+
+    // send OTP email
+    await sendOTPEmail(email, otp, user.name);
 
     res.status(201).json({
       success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
+      message: "Registration successful. Please verify your email with the OTP sent.",
+      email: user.email,
     });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res.status(400).json({ message: error.message });
     }
     res.status(500).json({ message: error.message });
+  }
+};
+
+// =============== VERIFY EMAIL (during registration) =================
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const validOTP = await OTP.findOne({ email, otp, otpType: "verify" });
+    if (!validOTP) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired OTP" });
+    }
+
+    // Set user as verified
+    await User.findOneAndUpdate({ email }, { isVerified: true });
+
+    // OTP verified → delete it
+    await OTP.deleteMany({ email });
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully. You can now log in.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -58,11 +86,19 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 2. THEN check if account is active
+    // 2. THEN check if account is active and verified
     if (user.isActive === false) {
       return res.status(403).json({
         success: false,
         message: "Account is deactivated. Please contact administrator.",
+      });
+    }
+
+    if (user.isVerified === false) {
+      return res.status(401).json({
+        success: false,
+        isVerified: false,
+        message: "Email not verified. Please verify your email first.",
       });
     }
 
@@ -115,6 +151,9 @@ exports.forgotPassword = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
+    // Determine OTP type: if user not verified, it's a verification OTP, otherwise it's a reset OTP
+    const otpType = user.isVerified ? "reset" : "verify";
+
     // generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -122,14 +161,16 @@ exports.forgotPassword = async (req, res) => {
     await OTP.deleteMany({ email });
 
     // save new OTP in DB (auto-expires in 10 min)
-    await OTP.create({ email, otp });
+    await OTP.create({ email, otp, otpType });
 
     // send OTP email
     await sendOTPEmail(email, otp, user.name);
 
     res.status(200).json({
       success: true,
-      message: "OTP sent successfully to your email.",
+      message: user.isVerified 
+        ? "OTP sent successfully to your email for password reset." 
+        : "Verification OTP resent to your email.",
     });
   } catch (error) {
     console.error("Forgot Password Error:", error);
@@ -137,12 +178,12 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// =============== VERIFY OTP =================
+// =============== VERIFY OTP (for password reset) =================
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const validOTP = await OTP.findOne({ email, otp });
+    const validOTP = await OTP.findOne({ email, otp, otpType: "reset" });
     if (!validOTP) {
       return res
         .status(400)

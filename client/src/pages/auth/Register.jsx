@@ -26,10 +26,13 @@ const Register = () => {
       const formData = { ...data, role: selectedRole };
       const result = await registerUser(formData);
       if (result.success) {
-        toast.success(
-          `Registration successful! Welcome to SwatVenue as a ${selectedRole}.`
-        );
-        navigate(selectedRole === "owner" ? "/owner/dashboard" : "/");
+        toast.success(result.message || "Registration successful! Please verify your email.");
+        navigate("/auth/verify-otp", { 
+          state: { 
+            email: result.email,
+            type: "verify" 
+          } 
+        });
       } else {
         toast.error(result.message || "Registration failed. Please try again.");
       }

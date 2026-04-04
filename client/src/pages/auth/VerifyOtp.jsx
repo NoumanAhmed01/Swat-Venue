@@ -28,6 +28,7 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || "";
+  const type = location.state?.type || "reset"; // 'reset' or 'verify'
 
   const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
@@ -53,9 +54,15 @@ const VerifyOtp = () => {
 
   const onSubmit = async (data) => {
     try {
-      await authAPI.verifyOtp(email, data.otp);
-      toast.success("OTP verified successfully!");
-      navigate("/auth/reset-password", { state: { email } });
+      if (type === "verify") {
+        await authAPI.verifyEmail({ email, otp: data.otp });
+        toast.success("Email verified successfully! You can now log in.");
+        navigate("/auth/login");
+      } else {
+        await authAPI.verifyOtp(email, data.otp);
+        toast.success("OTP verified successfully!");
+        navigate("/auth/reset-password", { state: { email } });
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid or expired OTP.");
     }

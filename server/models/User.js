@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -47,6 +51,15 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Auto-delete unverified users after 48 hours (172800 seconds)
+userSchema.index(
+  { createdAt: 1 },
+  { 
+    expireAfterSeconds: 172800, 
+    partialFilterExpression: { isVerified: false } 
+  }
+);
 
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();

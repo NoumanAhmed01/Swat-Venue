@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Login error:", error);
       return {
         success: false,
+        isVerified: error.response?.data?.isVerified,
         message: error.response?.data?.message || "Login failed",
       };
     }
@@ -52,12 +53,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token, user: newUser } = response.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(newUser));
-      setUser(newUser);
-      return { success: true };
+      // Register now returns success message and email, not user/token
+      return { 
+        success: true, 
+        message: response.data.message,
+        email: response.data.email 
+      };
     } catch (error) {
       console.error("Registration error:", error);
       return {

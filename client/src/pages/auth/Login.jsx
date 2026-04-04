@@ -47,7 +47,19 @@ const Login = () => {
           location.state?.from?.pathname || location.state?.from || "/";
         navigate(from, { replace: true });
       } else {
-        toast.error(result.message || "Invalid email or password");
+        if (result.isVerified === false) {
+          toast.error("Email not verified. Redirecting to verification page...");
+          setTimeout(() => {
+            navigate("/auth/verify-otp", { 
+              state: { 
+                email: data.email, 
+                type: "verify" 
+              } 
+            });
+          }, 2000);
+        } else {
+          toast.error(result.message || "Invalid email or password");
+        }
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
