@@ -19,7 +19,11 @@ import {
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const registerSchema = yup.object({
-  name: yup.string().required("Name is required"),
+  name: yup
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone number is required"),
   password: yup

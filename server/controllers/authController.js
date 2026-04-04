@@ -34,6 +34,9 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -84,7 +87,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -163,6 +166,13 @@ exports.resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
 
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res
@@ -179,6 +189,6 @@ exports.resetPassword = async (req, res) => {
         "Password reset successfully. You can now log in with your new password.",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
