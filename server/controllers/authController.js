@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const OTP = require("../models/OTP");
 const { generateToken } = require("../utils/jwt");
-const { sendOTPEmail } = require("../config/email");
+const { sendOTPEmail, sendVerificationOTPEmail } = require("../config/email");
 
 exports.register = async (req, res) => {
   try {
@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
     await OTP.create({ email, otp, otpType: "verify" });
 
     // send OTP email
-    await sendOTPEmail(email, otp, user.name);
+    await sendVerificationOTPEmail(email, otp, user.name);
 
     res.status(201).json({
       success: true,
@@ -164,7 +164,11 @@ exports.forgotPassword = async (req, res) => {
     await OTP.create({ email, otp, otpType });
 
     // send OTP email
-    await sendOTPEmail(email, otp, user.name);
+    if (user.isVerified) {
+      await sendOTPEmail(email, otp, user.name);
+    } else {
+      await sendVerificationOTPEmail(email, otp, user.name);
+    }
 
     res.status(200).json({
       success: true,
