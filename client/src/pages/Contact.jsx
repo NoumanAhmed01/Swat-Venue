@@ -10,13 +10,51 @@ import { contactAPI } from "../utils/api";
 
 // ✅ Validation schema using Yup
 const contactSchema = yup.object({
-  name: yup.string().required("Name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  subject: yup.string().required("Subject is required"),
-  message: yup.string().required("Message is required"),
+  name: yup
+    .string()
+    .trim()
+    .required("Full name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .matches(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
+  email: yup
+    .string()
+    .trim()
+    .lowercase()
+    .required("Email address is required")
+    .email("Please enter a valid email address")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+      "Please enter a valid email (e.g. user@example.com)"
+    ),
+  subject: yup
+    .string()
+    .required("Please select a subject")
+    .oneOf(
+      ["general", "booking", "venue-listing", "technical", "partnership", "other"],
+      "Invalid subject selected"
+    ),
+  message: yup
+    .string()
+    .trim()
+    .required("Message is required")
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message cannot exceed 1000 characters"),
 });
 
 const Contact = () => {
+  // Helper to restrict name to alphabets and spaces only during typing
+  const handleNameKeyDown = (e) => {
+    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 122)) {
+        e.preventDefault();
+    }
+  };
+
   // ✅ React Hook Form setup with Yup validation
   const {
     register,
@@ -185,7 +223,10 @@ const Contact = () => {
                       </label>
                       <input
                         {...register("name")}
-                        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+                        onKeyDown={handleNameKeyDown}
+                        className={`w-full px-4 py-3 border ${
+                          errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                        } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                         placeholder="Enter your full name"
                       />
                       {errors.name && (
@@ -203,7 +244,9 @@ const Contact = () => {
                       <input
                         type="email"
                         {...register("email")}
-                        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+                        className={`w-full px-4 py-3 border ${
+                          errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                        } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                         placeholder="Enter your email"
                       />
                       {errors.email && (
@@ -221,7 +264,9 @@ const Contact = () => {
                     </label>
                     <select
                       {...register("subject")}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+                      className={`w-full px-4 py-3 border ${
+                        errors.subject ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                     >
                       <option value="">Select a subject</option>
                       <option value="general">General Inquiry</option>
@@ -246,7 +291,9 @@ const Contact = () => {
                     <textarea
                       rows="6"
                       {...register("message")}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark"
+                      className={`w-full px-4 py-3 border ${
+                        errors.message ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                       placeholder="Tell us how we can help you..."
                     />
                     {errors.message && (

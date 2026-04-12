@@ -13,11 +13,15 @@ const resetSchema = yup.object({
   password: yup
     .string()
     .required("Password is required")
-    .min(6, "At least 6 characters"),
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[a-z]/, "At least one lowercase letter")
+    .matches(/[A-Z]/, "At least one uppercase letter")
+    .matches(/[0-9]/, "At least one number")
+    .matches(/[@$!%*?&#]/, "At least one special character (@$!%*?&#)"),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match")
-    .required("Confirm your password"),
+    .required("Please confirm your password")
+    .oneOf([yup.ref("password"), null], "Passwords must match"),
 });
 
 const ResetPassword = () => {
@@ -28,10 +32,19 @@ const ResetPassword = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(resetSchema),
   });
+
+  const passwordValue = watch("password", "");
+
+  const passwordRequirements = [
+    { label: "Minimum 8 characters", met: passwordValue.length >= 8 },
+    { label: "Uppercase & lowercase letters", met: /[A-Z]/.test(passwordValue) && /[a-z]/.test(passwordValue) },
+    { label: "Numbers & Special characters", met: /[0-9]/.test(passwordValue) && /[@$!%*?&#]/.test(passwordValue) },
+  ];
 
   const onSubmit = async (data) => {
     try {
@@ -168,7 +181,9 @@ const ResetPassword = () => {
                     <input
                       type="password"
                       {...register("password")}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600"
+                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.password ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600`}
                       placeholder="Enter your new password"
                     />
                   </div>
@@ -189,7 +204,9 @@ const ResetPassword = () => {
                     <input
                       type="password"
                       {...register("confirmPassword")}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600"
+                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.confirmPassword ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600`}
                       placeholder="Confirm your new password"
                     />
                   </div>
@@ -200,25 +217,33 @@ const ResetPassword = () => {
                   )}
                 </div>
 
-                {/* Password Strength Tips */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">
+                {/* Password Strength Checklist */}
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     Password Requirements:
                   </p>
-                  <ul className="text-xs text-amber-700 dark:text-amber-400 space-y-1">
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                      Minimum 6 characters
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                      Use uppercase & lowercase letters
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                      Include numbers for extra security
-                    </li>
-                  </ul>
+                  <div className="grid grid-cols-1 gap-2">
+                    {passwordRequirements.map((req, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                          req.met ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-gray-200 dark:bg-gray-700 text-gray-400"
+                        }`}>
+                          {req.met ? (
+                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <div className="w-1 h-1 bg-current rounded-full" />
+                          )}
+                        </div>
+                        <span className={`text-xs font-medium transition-colors ${
+                          req.met ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"
+                        }`}>
+                          {req.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Submit Button */}

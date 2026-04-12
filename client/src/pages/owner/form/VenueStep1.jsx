@@ -14,6 +14,19 @@ const locations = [
 ];
 
 const VenueStep1 = ({ register, errors }) => {
+  // Helper to restrict venue name (allow alphabets, numbers, and spaces)
+  const handleNameKeyDown = (e) => {
+    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    // Allow letters (A-Z) and numbers (0-9)
+    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 48 || e.keyCode > 57) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
@@ -28,8 +41,11 @@ const VenueStep1 = ({ register, errors }) => {
           </label>
           <input
             {...register("name")}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="Enter venue name"
+            onKeyDown={handleNameKeyDown}
+            className={`w-full px-4 py-3 border ${
+              errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+            } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
+            placeholder="Enter venue name (e.g., Grand Palace)"
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -43,7 +59,9 @@ const VenueStep1 = ({ register, errors }) => {
           </label>
           <select
             {...register("location")}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            className={`w-full px-4 py-3 border ${
+              errors.location ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+            } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
           >
             <option value="">Select location</option>
             {locations.map((location) => (
@@ -67,8 +85,10 @@ const VenueStep1 = ({ register, errors }) => {
         <textarea
           rows={3}
           {...register("address")}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          placeholder="Enter complete address"
+          className={`w-full px-4 py-3 border ${
+            errors.address ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+          } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
+          placeholder="Enter complete address with street number and landmarks"
         />
         {errors.address && (
           <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
@@ -82,8 +102,10 @@ const VenueStep1 = ({ register, errors }) => {
         <textarea
           rows={4}
           {...register("description")}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          placeholder="Describe your venue, its features, and what makes it special"
+          className={`w-full px-4 py-3 border ${
+            errors.description ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+          } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
+          placeholder="Describe your venue, its features, and what makes it special (min. 20 characters)"
         />
         {errors.description && (
           <p className="text-red-500 text-sm mt-1">
@@ -99,7 +121,9 @@ const VenueStep1 = ({ register, errors }) => {
         <input
           type="number"
           {...register("capacity")}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          className={`w-full px-4 py-3 border ${
+            errors.capacity ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+          } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
           placeholder="Enter maximum guest capacity"
         />
         {errors.capacity && (

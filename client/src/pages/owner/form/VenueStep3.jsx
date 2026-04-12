@@ -9,6 +9,18 @@ import {
 } from "lucide-react";
 
 const VenueStep3 = ({ register, errors, menus, setMenus }) => {
+  // Helper to restrict phone to numbers and + only during typing
+  const handlePhoneKeyDown = (e) => {
+    if ([8, 46, 9, 27, 13, 187, 107].indexOf(e.keyCode) !== -1 ||
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+    }
+  };
+
   // Handlers for dynamic menu fields
   const addMenu = () => {
     setMenus([...menus, { name: "", pricePerHead: "", items: [""] }]);
@@ -58,26 +70,63 @@ const VenueStep3 = ({ register, errors, menus, setMenus }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Base Price *
+              Contact Number *
             </label>
-            <input
-              type="number"
-              {...register("price")}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white"
-              placeholder="Base venue rent"
-            />
+            <div className="relative">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="tel"
+                {...register("phone")}
+                onKeyDown={handlePhoneKeyDown}
+                className={`w-full pl-12 pr-4 py-3 border ${
+                  errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                } rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white transition-colors`}
+                placeholder="e.g., +923001234567"
+              />
+            </div>
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Price Type *
+            </label>
+            <select
+              {...register("priceType")}
+              className={`w-full px-4 py-3 border ${
+                errors.priceType ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+              } rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white transition-colors`}
+            >
+              <option value="per day">Per Day (Total Rent)</option>
+              <option value="per person">Per Person (Plate Rate)</option>
+              <option value="per event">Per Event (Flat Rate)</option>
+            </select>
+            {errors.priceType && (
+              <p className="text-red-500 text-sm mt-1">{errors.priceType.message}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Contact Number *
             </label>
-            <input
-              type="tel"
-              {...register("phone")}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white"
-              placeholder="e.g., +92 300 1234567"
-            />
+            <div className="relative">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="tel"
+                {...register("phone")}
+                onKeyDown={handlePhoneKeyDown}
+                className={`w-full pl-12 pr-4 py-3 border ${
+                  errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                } rounded-lg focus:ring-2 focus:ring-gold-500 outline-none dark:bg-gray-700 dark:text-white transition-colors`}
+                placeholder="e.g., +923001234567"
+              />
+            </div>
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+            )}
           </div>
         </div>
       </section>

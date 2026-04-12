@@ -15,17 +15,43 @@ import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";
 
 const bookingSchema = yup.object({
-  name: yup.string().required("Name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  phone: yup.string().required("Phone number is required"),
-  eventType: yup.string().required("Event type is required"),
+  name: yup
+    .string()
+    .trim()
+    .required("Full name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .matches(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
+  email: yup
+    .string()
+    .trim()
+    .lowercase()
+    .required("Email address is required")
+    .email("Please enter a valid email address")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+      "Please enter a valid email (e.g. user@example.com)"
+    ),
+  phone: yup
+    .string()
+    .trim()
+    .required("Phone number is required")
+    .matches(
+      /^\+?[1-9]\d{1,14}$/,
+      "Please enter a valid phone number (e.g., +923001234567)"
+    ),
+  eventType: yup.string().required("Please select an event type"),
   guestCount: yup
     .number()
     .typeError("Guest count must be a number")
+    .required("Guest count is required")
     .positive("Guest count must be positive")
     .integer("Guest count must be a whole number")
-    .required("Guest count is required"),
-  message: yup.string(),
+    .min(1, "At least 1 guest required"),
+  message: yup
+    .string()
+    .trim()
+    .max(500, "Message cannot exceed 500 characters"),
 });
 
 const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
@@ -48,6 +74,30 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
       phone: user?.phone || "",
     },
   });
+
+  // Helper to restrict name to alphabets and spaces only during typing
+  const handleNameKeyDown = (e) => {
+    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 122)) {
+        e.preventDefault();
+    }
+  };
+
+  // Helper to restrict phone to numbers and + only during typing
+  const handlePhoneKeyDown = (e) => {
+    if ([8, 46, 9, 27, 13, 187, 107].indexOf(e.keyCode) !== -1 ||
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+    }
+  };
 
   const guestCount = watch("guestCount");
 
@@ -180,7 +230,10 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 </label>
                 <input
                   {...register("name")}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                  onKeyDown={handleNameKeyDown}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-[10px] mt-1">
@@ -194,7 +247,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 </label>
                 <input
                   {...register("email")}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-[10px] mt-1">
@@ -211,7 +266,10 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 </label>
                 <input
                   {...register("phone")}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                  onKeyDown={handlePhoneKeyDown}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.phone && (
                   <p className="text-red-500 text-[10px] mt-1">
@@ -225,7 +283,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 </label>
                 <select
                   {...register("eventType")}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none"
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    errors.eventType ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 >
                   <option value="">Select...</option>
                   <option value="Wedding">Wedding</option>
@@ -233,6 +293,11 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   <option value="Corporate">Corporate</option>
                   <option value="Other">Other</option>
                 </select>
+                {errors.eventType && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.eventType.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -244,7 +309,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 <button
                   type="button"
                   onClick={() => setShowCalendar(true)}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm text-left flex justify-between items-center"
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    !selectedDate && errors.eventDate ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm text-left flex justify-between items-center transition-colors`}
                 >
                   {selectedDate
                     ? selectedDate.toLocaleDateString()
@@ -262,9 +329,16 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 <input
                   type="number"
                   {...register("guestCount")}
-                  className={`w-full px-4 py-2.5 rounded-lg border ${Number(guestCount) > venue.capacity ? "border-red-500 bg-red-50" : "border-gray-200 dark:border-gray-700"} dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${
+                    errors.guestCount || Number(guestCount) > venue.capacity ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-gray-200 dark:border-gray-700"
+                  } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
-                {Number(guestCount) > venue.capacity && (
+                {errors.guestCount && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.guestCount.message}
+                  </p>
+                )}
+                {Number(guestCount) > venue.capacity && !errors.guestCount && (
                   <p className="text-red-500 text-[10px] font-bold mt-1">
                     Exceeds venue capacity!
                   </p>

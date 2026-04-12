@@ -20,7 +20,16 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 // Validation schema using Yup
 const loginSchema = yup.object({
-  email: yup.string().email("Invalid email").required("Email is required"),
+  email: yup
+    .string()
+    .trim()
+    .lowercase()
+    .required("Email address is required")
+    .email("Please enter a valid email address")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Please enter a valid email format"
+    ),
   password: yup.string().required("Password is required"),
 });
 
@@ -137,7 +146,9 @@ const Login = () => {
                       type="email"
                       {...register("email")}
                       placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-4 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border ${
+                        errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                   </div>
                   {errors.email && (
@@ -166,7 +177,9 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
                       placeholder="Enter your password"
-                      className="w-full pl-12 pr-12 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-12 py-4 text-text-light dark:text-text-dark bg-gray-50 dark:bg-gray-800 border ${
+                        errors.password ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                     <button
                       type="button"

@@ -21,22 +21,58 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 const registerSchema = yup.object({
   name: yup
     .string()
+    .trim()
+    .required("Full name is required")
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name cannot exceed 50 characters")
-    .required("Name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  phone: yup.string().required("Phone number is required"),
+    .matches(
+      /^[a-zA-Z\s]+$/,
+      "Name can only contain letters and spaces"
+    ),
+  email: yup
+    .string()
+    .trim()
+    .lowercase()
+    .required("Email address is required")
+    .email("Please enter a valid email address")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+      "Please enter a valid email (e.g. user@example.com)"
+    ),
+  phone: yup
+    .string()
+    .trim()
+    .required("Phone number is required")
+    .matches(
+      /^\+?[1-9]\d{1,14}$/,
+      "Please enter a valid phone number (e.g., +923001234567 or 03001234567)"
+    )
+    .min(10, "Phone number is too short")
+    .max(15, "Phone number is too long"),
   password: yup
     .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .matches(
+      /[a-z]/,
+      "Password must contain at least one lowercase letter"
+    )
+    .matches(
+      /[A-Z]/,
+      "Password must contain at least one uppercase letter"
+    )
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(
+      /[@$!%*?&#]/,
+      "Password must contain at least one special character (@$!%*?&#)"
+    ),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref("password")], "Passwords must match")
-    .required("Confirm password is required"),
+    .required("Please confirm your password")
+    .oneOf([yup.ref("password"), null], "Passwords must match"),
   terms: yup
     .boolean()
-    .oneOf([true], "You must accept the terms and conditions"),
+    .oneOf([true], "You must accept the terms and conditions to continue"),
 });
 
 const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
@@ -46,10 +82,53 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(registerSchema),
   });
+
+  const passwordValue = watch("password", "");
+
+  const passwordRequirements = [
+    { label: "At least 8 characters", met: passwordValue.length >= 8 },
+    { label: "One uppercase letter", met: /[A-Z]/.test(passwordValue) },
+    { label: "One lowercase letter", met: /[a-z]/.test(passwordValue) },
+    { label: "One number", met: /[0-9]/.test(passwordValue) },
+    { label: "One special character (@$!%*?&#)", met: /[@$!%*?&#]/.test(passwordValue) },
+  ];
+
+  // Helper to restrict name to alphabets and spaces only during typing
+  const handleNameKeyDown = (e) => {
+    // Allow: backspace, delete, tab, escape, enter, space
+    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        // Allow: home, end, left, right
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    // Ensure that it is a letter and stop the keypress
+    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 122)) {
+        e.preventDefault();
+    }
+  };
+
+  // Helper to restrict phone to numbers and + only during typing
+  const handlePhoneKeyDown = (e) => {
+    // Allow: backspace, delete, tab, escape, enter, + (Shift + =)
+    if ([8, 46, 9, 27, 13, 187, 107].indexOf(e.keyCode) !== -1 ||
+        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+        // Allow: home, end, left, right
+        (e.keyCode >= 35 && e.keyCode <= 39)) {
+             return;
+    }
+    // Ensure that it is a number and stop the keypress
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+    }
+  };
 
   const isCustomer = role === "customer";
   const roleTitle = isCustomer ? "Customer" : "Owner";
@@ -169,8 +248,11 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                     <input
                       type="text"
                       {...register("name")}
+                      onKeyDown={handleNameKeyDown}
                       placeholder="Enter your full name"
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                   </div>
                   {errors.name && (
@@ -191,7 +273,9 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                       type="email"
                       {...register("email")}
                       placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                   </div>
                   {errors.email && (
@@ -211,8 +295,11 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                     <input
                       type="tel"
                       {...register("phone")}
+                      onKeyDown={handlePhoneKeyDown}
                       placeholder="Enter your phone number"
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                   </div>
                   {errors.phone && (
@@ -232,8 +319,10 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                     <input
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
-                      placeholder="Create a password (min. 6 characters)"
-                      className="w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      placeholder="Create a password (min. 8 characters)"
+                      className={`w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.password ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                     <button
                       type="button"
@@ -243,6 +332,31 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                       {showPassword ? <EyeOff /> : <Eye />}
                     </button>
                   </div>
+                  
+                  {/* Real-time Password Requirements */}
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                    {passwordRequirements.map((req, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                          req.met ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-gray-200 dark:bg-gray-700 text-gray-400"
+                        }`}>
+                          {req.met ? (
+                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <div className="w-1 h-1 bg-current rounded-full" />
+                          )}
+                        </div>
+                        <span className={`text-[11px] font-medium transition-colors ${
+                          req.met ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"
+                        }`}>
+                          {req.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
                   {errors.password && (
                     <p className="text-sm text-red-600 mt-2">
                       {errors.password.message}
@@ -261,7 +375,9 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                       type={showConfirmPassword ? "text" : "password"}
                       {...register("confirmPassword")}
                       placeholder="Confirm your password"
-                      className="w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none"
+                      className={`w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border ${
+                        errors.confirmPassword ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                      } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
                     />
                     <button
                       type="button"

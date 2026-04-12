@@ -1,6 +1,6 @@
-// src/pages/owner/forms/VenueStep2.jsx
 import React from "react";
 import { Camera, Video, Plus, X } from "lucide-react";
+import { toast } from "../../../components/common/Toast";
 
 const amenitiesList = [
   "AC",
@@ -69,7 +69,9 @@ const VenueStep2 = ({
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Venue Images (Max 10)
         </label>
-        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+        <div className={`border-2 border-dashed ${
+          imageFiles.length === 0 && errors.images ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+        } rounded-lg p-6 transition-colors`}>
           <div className="text-center">
             <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-300 mb-2">
@@ -169,21 +171,23 @@ const VenueStep2 = ({
       </div>
 
       {/* Amenities */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Amenities *
+      <div className={`p-4 rounded-xl border ${
+        errors.amenities ? "border-red-500 bg-red-50/50 dark:bg-red-900/10" : "border-transparent"
+      } transition-colors`}>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+          Amenities * (Select at least one)
         </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {amenitiesList.map((amenity) => (
             <label
               key={amenity}
-              className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
+              className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               <input
                 type="checkbox"
                 checked={selectedAmenities.includes(amenity)}
                 onChange={() => handleAmenityToggle(amenity)}
-                className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
+                className="rounded border-gray-300 text-gold-600 focus:ring-gold-500 w-4 h-4"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">
                 {amenity}
@@ -192,7 +196,7 @@ const VenueStep2 = ({
           ))}
         </div>
         {errors.amenities && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-red-500 text-sm mt-3 font-medium">
             {errors.amenities.message}
           </p>
         )}
