@@ -24,7 +24,7 @@ const Menu = ({ menus, selectedMenu, setSelectedMenu }) => {
         className="flex items-center justify-between mb-8"
       >
         <div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-primary-900 dark:text-text-dark flex items-center gap-3">
             <Utensils className="h-6 w-6 text-gold-500" />
             Dining Packages
           </h2>

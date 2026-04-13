@@ -172,7 +172,7 @@ const VenueDetail = () => {
               />
 
               {/* Location Map */}
-              <VenueLocationMap geoLocation={venue.geoLocation} />
+              <VenueLocationMap address={venue.address} name={venue.name} />
             </div>
 
             {/* Sidebar */}

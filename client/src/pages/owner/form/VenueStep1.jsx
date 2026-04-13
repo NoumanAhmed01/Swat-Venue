@@ -90,6 +90,9 @@ const VenueStep1 = ({ register, errors }) => {
           } rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors`}
           placeholder="Enter complete address with street number and landmarks"
         />
+        <p className="text-[10px] text-gray-500 mt-1 italic">
+          Tip: Provide a specific address with nearby landmarks to help us pin your exact location on the map.
+        </p>
         {errors.address && (
           <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
         )}

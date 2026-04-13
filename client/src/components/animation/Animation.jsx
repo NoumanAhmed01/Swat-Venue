@@ -234,18 +234,24 @@ export const AnimatedCounter = ({
   suffix = "",
   duration = 2,
   className = "",
+  decimals = 0,
 }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const count = useMotionValue(0);
-  const rounded = useTransform(count, (latest) => Math.floor(latest));
+  
+  // Format the count with decimals
+  const rounded = useTransform(count, (latest) => 
+    decimals > 0 ? latest.toFixed(decimals) : Math.floor(latest)
+  );
 
   useEffect(() => {
     if (isInView) {
-      animate(count, value, {
+      const controls = animate(count, value, {
         duration: duration,
         ease: "easeOut",
       });
+      return () => controls.stop();
     }
   }, [isInView, count, value, duration]);
 
@@ -266,9 +272,11 @@ export const AnimatedStatCard = ({
   statClassName = "",
   labelClassName = "",
 }) => {
-  // Extract numeric value and suffix (like +, %, etc.)
-  const numericValue = parseInt(number.replace(/[^0-9]/g, "")) || 0;
-  const suffix = number.replace(/[0-9]/g, "");
+  // Extract numeric value (including decimal) and suffix
+  const hasDecimal = number.includes(".");
+  const numericValue = parseFloat(number.replace(/[^0-9.]/g, "")) || 0;
+  const suffix = number.replace(/[0-9.]/g, "");
+  const decimals = hasDecimal ? number.split(".")[1].length : 0;
 
   return (
     <motion.div variants={staggerItem} className={className}>
@@ -283,6 +291,7 @@ export const AnimatedStatCard = ({
           value={numericValue}
           suffix={suffix}
           duration={duration}
+          decimals={decimals}
         />
       </motion.div>
       <div
