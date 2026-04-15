@@ -18,13 +18,6 @@ const sendEmail = async (options) => {
       to: options.to,
       subject: options.subject,
       html: options.html,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: path.join(__dirname, "logo.png"),
-          cid: "swatvenue-logo",
-        },
-      ],
     };
 
     await transporter.sendMail(mailOptions);
@@ -65,8 +58,8 @@ const baseTemplate = (content, title) => `
     <table class="main">
       <tr>
         <td class="header">
-          <!-- CID used here to reference the attached logo -->
-          <img src="cid:swatvenue-logo" alt="SwatVenue Logo" class="logo">
+          <!-- Hosted logo URL for performance -->
+          <img src="https://res.cloudinary.com/duu5ede4m/image/upload/v1776182957/logo_pvrkol.png" alt="SwatVenue Logo" class="logo">
           <h1>SwatVenue</h1>
           <p style="color: #ffffff; opacity: 0.7; margin: 5px 0 0 0; font-size: 14px;">${title}</p>
         </td>
@@ -145,7 +138,11 @@ const sendVerificationOTPEmail = async (email, otp, name) => {
   });
 };
 
-const sendBookingConfirmationEmailToCustomer = async (booking, venue, customer) => {
+const sendBookingConfirmationEmailToCustomer = async (
+  booking,
+  venue,
+  customer,
+) => {
   const content = `
     <h2>Booking Confirmation</h2>
     <p>Dear <strong>${customer.name}</strong>,</p>

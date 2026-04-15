@@ -2,6 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorHandler");
 
@@ -10,6 +12,25 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// Security Middleware
+app.use(helmet());
+
+// General Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use("/api/", limiter);
+
+// Stricter Rate Limiting for Auth
+const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // Limit each IP to 10 requests per hour for auth routes
+  message: "Too many login/register attempts, please try again after an hour",
+});
+app.use("/api/auth", authLimiter);
 
 app.use(
   cors({

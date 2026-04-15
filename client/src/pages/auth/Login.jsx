@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { loginSchema } from "../../utils/validation";
 import { toast } from "../../components/common/Toast";
 import {
   Eye,
@@ -17,21 +17,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-
-// Validation schema using Yup
-const loginSchema = yup.object({
-  email: yup
-    .string()
-    .trim()
-    .lowercase()
-    .required("Email address is required")
-    .email("Please enter a valid email address")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email format"
-    ),
-  password: yup.string().required("Password is required"),
-});
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);

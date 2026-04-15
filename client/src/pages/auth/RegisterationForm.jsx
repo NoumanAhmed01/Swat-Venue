@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { registerSchema } from "../../utils/validation";
 import {
   Eye,
   EyeOff,
@@ -17,63 +17,6 @@ import {
   Users,
 } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-
-const registerSchema = yup.object({
-  name: yup
-    .string()
-    .trim()
-    .required("Full name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .matches(
-      /^[a-zA-Z\s]+$/,
-      "Name can only contain letters and spaces"
-    ),
-  email: yup
-    .string()
-    .trim()
-    .lowercase()
-    .required("Email address is required")
-    .email("Please enter a valid email address")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-      "Please enter a valid email (e.g. user@example.com)"
-    ),
-  phone: yup
-    .string()
-    .trim()
-    .required("Phone number is required")
-    .matches(
-      /^\+?[1-9]\d{1,14}$/,
-      "Please enter a valid phone number (e.g., +923001234567 or 03001234567)"
-    )
-    .min(10, "Phone number is too short")
-    .max(15, "Phone number is too long"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      /[a-z]/,
-      "Password must contain at least one lowercase letter"
-    )
-    .matches(
-      /[A-Z]/,
-      "Password must contain at least one uppercase letter"
-    )
-    .matches(/[0-9]/, "Password must contain at least one number")
-    .matches(
-      /[@$!%*?&#]/,
-      "Password must contain at least one special character (@$!%*?&#)"
-    ),
-  confirmPassword: yup
-    .string()
-    .required("Please confirm your password")
-    .oneOf([yup.ref("password"), null], "Passwords must match"),
-  terms: yup
-    .boolean()
-    .oneOf([true], "You must accept the terms and conditions to continue"),
-});
 
 const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
   const [showPassword, setShowPassword] = useState(false);

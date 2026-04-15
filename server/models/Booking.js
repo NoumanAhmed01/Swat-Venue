@@ -84,8 +84,14 @@ const bookingSchema = new mongoose.Schema(
   },
 );
 
-// Indexes
-bookingSchema.index({ venue: 1, eventDate: 1 });
+// Indexes to prevent double booking and optimize queries
+bookingSchema.index(
+  { venue: 1, eventDate: 1 }, 
+  { 
+    unique: true, 
+    partialFilterExpression: { status: { $in: ["pending", "confirmed"] } } 
+  }
+);
 bookingSchema.index({ customer: 1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);

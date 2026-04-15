@@ -60,7 +60,8 @@ exports.getAllVenues = async (req, res) => {
     }
 
     if (location && location !== "all") {
-      query.location = new RegExp(location, "i");
+      // Use text search for performance if possible, otherwise keep regex for partial matching
+      query.location = { $regex: location, $options: "i" };
     }
 
     if (minCapacity || maxCapacity) {

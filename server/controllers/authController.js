@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const OTP = require("../models/OTP");
-const { generateToken } = require("../utils/jwt");
+const { generateToken, generateResetToken, verifyToken } = require("../utils/jwt");
 const { sendOTPEmail, sendVerificationOTPEmail } = require("../config/email");
 
 exports.register = async (req, res) => {
@@ -194,12 +194,16 @@ exports.verifyOTP = async (req, res) => {
         .json({ success: false, message: "Invalid or expired OTP" });
     }
 
+    // Generate a secure reset token valid for 15 minutes
+    const resetToken = generateResetToken(email);
+
     // OTP verified → delete it
     await OTP.deleteMany({ email });
 
     res.status(200).json({
       success: true,
       message: "OTP verified successfully.",
+      resetToken,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
@@ -209,12 +213,28 @@ exports.verifyOTP = async (req, res) => {
 // =============== RESET PASSWORD =================
 exports.resetPassword = async (req, res) => {
   try {
-    const { email, newPassword } = req.body;
+    const { email, newPassword, resetToken } = req.body;
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!resetToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. Please verify OTP first.",
+      });
+    }
+
+    // Verify the reset token
+    const decoded = verifyToken(resetToken);
+    if (!decoded || decoded.email !== email) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired reset token.",
+      });
+    }
+
+    if (!newPassword || newPassword.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters long",
+        message: "Password must be at least 8 characters long",
       });
     }
 
@@ -222,7 +242,7 @@ exports.resetPassword = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "User found but email mismatch." });
     }
 
     user.password = newPassword;

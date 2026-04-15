@@ -2,45 +2,11 @@ import React from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { contactSchema } from "../utils/validation";
 import { toast } from "../components/common/Toast";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { contactAPI } from "../utils/api";
-
-// ✅ Validation schema using Yup
-const contactSchema = yup.object({
-  name: yup
-    .string()
-    .trim()
-    .required("Full name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .matches(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
-  email: yup
-    .string()
-    .trim()
-    .lowercase()
-    .required("Email address is required")
-    .email("Please enter a valid email address")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-      "Please enter a valid email (e.g. user@example.com)"
-    ),
-  subject: yup
-    .string()
-    .required("Please select a subject")
-    .oneOf(
-      ["general", "booking", "venue-listing", "technical", "partnership", "other"],
-      "Invalid subject selected"
-    ),
-  message: yup
-    .string()
-    .trim()
-    .required("Message is required")
-    .min(10, "Message must be at least 10 characters")
-    .max(1000, "Message cannot exceed 1000 characters"),
-});
 
 const Contact = () => {
   // Helper to restrict name to alphabets and spaces only during typing

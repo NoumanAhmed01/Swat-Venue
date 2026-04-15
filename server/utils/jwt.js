@@ -6,6 +6,12 @@ const generateToken = (userId) => {
   });
 };
 
+const generateResetToken = (email) => {
+  return jwt.sign({ email }, process.env.JWT_SECRET, {
+    expiresIn: '15m'
+  });
+};
+
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
@@ -14,4 +20,4 @@ const verifyToken = (token) => {
   }
 };
 
-module.exports = { generateToken, verifyToken };
+module.exports = { generateToken, generateResetToken, verifyToken };

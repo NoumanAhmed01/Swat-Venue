@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { bookingSchema } from "../../utils/validation";
 import { toast } from "../common/Toast";
 import {
   X,
@@ -9,50 +9,11 @@ import {
   Users,
   CreditCard,
   Utensils,
+  Phone,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";
-
-const bookingSchema = yup.object({
-  name: yup
-    .string()
-    .trim()
-    .required("Full name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .matches(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
-  email: yup
-    .string()
-    .trim()
-    .lowercase()
-    .required("Email address is required")
-    .email("Please enter a valid email address")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-      "Please enter a valid email (e.g. user@example.com)"
-    ),
-  phone: yup
-    .string()
-    .trim()
-    .required("Phone number is required")
-    .matches(
-      /^\+?[1-9]\d{1,14}$/,
-      "Please enter a valid phone number (e.g., +923001234567)"
-    ),
-  eventType: yup.string().required("Please select an event type"),
-  guestCount: yup
-    .number()
-    .typeError("Guest count must be a number")
-    .required("Guest count is required")
-    .positive("Guest count must be positive")
-    .integer("Guest count must be a whole number")
-    .min(1, "At least 1 guest required"),
-  message: yup
-    .string()
-    .trim()
-    .max(500, "Message cannot exceed 500 characters"),
-});
 
 const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
   const { user } = useAuth();

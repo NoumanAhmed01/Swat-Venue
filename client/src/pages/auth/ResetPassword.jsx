@@ -4,25 +4,10 @@ import { Helmet } from "react-helmet-async";
 import { toast } from "../../components/common/Toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { resetPasswordSchema } from "../../utils/validation";
 import { Lock, ArrowLeft, Building, Shield, ArrowRight } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
-
-const resetSchema = yup.object({
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(/[a-z]/, "At least one lowercase letter")
-    .matches(/[A-Z]/, "At least one uppercase letter")
-    .matches(/[0-9]/, "At least one number")
-    .matches(/[@$!%*?&#]/, "At least one special character (@$!%*?&#)"),
-  confirmPassword: yup
-    .string()
-    .required("Please confirm your password")
-    .oneOf([yup.ref("password"), null], "Passwords must match"),
-});
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -48,8 +33,16 @@ const ResetPassword = () => {
 
   const onSubmit = async (data) => {
     try {
-      await authAPI.resetPassword(email, data.password);
+      const resetToken = sessionStorage.getItem("resetToken");
+      if (!resetToken) {
+        toast.error("Session expired. Please verify OTP again.");
+        navigate("/auth/forgot-password");
+        return;
+      }
+
+      await authAPI.resetPassword(email, data.password, resetToken);
       toast.success("Password reset successfully!");
+      sessionStorage.removeItem("resetToken");
       navigate("/auth/login");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to reset password.");

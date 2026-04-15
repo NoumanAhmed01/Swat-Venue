@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { venueSchema } from "../../utils/validation";
 import { toast } from "../../components/common/Toast";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,59 +19,6 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import VenueStep1 from "./form/VenueStep1";
 import VenueStep2 from "./form/VenueStep2";
 import VenueStep3 from "./form/VenueStep3";
-
-const venueSchema = yup.object({
-  name: yup
-    .string()
-    .trim()
-    .required("Venue name is required")
-    .min(3, "Name must be at least 3 characters")
-    .max(100, "Name cannot exceed 100 characters"),
-  description: yup
-    .string()
-    .trim()
-    .required("Description is required")
-    .min(20, "Description must be at least 20 characters")
-    .max(2000, "Description cannot exceed 2000 characters"),
-  address: yup
-    .string()
-    .trim()
-    .required("Complete address is required")
-    .min(10, "Address must be at least 10 characters"),
-  location: yup
-    .string()
-    .trim()
-    .required("City/Area location is required"),
-  capacity: yup
-    .number()
-    .typeError("Capacity must be a number")
-    .required("Capacity is required")
-    .integer("Capacity must be an integer")
-    .min(1, "Capacity must be at least 1 person")
-    .max(100000, "Capacity seems unrealistically high"),
-  price: yup
-    .number()
-    .typeError("Price must be a number")
-    .required("Base price is required")
-    .min(0, "Price cannot be negative")
-    .max(10000000, "Price seems unrealistically high"),
-  priceType: yup
-    .string()
-    .required("Price type is required")
-    .oneOf(["per day", "per person", "per event"], "Invalid price type"),
-  phone: yup
-    .string()
-    .trim()
-    .required("Contact number is required")
-    .matches(
-      /^\+?[1-9]\d{1,14}$/,
-      "Please enter a valid phone number (e.g., +923001234567)"
-    ),
-  amenities: yup
-    .array()
-    .of(yup.string())
-    .min(1, "Please select at least one amenity"),
-});
 
 const AddVenue = () => {
   const [currentStep, setCurrentStep] = useState(1);

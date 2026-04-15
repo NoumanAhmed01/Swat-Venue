@@ -25,6 +25,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response ? error.response.status : null;
+    const requestUrl = error.config ? error.config.url : "";
+
     if (status === 401 && !requestUrl.includes("/auth/login")) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -43,8 +46,8 @@ export const authAPI = {
   // Forgot password flow
   forgotPassword: (email) => api.post("/auth/forgot-password", { email }), // sends OTP to email
   verifyOtp: (email, otp) => api.post("/auth/verify-otp", { email, otp }), // verify OTP
-  resetPassword: (email, newPassword) =>
-    api.post("/auth/reset-password", { email, newPassword }), // set new password after OTP verification
+  resetPassword: (email, newPassword, resetToken) =>
+    api.post("/auth/reset-password", { email, newPassword, resetToken }), // set new password after OTP verification
 };
 
 export const venueAPI = {

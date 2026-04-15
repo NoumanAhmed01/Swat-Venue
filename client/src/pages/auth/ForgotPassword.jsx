@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { forgotPasswordSchema } from "../../utils/validation";
 import { toast } from "../../components/common/Toast";
 import {
   Mail,
@@ -15,19 +15,6 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
-
-const forgotPasswordSchema = yup.object({
-  email: yup
-    .string()
-    .trim()
-    .lowercase()
-    .required("Email address is required")
-    .email("Please enter a valid email address")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email format"
-    ),
-});
 
 const ForgotPassword = () => {
   const navigate = useNavigate();

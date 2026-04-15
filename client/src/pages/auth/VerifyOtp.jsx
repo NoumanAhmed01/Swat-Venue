@@ -59,7 +59,10 @@ const VerifyOtp = () => {
         toast.success("Email verified successfully! You can now log in.");
         navigate("/auth/login");
       } else {
-        await authAPI.verifyOtp(email, data.otp);
+        const response = await authAPI.verifyOtp(email, data.otp);
+        if (response.data.resetToken) {
+          sessionStorage.setItem("resetToken", response.data.resetToken);
+        }
         toast.success("OTP verified successfully!");
         navigate("/auth/reset-password", { state: { email } });
       }
