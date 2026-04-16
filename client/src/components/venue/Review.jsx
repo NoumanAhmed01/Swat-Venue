@@ -3,9 +3,20 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "../common/Toast";
-import { Star, ChevronDown, MessageSquare } from "lucide-react";
-import { reviewAPI } from "../../utils/api";
+import { Star, ChevronDown, MessageSquare, ShieldCheck } from "lucide-react";
+import { reviewAPI, bookingAPI } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
+
+const getInitials = (name) => {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
 
 const reviewSchema = yup.object({
   rating: yup
@@ -17,7 +28,7 @@ const reviewSchema = yup.object({
     .string()
     .min(10, "Comment must be at least 10 characters")
     .required("Comment is required"),
-  eventType: yup.string().required("Event type is required"),
+  bookingId: yup.string().required("Please select the booking you are reviewing"),
 });
 
 const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
@@ -27,17 +38,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [hasUserReviewed, setHasUserReviewed] = useState(false);
-
-  const getInitials = (name) => {
-    if (!name || name === "Anonymous") return "A";
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  };
+  const [reviewableBookings, setReviewableBookings] = useState([]);
 
   const {
     register,
@@ -51,31 +52,24 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
     defaultValues: {
       rating: 0,
       comment: "",
-      eventType: "",
+      bookingId: "",
     },
   });
 
   const currentRating = watch("rating");
 
   useEffect(() => {
-    setHasUserReviewed(false); // Reset when changing venue
-    setReviews([]); // Clear previous venue reviews
+    setReviews([]); 
+    setReviewableBookings([]);
     fetchReviews();
-  }, [venueId]);
+    if (user) fetchUserEligibility();
+  }, [venueId, user]);
 
   const fetchReviews = async () => {
     try {
       setLoading(true);
       const response = await reviewAPI.getVenueReviews(venueId);
       setReviews(response.data.data || []);
-      if (user) {
-        const userReview = response.data.data?.find(
-          (review) =>
-            (review.customer?._id === user.id || review.customer === user.id) &&
-            review.venue?._id === venueId, // ensure it’s same venue
-        );
-        setHasUserReviewed(!!userReview);
-      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
       toast.error("Failed to load reviews");
@@ -84,26 +78,45 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
     }
   };
 
-  const onSubmit = async (data) => {
-    if (!user) {
-      toast.error("Please login to leave a review");
-      return;
+  const fetchUserEligibility = async () => {
+    try {
+      // Fetch all user bookings
+      const response = await bookingAPI.getUserBookings();
+      const allBookings = response.data.data || [];
+      
+      // Filter for: This venue + Confirmed + Past Date
+      const eligible = allBookings.filter(b => {
+        const isThisVenue = (b.venue?._id || b.venue) === venueId;
+        const isConfirmed = b.status === 'confirmed';
+        const isPast = new Date(b.eventDate) < new Date();
+        // Check if already reviewed (this is simplified, backend also checks)
+        const alreadyReviewed = reviews.some(r => r.booking === b._id);
+        
+        return isThisVenue && isConfirmed && isPast && !alreadyReviewed;
+      });
+
+      setReviewableBookings(eligible);
+      if (eligible.length > 0) {
+        setValue("bookingId", eligible[0]._id); // Default to first eligible
+      }
+    } catch (error) {
+      console.error("Error checking review eligibility:", error);
     }
-    console.log("Submitting review:", data); // 👈 Add this line
-    console.log("Venue ID:", venueId);
+  };
+
+  const onSubmit = async (data) => {
     try {
       await reviewAPI.create(venueId, data);
       toast.success("Review submitted successfully!");
       reset();
       setShowReviewForm(false);
       fetchReviews();
+      fetchUserEligibility(); // Refresh eligibility
       if (onReviewSubmitted) {
         onReviewSubmitted();
       }
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to submit review";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.message || "Failed to submit review");
     }
   };
 
@@ -238,31 +251,67 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
         </>
       )}
 
-      {/* Always show review form section */}
-      {user && !hasUserReviewed && (
+      {/* Always show review form section - Only if user has eligible bookings */}
+      {user && reviewableBookings.length > 0 && (
         <div className="mt-8 border-t border-gray-200 dark:border-surface-700 pt-6">
-          <button
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            className="inline-flex items-center space-x-2 bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span>
-              {showReviewForm ? "Close Review Form" : "Write a Review"}
-            </span>
-          </button>
+          {!showReviewForm ? (
+            <div className="bg-gold-50 dark:bg-gold-900/10 border border-gold-100 dark:border-gold-900/30 p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 text-center sm:text-left">
+              <div className="flex-1">
+                <h4 className="text-gold-800 dark:text-gold-400 font-bold mb-1 text-base sm:text-lg">
+                  You've hosted an event here!
+                </h4>
+                <p className="text-xs sm:text-sm text-gold-700/70 dark:text-gold-500/70">
+                  Share your experience to help others and support this venue.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-gold-500/20 text-sm sm:text-base"
+              >
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span>Write a Review</span>
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 p-4 sm:p-6 bg-gray-50 dark:bg-surface-700 rounded-2xl border border-gray-100 dark:border-surface-600">
+              <div className="flex justify-between items-center mb-6">
+                <h4 className="text-base sm:text-lg font-bold text-primary-900 dark:text-text-dark">
+                  Share Your Experience
+                </h4>
+                <button 
+                  onClick={() => setShowReviewForm(false)}
+                  className="text-xs sm:text-sm text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
 
-          {showReviewForm && (
-            <div className="mt-6 p-6 bg-gray-50 dark:bg-surface-700 rounded-lg">
-              <h4 className="text-lg font-semibold text-primary-900 dark:text-text-dark mb-4">
-                Share Your Experience
-              </h4>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                {/* Booking Selection (If multiple) */}
+                {reviewableBookings.length > 1 && (
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Select Event to Review
+                    </label>
+                    <select
+                      {...register("bookingId")}
+                      className="w-full p-2.5 sm:p-3 border border-gray-200 dark:border-surface-600 rounded-xl bg-white dark:bg-surface-800 text-xs sm:text-sm focus:ring-2 focus:ring-gold-500 outline-none"
+                    >
+                      {reviewableBookings.map((b) => (
+                        <option key={b._id} value={b._id}>
+                          {b.eventType} ({new Date(b.eventDate).toLocaleDateString()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Rating */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Rating
+                <div className="flex flex-col items-center justify-center p-4 bg-white dark:bg-surface-800 rounded-xl border border-gray-100 dark:border-surface-600">
+                  <label className="block text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+                    Your Rating
                   </label>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -270,90 +319,65 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                         onClick={() => handleStarClick(star)}
                         onMouseEnter={() => setHoveredRating(star)}
                         onMouseLeave={() => setHoveredRating(0)}
-                        className="focus:outline-none transition-transform hover:scale-110"
+                        className="focus:outline-none transition-transform active:scale-95"
                       >
                         <Star
-                          className={`h-8 w-8 ${
+                          className={`h-7 w-7 sm:h-9 sm:w-9 ${
                             star <= (hoveredRating || currentRating)
                               ? "text-yellow-400 fill-current"
-                              : "text-gray-300 dark:text-gray-600"
-                          }`}
+                              : "text-gray-200 dark:text-gray-700"
+                          } transition-colors duration-200`}
                         />
                       </button>
                     ))}
                   </div>
                   {errors.rating && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-[10px] sm:text-xs mt-3 font-medium text-center">
                       {errors.rating.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Event Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Event Type
-                  </label>
-                  <select
-                    {...register("eventType")}
-                    className="w-full p-3 border border-gray-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-primary-900 dark:text-text-dark focus:ring-2 focus:ring-gold-500 focus:border-transparent"
-                  >
-                    <option value="">Select event type</option>
-                    <option value="Wedding">Wedding</option>
-                    <option value="Birthday">Birthday</option>
-                    <option value="Corporate Event">Corporate Event</option>
-                    <option value="Conference">Conference</option>
-                    <option value="Family Gathering">Family Gathering</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  {errors.eventType && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.eventType.message}
                     </p>
                   )}
                 </div>
 
                 {/* Comment */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Your Review
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Review Details
                   </label>
                   <textarea
                     {...register("comment")}
                     rows="4"
-                    placeholder="Share your experience with this venue..."
-                    className="w-full p-3 border border-gray-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-primary-900 dark:text-text-dark focus:ring-2 focus:ring-gold-500 focus:border-transparent resize-none"
+                    placeholder="Tell us about the service, food, and ambiance..."
+                    className="w-full p-3 sm:p-4 border border-gray-200 dark:border-surface-600 rounded-xl bg-white dark:bg-surface-800 text-primary-900 dark:text-text-dark text-sm focus:ring-2 focus:ring-gold-500 outline-none transition-all resize-none shadow-sm placeholder:text-gray-400"
                   ></textarea>
                   {errors.comment && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs mt-2 font-medium">
                       {errors.comment.message}
                     </p>
                   )}
                 </div>
 
-                {/* Buttons */}
-                <div className="flex space-x-3">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-gold-500 hover:bg-gold-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit Review"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowReviewForm(false);
-                      reset();
-                    }}
-                    className="bg-gray-300 hover:bg-gray-400 dark:bg-surface-600 dark:hover:bg-surface-500 text-gray-700 dark:text-text-dark px-6 py-2 rounded-lg font-medium transition-colors duration-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gold-500 hover:bg-gold-600 text-white py-3 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-gold-500/20 disabled:opacity-50 text-sm sm:text-base"
+                >
+                  {isSubmitting ? "Posting Review..." : "Post Review"}
+                </button>
               </form>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Guest message if logged in but no bookings */}
+      {user && reviewableBookings.length === 0 && !loading && (
+        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-surface-700 flex justify-center">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-50 dark:bg-surface-900/50 rounded-full border border-gray-200 dark:border-surface-700">
+            <ShieldCheck className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+              Verified Guests Only
+            </span>
+          </div>
         </div>
       )}
     </div>

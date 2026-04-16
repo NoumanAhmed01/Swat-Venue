@@ -1,5 +1,6 @@
 const Review = require('../models/Review');
 const Venue = require('../models/Venue');
+const Booking = require('../models/Booking');
 
 exports.getVenueReviews = async (req, res) => {
   try {
@@ -19,32 +20,54 @@ exports.getVenueReviews = async (req, res) => {
 
 exports.createReview = async (req, res) => {
   try {
-    const { rating, comment, eventType } = req.body;
+    const { rating, comment, bookingId } = req.body;
     const venueId = req.params.venueId;
 
+    // 1. Check if venue exists
     const venue = await Venue.findById(venueId);
     if (!venue) {
       return res.status(404).json({ message: 'Venue not found' });
     }
 
-    const existingReview = await Review.findOne({
+    // 2. Verify the booking
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      customer: req.user.id,
       venue: venueId,
-      customer: req.user.id
+      status: 'confirmed'
     });
 
-    if (existingReview) {
-      return res.status(400).json({ message: 'You have already reviewed this venue' });
+    if (!booking) {
+      return res.status(400).json({ 
+        message: 'You can only review venues with a confirmed booking.' 
+      });
     }
 
+    // 3. Check if event date has passed
+    if (new Date(booking.eventDate) > new Date()) {
+      return res.status(400).json({ 
+        message: 'You can only review an event after it has taken place.' 
+      });
+    }
+
+    // 4. Check if this booking was already reviewed
+    const existingReview = await Review.findOne({ booking: bookingId });
+    if (existingReview) {
+      return res.status(400).json({ message: 'This booking has already been reviewed.' });
+    }
+
+    // 5. Create the review
     const review = await Review.create({
       venue: venueId,
       customer: req.user.id,
       customerName: req.user.name,
+      booking: bookingId,
       rating,
       comment,
-      eventType
+      eventType: booking.eventType
     });
 
+    // 6. Update Venue rating
     const reviews = await Review.find({ venue: venueId });
     const avgRating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
 

@@ -8,7 +8,14 @@ const reviewSchema = new mongoose.Schema({
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
+  },
+  booking: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Booking',
+    required: true,
+    unique: true // Ensure one review per booking
   },
   customerName: {
     type: String,

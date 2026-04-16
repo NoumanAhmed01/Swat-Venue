@@ -14,6 +14,7 @@ import {
   LogOut,
   Settings,
   Calendar,
+  ChevronDown,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -82,10 +83,19 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="flex items-center space-x-1.5 text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 group"
                 >
-                  <User className="h-5 w-5" />
+                  <div className="w-7 h-7 rounded-full bg-gold-500/10 dark:bg-gold-500/20 flex items-center justify-center border border-gold-500/20">
+                    <User className="h-4 w-4 text-gold-600 dark:text-gold-400" />
+                  </div>
                   <span>{user.name}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform duration-300 ${
+                      userMenuOpen
+                        ? "rotate-180 text-gold-600"
+                        : "text-gray-400"
+                    }`}
+                  />
                 </button>
 
                 {/* User dropdown menu */}
