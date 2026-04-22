@@ -13,8 +13,10 @@ import BookingCard from "./BookingCard";
 import DeleteBookingModal from "../../components/booking/DeleteBookingModal";
 import { toast } from "../../components/common/Toast";
 import StatsCard from "../../components/common/StatsCard"; // Import the reusable component
+import { useTranslation } from "react-i18next";
 
 const MyBookings = () => {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -44,7 +46,7 @@ const MyBookings = () => {
   return (
     <>
       <Helmet>
-        <title>My Bookings - SwatVenue</title>
+        <title>{t("my_bookings.title")} - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-surface-900 py-10">
@@ -52,10 +54,10 @@ const MyBookings = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              My Bookings
+              {t("my_bookings.title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Track the status of your venue bookings
+              {t("my_bookings.subtitle")}
             </p>
           </div>
 
@@ -64,7 +66,7 @@ const MyBookings = () => {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {/* All Bookings */}
               <StatsCard
-                title="All Bookings"
+                title={t("my_bookings.all_bookings")}
                 value={bookings.length}
                 icon={Calendar}
                 color="gold"
@@ -74,7 +76,7 @@ const MyBookings = () => {
 
               {/* Pending Bookings */}
               <StatsCard
-                title="Pending"
+                title={t("my_bookings.pending")}
                 value={bookings.filter((b) => b.status === "pending").length}
                 icon={Clock}
                 color="amber"
@@ -84,7 +86,7 @@ const MyBookings = () => {
 
               {/* Confirmed Bookings */}
               <StatsCard
-                title="Confirmed"
+                title={t("my_bookings.confirmed")}
                 value={bookings.filter((b) => b.status === "confirmed").length}
                 icon={CheckCircle}
                 color="green"
@@ -94,7 +96,7 @@ const MyBookings = () => {
 
               {/* Completed Bookings */}
               <StatsCard
-                title="Completed"
+                title={t("my_bookings.completed")}
                 value={bookings.filter((b) => b.status === "completed").length}
                 icon={CalendarCheck}
                 color="blue"
@@ -104,7 +106,7 @@ const MyBookings = () => {
 
               {/* Cancelled Bookings */}
               <StatsCard
-                title="Cancelled"
+                title={t("my_bookings.cancelled")}
                 value={bookings.filter((b) => b.status === "cancelled").length}
                 icon={XCircle}
                 color="red"
@@ -119,19 +121,19 @@ const MyBookings = () => {
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
               <p className="text-gray-500 dark:text-gray-400 mt-3">
-                Loading your bookings...
+                {t("my_bookings.loading")}
               </p>
             </div>
           ) : filteredBookings.length === 0 ? (
             <div className="bg-white dark:bg-surface-800 p-12 rounded-xl text-center border border-gray-200 dark:border-surface-700">
               <Calendar className="mx-auto h-12 w-12 text-gold-500 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                No bookings found
+                {t("my_bookings.no_bookings")}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
                 {filter === "all"
-                  ? "You haven't made any bookings yet."
-                  : `You don't have any ${filter} bookings.`}
+                  ? t("my_bookings.no_bookings_desc")
+                  : t("my_bookings.no_filter_bookings", { status: t(`my_bookings.${filter}`) })}
               </p>
             </div>
           ) : (
@@ -162,3 +164,4 @@ const MyBookings = () => {
 };
 
 export default MyBookings;
+

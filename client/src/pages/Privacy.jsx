@@ -14,105 +14,115 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatedSection } from "../components/animation/Animation";
+import { useTranslation } from "react-i18next";
 
 const Privacy = () => {
+  const { t, i18n } = useTranslation();
   const lastUpdated = "January 15, 2025";
 
   const sections = [
     {
-      title: "1. Introduction",
+      title: i18n.language === "ur" ? "1. تعارف" : "1. Introduction",
       icon: Shield,
       content:
-        "SwatVenue ('we,' 'our,' or 'us') is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.",
+        i18n.language === "ur"
+          ? "سوات وینیو ('ہم' یا 'ہمارا') آپ کی رازداری کے تحفظ کے لیے پرعزم ہے۔ یہ رازداری کی پالیسی بتاتی ہے کہ جب آپ ہماری ویب سائٹ دیکھتے ہیں یا ہماری خدمات استعمال کرتے ہیں تو ہم آپ کی معلومات کو کیسے اکٹھا، استعمال اور محفوظ کرتے ہیں۔"
+          : "SwatVenue ('we,' 'our,' or 'us') is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.",
     },
     {
-      title: "2. Information We Collect",
+      title: i18n.language === "ur" ? "2. معلومات جو ہم اکٹھا کرتے ہیں" : "2. Information We Collect",
       icon: Database,
       content:
-        "We collect information to provide and improve our venue booking services.",
+        i18n.language === "ur"
+          ? "ہم اپنی وینیو بکنگ کی خدمات فراہم کرنے اور ان کو بہتر بنانے کے لیے معلومات اکٹھا کرتے ہیں۔"
+          : "We collect information to provide and improve our venue booking services.",
       points: [
-        "Personal details (name, email, phone)",
-        "Booking preferences and history",
-        "Payment information via secure processors",
-        "Device and usage data for analytics",
+        i18n.language === "ur" ? "ذاتی تفصیلات (نام، ای میل، فون)" : "Personal details (name, email, phone)",
+        i18n.language === "ur" ? "بکنگ کی ترجیحات اور تاریخ" : "Booking preferences and history",
+        i18n.language === "ur" ? "محفوظ پروسیسرز کے ذریعے ادائیگی کی معلومات" : "Payment information via secure processors",
+        i18n.language === "ur" ? "تجزیات کے لیے ڈیوائس اور استعمال کا ڈیٹا" : "Device and usage data for analytics",
       ],
     },
     {
-      title: "3. How We Use Information",
+      title: i18n.language === "ur" ? "3. ہم معلومات کا استعمال کیسے کرتے ہیں" : "3. How We Use Information",
       icon: Eye,
-      content: "Your information helps us deliver better services.",
+      content: i18n.language === "ur" ? "آپ کی معلومات ہمیں بہتر خدمات فراہم کرنے میں مدد دیتی ہیں۔" : "Your information helps us deliver better services.",
       points: [
-        "Facilitate venue bookings and reservations",
-        "Send booking confirmations and updates",
-        "Improve platform functionality",
-        "Provide customer support",
+        i18n.language === "ur" ? "وینیو بکنگ اور ریزرویشن میں سہولت فراہم کرنا" : "Facilitate venue bookings and reservations",
+        i18n.language === "ur" ? "بکنگ کی تصدیق اور اپ ڈیٹس بھیجنا" : "Send booking confirmations and updates",
+        i18n.language === "ur" ? "پلیٹ فارم کی فعالیت کو بہتر بنانا" : "Improve platform functionality",
+        i18n.language === "ur" ? "کسٹمر سپورٹ فراہم کرنا" : "Provide customer support",
       ],
     },
     {
-      title: "4. Data Sharing",
+      title: i18n.language === "ur" ? "4. ڈیٹا شیئرنگ" : "4. Data Sharing",
       icon: UserCheck,
-      content: "We respect your privacy and only share data when necessary.",
+      content: i18n.language === "ur" ? "ہم آپ کی رازداری کا احترام کرتے ہیں اور صرف ضرورت پڑنے پر ڈیٹا شیئر کرتے ہیں۔" : "We respect your privacy and only share data when necessary.",
       points: [
-        "With venue owners for booking coordination",
-        "With trusted service providers",
-        "For legal compliance",
-        "Never sold to third parties",
+        i18n.language === "ur" ? "بکنگ کی ہم آہنگی کے لیے وینیو مالکان کے ساتھ" : "With venue owners for booking coordination",
+        i18n.language === "ur" ? "قابل اعتماد سروس فراہم کنندگان کے ساتھ" : "With trusted service providers",
+        i18n.language === "ur" ? "قانونی تعمیل کے لیے" : "For legal compliance",
+        i18n.language === "ur" ? "کبھی بھی تیسرے فریق کو فروخت نہیں کیا جاتا" : "Never sold to third parties",
       ],
     },
     {
-      title: "5. Data Security",
+      title: i18n.language === "ur" ? "5. ڈیٹا سیکیورٹی" : "5. Data Security",
       icon: Lock,
-      content: "We implement strong security measures to protect your data.",
+      content: i18n.language === "ur" ? "ہم آپ کے ڈیٹا کی حفاظت کے لیے سخت حفاظتی اقدامات نافذ کرتے ہیں۔" : "We implement strong security measures to protect your data.",
       points: [
-        "SSL encryption for all data transmission",
-        "Secure servers with regular updates",
-        "Access controls and authentication",
-        "Regular security audits",
+        i18n.language === "ur" ? "تمام ڈیٹا ٹرانسمیشن کے لیے SSL انکرپشن" : "SSL encryption for all data transmission",
+        i18n.language === "ur" ? "باقاعدہ اپ ڈیٹس کے ساتھ محفوظ سرورز" : "Secure servers with regular updates",
+        i18n.language === "ur" ? "رسائی کنٹرول اور تصدیق" : "Access controls and authentication",
+        i18n.language === "ur" ? "باقاعدہ سیکیورٹی آڈٹ" : "Regular security audits",
       ],
     },
     {
-      title: "6. Cookies & Tracking",
+      title: i18n.language === "ur" ? "6. کوکیز اور ٹریکنگ" : "6. Cookies & Tracking",
       icon: Cookie,
-      content: "We use cookies to enhance user experience.",
+      content: i18n.language === "ur" ? "ہم صارف کے تجربے کو بہتر بنانے کے لیے کوکیز کا استعمال کرتے ہیں۔" : "We use cookies to enhance user experience.",
       points: [
-        "Essential cookies for site functionality",
-        "Analytics for service improvement",
-        "Preference cookies for personalization",
-        "Option to disable non-essential cookies",
+        i18n.language === "ur" ? "سائٹ کی فعالیت کے لیے ضروری کوکیز" : "Essential cookies for site functionality",
+        i18n.language === "ur" ? "سروس کی بہتری کے لیے تجزیات" : "Analytics for service improvement",
+        i18n.language === "ur" ? "ذاتی نوعیت کے لیے ترجیحی کوکیز" : "Preference cookies for personalization",
+        i18n.language === "ur" ? "غیر ضروری کوکیز کو غیر فعال کرنے کا اختیار" : "Option to disable non-essential cookies",
       ],
     },
     {
-      title: "7. Your Rights",
+      title: i18n.language === "ur" ? "7. آپ کے حقوق" : "7. Your Rights",
       icon: Shield,
-      content: "You have control over your personal information.",
+      content: i18n.language === "ur" ? "آپ کو اپنی ذاتی معلومات پر کنٹرول حاصل ہے۔" : "You have control over your personal information.",
       points: [
-        "Access your personal data",
-        "Request corrections or deletions",
-        "Download your data",
-        "Opt-out of marketing communications",
+        i18n.language === "ur" ? "اپنے ذاتی ڈیٹا تک رسائی حاصل کریں" : "Access your personal data",
+        i18n.language === "ur" ? "درستگی یا حذف کرنے کی درخواست کریں" : "Request corrections or deletions",
+        i18n.language === "ur" ? "اپنا ڈیٹا ڈاؤن لوڈ کریں" : "Download your data",
+        i18n.language === "ur" ? "مارکیٹنگ مواصلات سے آپٹ آؤٹ کریں" : "Opt-out of marketing communications",
       ],
     },
     {
-      title: "8. Data Retention",
+      title: i18n.language === "ur" ? "8. ڈیٹا برقرار رکھنا" : "8. Data Retention",
       icon: Database,
       content:
-        "We retain data only as long as necessary for business purposes or legal requirements.",
+        i18n.language === "ur"
+          ? "ہم ڈیٹا کو صرف اس وقت تک برقرار رکھتے ہیں جب تک کاروباری مقاصد یا قانونی تقاضوں کے لیے ضروری ہو۔"
+          : "We retain data only as long as necessary for business purposes or legal requirements.",
     },
     {
-      title: "9. Policy Updates",
+      title: i18n.language === "ur" ? "9. پالیسی اپ ڈیٹس" : "9. Policy Updates",
       icon: Shield,
       content:
-        "We may update this policy occasionally. Changes will be posted here with updated dates.",
+        i18n.language === "ur"
+          ? "ہم وقتاً فوقتاً اس پالیسی کو اپ ڈیٹ کر سکتے ہیں۔ تبدیلیاں اپ ڈیٹ شدہ تاریخوں کے ساتھ یہاں پوسٹ کی جائیں گی۔"
+          : "We may update this policy occasionally. Changes will be posted here with updated dates.",
     },
   ];
 
   return (
     <>
       <Helmet>
-        <title>Privacy Policy - SwatVenue</title>
+        <title>{t("privacy.title")} - SwatVenue</title>
         <meta
           name="description"
-          content="SwatVenue's privacy policy explains how we protect your data while providing premium venue booking services."
+          content={t("privacy.intro")}
         />
       </Helmet>
 
@@ -126,17 +136,15 @@ const Privacy = () => {
                   <Shield className="w-10 h-10 text-white" />
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-                  Privacy Policy
+                  {t("privacy.title")}
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-400">
-                  Last updated: {lastUpdated}
+                  {t("privacy.last_updated")}: {lastUpdated}
                 </p>
               </div>
 
-              <p className="text-gray-700 dark:text-gray-300">
-                This Privacy Policy describes how SwatVenue collects, uses, and
-                protects your information when you use our venue booking
-                platform.
+              <p className="text-gray-700 dark:text-gray-300 text-center">
+                {t("privacy.intro")}
               </p>
             </AnimatedSection>
           </div>
@@ -190,12 +198,11 @@ const Privacy = () => {
           <AnimatedSection className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Contact Us
+                {t("privacy.contact_title")}
               </h3>
 
               <p className="text-gray-700 dark:text-gray-300 mb-8">
-                If you have questions about this Privacy Policy or how we handle
-                your data, please contact our privacy team.
+                {t("privacy.contact_desc")}
               </p>
 
               <div className="grid md:grid-cols-3 gap-6">
@@ -250,14 +257,14 @@ const Privacy = () => {
               <div className="flex items-center gap-3">
                 <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Protected by SSL encryption
+                  {t("privacy.compliance1")}
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  GDPR compliant • No data sharing
+                  {t("privacy.compliance2")}
                 </span>
               </div>
             </div>
@@ -269,3 +276,4 @@ const Privacy = () => {
 };
 
 export default Privacy;
+

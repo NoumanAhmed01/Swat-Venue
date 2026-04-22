@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "../../utils/validation";
@@ -19,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Login - SwatVenue</title>
+        <title>{t("nav.login")} - SwatVenue</title>
         <meta
           name="description"
           content="Login to your SwatVenue account to manage bookings and venues."
@@ -76,17 +78,17 @@ const Login = () => {
           <div className="hidden md:flex md:w-1/2  lg:flex lg:w-2/5 bg-gradient-to-br from-amber-700 via-amber-600 to-yellow-700 p-8 md:p-12 flex-col justify-between relative overflow-hidden">
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Welcome Back to{" "}
+                {t("auth.welcome_back")}{" "}
                 <span className="text-amber-300">Swat Venue</span>
               </h2>
             </div>
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {[
-                { icon: Shield, text: "Enterprise Security" },
-                { icon: Building, text: "Venue Management" },
-                { icon: Users, text: "Customer Portal" },
-                { icon: Shield, text: "Secure Access" },
+                { icon: Shield, text: t("auth.enterprise_security") },
+                { icon: Building, text: t("auth.venue_management") },
+                { icon: Users, text: t("auth.customer_portal") },
+                { icon: Shield, text: t("auth.secure_access") },
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
@@ -98,7 +100,7 @@ const Login = () => {
             </div>
 
             <p className="relative z-10 text-amber-200 text-sm font-medium">
-              Trusted by 500+ venue owners worldwide
+              {t("auth.trusted_by")}
             </p>
           </div>
 
@@ -111,10 +113,10 @@ const Login = () => {
                   <Lock className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Sign In to Your Account
+                  {t("auth.login_title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Enter your credentials to access the platform
+                  {t("auth.login_subtitle")}
                 </p>
               </div>
 
@@ -123,7 +125,7 @@ const Login = () => {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Email Address
+                    {t("auth.email_label")}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -147,13 +149,13 @@ const Login = () => {
                 <div>
                   <div className="flex justify-between mb-2">
                     <label className="text-sm font-semibold dark:text-white">
-                      Password
+                      {t("auth.password_label")}
                     </label>
                     <Link
                       to="/auth/forgot-password"
                       className="text-sm text-amber-600 font-medium"
                     >
-                      Forgot password?
+                      {t("auth.forgot_password")}
                     </Link>
                   </div>
                   <div className="relative">
@@ -190,11 +192,11 @@ const Login = () => {
                   {isSubmitting ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      Signing in...
+                      {t("auth.signing_in")}
                     </>
                   ) : (
                     <>
-                      Continue to Dashboard
+                      {t("auth.continue_dashboard")}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -204,12 +206,12 @@ const Login = () => {
               {/* Sign Up */}
               <div className="mt-10 text-center">
                 <p className="text-gray-600 dark:text-gray-400">
-                  Don't have an account?{" "}
+                  {t("auth.no_account")}{" "}
                   <Link
                     to="/auth/register"
                     className="font-bold text-amber-600"
                   >
-                    Create account now
+                    {t("auth.create_account_now")}
                   </Link>
                 </p>
               </div>
@@ -217,7 +219,7 @@ const Login = () => {
               {/* Security Note */}
               <p className="text-center text-xs text-gray-500 mt-8 pt-6 border-t ">
                 <Shield className="w-3 h-3 inline mr-1" />
-                Protected by end-to-end encryption • GDPR compliant
+                {t("auth.security_note")}
               </p>
             </div>
           </div>

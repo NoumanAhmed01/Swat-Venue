@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import {
   Building,
   Users,
@@ -10,10 +11,11 @@ import {
 } from "lucide-react";
 
 const RoleSelectionScreen = ({ onSelectRole }) => {
+  const { t } = useTranslation();
   return (
     <>
       <Helmet>
-        <title>Join SwatVenue - Choose Your Role</title>
+        <title>{t("auth.join_platform")} - SwatVenue</title>
         <meta
           name="description"
           content="Join SwatVenue as a customer or venue owner."
@@ -25,10 +27,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
           {/* Header */}
           <div className="flex flex-col items-center mb-10 md:mb-12">
             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3">
-              Join Our Platform
+              {t("auth.join_platform")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Choose how you want to get started
+              {t("auth.choose_started")}
             </p>
           </div>
 
@@ -46,10 +48,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-white">
-                    Join as Customer
+                    {t("auth.join_as_customer")}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Book venues for your events
+                    {t("auth.book_venues_desc")}
                   </p>
                 </div>
                 <div className="text-gray-400 group-hover:text-gold-600 transition-colors text-xl">
@@ -65,10 +67,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Easy Booking Management
+                      {t("auth.easy_booking_mgmt")}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                      Schedule and manage all your bookings in one place
+                      {t("auth.easy_booking_desc")}
                     </p>
                   </div>
                 </div>
@@ -79,10 +81,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Premium Venue Selection
+                      {t("auth.premium_venue_selection")}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                      Access exclusive venues with verified quality
+                      {t("auth.premium_venue_desc")}
                     </p>
                   </div>
                 </div>
@@ -91,7 +93,7 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
               {/* Action Button */}
               <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
                 <button className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
-                  Continue as Customer
+                  {t("auth.continue_as_customer")}
                   <span className="text-lg">→</span>
                 </button>
               </div>
@@ -109,10 +111,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg md:text-xl text-gray-900 dark:text-white">
-                    Join as Owner
+                    {t("auth.join_as_owner")}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    List and manage your venues
+                    {t("auth.list_manage_desc")}
                   </p>
                 </div>
                 <div className="text-gray-400 group-hover:text-gold-600 transition-colors text-xl">
@@ -128,10 +130,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Business Growth Tools
+                      {t("auth.business_growth_tools")}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                      Reach more customers and increase your bookings
+                      {t("auth.business_growth_desc")}
                     </p>
                   </div>
                 </div>
@@ -142,10 +144,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Analytics Dashboard
+                      {t("auth.analytics_dashboard")}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                      Track performance and revenue insights
+                      {t("auth.analytics_desc")}
                     </p>
                   </div>
                 </div>
@@ -154,7 +156,7 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
               {/* Action Button */}
               <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
                 <button className="w-full py-3 bg-gold-500 hover:bg-gold-600 text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
-                  Continue as Owner
+                  {t("auth.continue_as_owner")}
                   <span className="text-lg">→</span>
                 </button>
               </div>
@@ -170,7 +172,7 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
               </div>
               <div className="relative flex justify-center">
                 <span className="px-4 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 text-sm">
-                  Already have an account?
+                  {t("auth.already_have_account")}
                 </span>
               </div>
             </div>
@@ -181,10 +183,10 @@ const RoleSelectionScreen = ({ onSelectRole }) => {
                 href="/auth/login"
                 className="inline-block  text-gold-600 hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300 font-medium"
               >
-                Sign in to your account
+                {t("auth.sign_in_account")}
               </a>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
-                Trusted by 500+ venue owners and thousands of customers
+                {t("auth.trusted_by_full")}
               </p>
             </div>
           </div>

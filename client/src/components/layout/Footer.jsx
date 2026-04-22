@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import logo from "../../assets/logo.svg";
 import {
   MapPin,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -22,8 +25,7 @@ const Footer = () => {
             </div>
 
             <p className="text-gray-400 text-sm leading-relaxed">
-              Discover and book trusted venues for weddings, birthdays,
-              corporate events, and special occasions across Swat.
+              {t("footer.description")}
             </p>
 
             <div className="flex space-x-3 pt-2">
@@ -54,7 +56,7 @@ const Footer = () => {
           {/* EXPLORE */}
           <div className="space-y-4">
             <h3 className="text-white font-medium text-sm uppercase tracking-wider">
-              Explore
+              {t("footer.explore")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -62,7 +64,7 @@ const Footer = () => {
                   to="/"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  Home
+                  {t("nav.home")}
                 </Link>
               </li>
               <li>
@@ -70,7 +72,7 @@ const Footer = () => {
                   to="/venues"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  Browse Venues
+                  {t("footer.browse")}
                 </Link>
               </li>
               <li>
@@ -78,7 +80,7 @@ const Footer = () => {
                   to="/about"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  About Us
+                  {t("footer.about_us")}
                 </Link>
               </li>
               <li>
@@ -86,7 +88,7 @@ const Footer = () => {
                   to="/contact"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  Contact
+                  {t("nav.contact")}
                 </Link>
               </li>
             </ul>
@@ -95,7 +97,7 @@ const Footer = () => {
           {/* ACCOUNT */}
           <div className="space-y-4">
             <h3 className="text-white font-medium text-sm uppercase tracking-wider">
-              Account
+              {t("footer.account")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -103,7 +105,7 @@ const Footer = () => {
                   to="/auth/login"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  Login
+                  {t("nav.login")}
                 </Link>
               </li>
               <li>
@@ -111,7 +113,7 @@ const Footer = () => {
                   to="/auth/register"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  Register
+                  {t("nav.register")}
                 </Link>
               </li>
               <li>
@@ -119,7 +121,7 @@ const Footer = () => {
                   to="/my-bookings"
                   className="text-gray-400 hover:text-yellow-500 text-sm transition-colors duration-200 block py-1"
                 >
-                  My Bookings
+                  {t("nav.my_bookings")}
                 </Link>
               </li>
             </ul>
@@ -128,7 +130,7 @@ const Footer = () => {
           {/* CONTACT */}
           <div className="space-y-4">
             <h3 className="text-white font-medium text-sm uppercase tracking-wider">
-              Contact
+              {t("footer.contact")}
             </h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start space-x-3">
@@ -153,20 +155,20 @@ const Footer = () => {
         {/* BOTTOM BAR */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-            © {new Date().getFullYear()} SwatVenue. All rights reserved.
+            © {new Date().getFullYear()} SwatVenue. {t("footer.rights")}
           </p>
           <div className="flex space-x-6">
             <Link
               to="/privacy"
               className="text-gray-500 hover:text-gray-300 text-sm transition-colors duration-200"
             >
-              Privacy Policy
+              {t("footer.privacy")}
             </Link>
             <Link
               to="/terms"
               className="text-gray-500 hover:text-gray-300 text-sm transition-colors duration-200"
             >
-              Terms & Conditions
+              {t("footer.terms")}
             </Link>
           </div>
         </div>

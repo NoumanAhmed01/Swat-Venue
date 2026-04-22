@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   MapPin,
@@ -30,8 +31,10 @@ import {
   AnimatedStatsContainer, // Import the counter animation
 } from "../components/animation/Animation";
 import PartnerMarquee from "../components/animation/PartnerMarquee";
+import heroBg from "../assets/2.png";
 
 const Home = () => {
+  const { t } = useTranslation();
   const [searchForm, setSearchForm] = useState({
     location: "",
     date: "",
@@ -76,35 +79,32 @@ const Home = () => {
   };
 
   const stats = [
-    { number: "500+", label: "Venues Listed" },
-    { number: "2000+", label: "Events Hosted" },
-    { number: "50000+", label: "Happy Customers" },
-    { number: "4.8", label: "Average Rating" },
+    { number: "500+", label: t("stats.venues") },
+    { number: "2000+", label: t("stats.events") },
+    { number: "50000+", label: t("stats.customers") },
+    { number: "4.8", label: t("stats.rating") },
   ];
 
   const features = [
     {
       icon: Search,
-      title: "Easy Search",
-      description:
-        "Find the perfect venue with our advanced search and filtering options",
+      title: t("features.easy_search_title"),
+      description: t("features.easy_search_description"),
     },
     {
       icon: CheckCircle,
-      title: "Verified Venues",
-      description:
-        "All venues are verified and approved by our quality assurance team",
+      title: t("features.verified_venues_title"),
+      description: t("features.verified_venues_description"),
     },
     {
       icon: Users,
-      title: "Expert Support",
-      description: "24/7 customer support to help you plan your perfect event",
+      title: t("features.expert_support_title"),
+      description: t("features.expert_support_description"),
     },
     {
       icon: Star,
-      title: "Top Rated",
-      description:
-        "Access to highest-rated venues with authentic customer reviews",
+      title: t("features.top_rated_title"),
+      description: t("features.top_rated_description"),
     },
   ];
 
@@ -128,16 +128,31 @@ const Home = () => {
         />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gold-50/30 dark:from-surface-900 dark:via-surface-800 dark:to-surface-900 overflow-hidden">
-        {/* Background Animated Blobs */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-burgundy-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-0 left-32 w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+      {/* Hero Section - Cinematic Professional Look */}
+      <section className="relative min-h-[85vh] lg:min-h-screen flex items-center justify-center bg-primary-900 overflow-hidden">
+        {/* Background Image with Cinematic Animation */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-900/60 via-primary-900/40 to-primary-900 z-10"></div>
+          <motion.div
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "linear",
+            }}
+            className="w-full h-full"
+          >
+            <img
+              src={heroBg}
+              alt="Luxury Hall"
+              className="w-full h-full object-cover opacity-70"
+            />
+          </motion.div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -145,84 +160,83 @@ const Home = () => {
           >
             <motion.h1
               variants={staggerItem}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary-900 dark:text-text-dark mb-6 leading-tight"
+              className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight"
             >
-              Find Your Perfect{" "}
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-burgundy-600">
-                Event Venue
+              {t("hero.title")}{" "}
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600">
+                {t("hero.highlight")}
               </span>
             </motion.h1>
 
             <TextReveal
-              text="Discover stunning banquet halls and event venues in the beautiful Swat valley. From intimate gatherings to grand celebrations, we have the perfect space for your special day."
-              className="text-xl md:text-2xl text-text-light dark:text-text-dark mb-12 max-w-3xl mx-auto"
+              text={t("hero.description")}
+              className="text-xl md:text-2xl text-slate-200/90 mb-12 max-w-3xl mx-auto font-medium"
             />
 
-            {/* Clean Search Bar */}
+            {/* Clean, Focused Search Bar */}
             <motion.form
               variants={staggerItem}
               onSubmit={handleSearch}
-              className="max-w-4xl mx-auto mb-16 bg-white dark:bg-surface-800 p-6 rounded-2xl shadow-2xl"
+              className="max-w-5xl mx-auto mb-16 bg-white/10 backdrop-blur-xl p-2 sm:p-3 rounded-3xl border border-white/20 shadow-2xl"
             >
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {/* Location */}
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gold-400" />
                   <input
                     type="text"
-                    placeholder="Location"
+                    placeholder={t("search.location")}
                     value={searchForm.location}
                     onChange={(e) =>
                       setSearchForm({ ...searchForm, location: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-surface-700 dark:text-text-dark"
+                    className="w-full pl-10 pr-4 py-4 bg-white/5 border-none rounded-2xl text-white placeholder:text-gray-400 text-sm font-bold focus:ring-2 focus:ring-gold-500/50"
                   />
                 </div>
 
                 {/* Date */}
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gold-400" />
                   <input
                     type="date"
                     value={searchForm.date}
                     onChange={(e) =>
                       setSearchForm({ ...searchForm, date: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-surface-700 dark:text-text-dark"
+                    className="w-full pl-10 pr-4 py-4 bg-white/5 border-none rounded-2xl text-white placeholder:text-gray-400 text-sm font-bold focus:ring-2 focus:ring-gold-500/50 [color-scheme:dark]"
                   />
                 </div>
 
                 {/* Guests */}
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gold-400" />
                   <input
                     type="number"
-                    placeholder="Guests"
+                    placeholder={t("search.guests")}
                     value={searchForm.guests}
                     onChange={(e) =>
                       setSearchForm({ ...searchForm, guests: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent dark:bg-surface-700 dark:text-text-dark"
+                    className="w-full pl-10 pr-4 py-4 bg-white/5 border-none rounded-2xl text-white placeholder:text-gray-400 text-sm font-bold focus:ring-2 focus:ring-gold-500/50"
                   />
                 </div>
 
                 {/* Search Button */}
-                <AnimatedButton
+                <button
                   type="submit"
-                  className="bg-gradient-to-r from-gold-500 to-gold-600 text-white px-8 py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
-                  glow={true}
+                  className="bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-white/95 py-4 px-8 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-lg shadow-gold-500/20 active:scale-95"
                 >
-                  <Search className="h-5 w-5" />
-                  <span>Search</span>
-                </AnimatedButton>
+                  {t("hero.explore")}
+                </button>
               </div>
             </motion.form>
 
-            {/* Updated Stats Section with Counter Animation */}
             <AnimatedStatsContainer
               stats={stats}
               duration={2}
-              className="mb-16"
+              className="opacity-90"
+              labelClassName="text-slate-300"
+              statClassName="text-gold-400"
             />
           </motion.div>
         </div>
@@ -233,11 +247,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              Featured Venues
+              {t("featured.title")}
             </h2>
             <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-12">
-              Discover our handpicked selection of the finest venues in Swat
-              valley
+              {t("featured.description")}
             </p>
           </AnimatedSection>
 
@@ -249,7 +262,7 @@ const Home = () => {
             <AnimatedSection variants={fadeIn}>
               <div className="text-center py-12">
                 <p className="text-gray-500 dark:text-gray-400">
-                  No featured venues available at the moment.
+                  {t("featured.none")}
                 </p>
               </div>
             </AnimatedSection>
@@ -277,7 +290,7 @@ const Home = () => {
                   animate={{ x: [0, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
                 >
-                  View All Venues
+                  {t("common.view_all")}
                 </motion.span>
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
@@ -297,10 +310,10 @@ const Home = () => {
           <AnimatedSection>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-                Trusted by Premium Venues
+                {t("home.partners_title")}
               </h2>
               <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto">
-                Partnered with the finest event venues across Swat Valley
+                {t("home.partners_description")}
               </p>
             </div>
           </AnimatedSection>
@@ -313,11 +326,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              Why Choose SwatVenue?
+              {t("home.why_choose_title")}
             </h2>
             <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16">
-              We make finding and booking your dream venue simple and
-              stress-free
+              {t("home.why_choose_description")}
             </p>
           </AnimatedSection>
 
@@ -349,10 +361,10 @@ const Home = () => {
       <section className="py-20 bg-gradient-to-r from-primary-900 to-primary-800 text-center">
         <AnimatedSection>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Own a Venue? List it on SwatVenue
+            {t("home.cta_title")}
           </h2>
           <TextReveal
-            text="Join hundreds of venue owners who are growing their business with our platform. It's free to list and easy to manage."
+            text={t("home.cta_description")}
             className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto"
           />
 
@@ -366,7 +378,7 @@ const Home = () => {
                   to="/auth/register?role=owner"
                   className="flex items-center space-x-2"
                 >
-                  <span>List Your Venue</span>
+                  <span>{t("home.cta_button")}</span>
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ repeat: Infinity, duration: 2 }}
@@ -379,7 +391,7 @@ const Home = () => {
 
             <AnimatedButton className="flex items-center justify-center  border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-900">
               <Link to="/contact" className="">
-                <span>Learn More</span>
+                <span>{t("common.learn_more")}</span>
               </Link>
             </AnimatedButton>
           </div>

@@ -13,34 +13,36 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const BookingCard = ({ booking, onDeleteClick }) => {
+  const { t, i18n } = useTranslation();
   if (!booking) return null;
 
   const statusConfig = {
     confirmed: {
       icon: <CheckCircle className="h-5 w-5" />,
-      label: "CONFIRMED",
+      label: t("my_bookings.confirmed"),
       banner: "bg-emerald-600 text-white dark:bg-emerald-500",
-      sub: "Your booking has been approved",
+      sub: i18n.language === "ur" ? "آپ کی بکنگ کی منظوری دے دی گئی ہے" : "Your booking has been approved",
     },
     pending: {
       icon: <Clock className="h-5 w-5" />,
-      label: "PENDING",
+      label: t("my_bookings.pending"),
       banner: "bg-amber-500 text-white dark:bg-amber-400",
-      sub: "Waiting for venue owner approval",
+      sub: i18n.language === "ur" ? "وینیو کے مالک کی منظوری کا انتظار ہے" : "Waiting for venue owner approval",
     },
     cancelled: {
       icon: <XCircle className="h-5 w-5" />,
-      label: "CANCELLED",
+      label: t("my_bookings.cancelled"),
       banner: "bg-rose-600 text-white dark:bg-rose-500",
-      sub: "This booking was cancelled",
+      sub: i18n.language === "ur" ? "یہ بکنگ منسوخ کر دی گئی تھی" : "This booking was cancelled",
     },
     completed: {
       icon: <CalendarCheck className="h-5 w-5" />,
-      label: "COMPLETED",
+      label: t("my_bookings.completed"),
       banner: "bg-slate-600 text-white dark:bg-slate-500",
-      sub: "This event has already taken place",
+      sub: i18n.language === "ur" ? "یہ ایونٹ پہلے ہی ہو چکا ہے" : "This event has already taken place",
     },
   };
 
@@ -49,7 +51,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
     booking.status !== "completed" && booking.status !== "cancelled";
 
   const formattedDate = new Date(booking.eventDate).toLocaleDateString(
-    "en-US",
+    i18n.language === "ur" ? "ur-PK" : "en-US",
     { month: "short", day: "numeric", year: "numeric" }
   );
 
@@ -61,7 +63,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
           {/* Icon and Text together in one line */}
           <div className="flex items-center justify-center gap-2">
             {status.icon}
-            <h3 className="text-sm font-extrabold tracking-widest">
+            <h3 className="text-sm font-extrabold tracking-widest uppercase">
               {status.label}
             </h3>
           </div>
@@ -103,7 +105,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
           </div>
           <div className="flex items-center gap-1">
             <Users size={16} />
-            {booking.guestCount} Guests
+            {booking.guestCount} {t("booking_card.guests")}
           </div>
         </div>
 
@@ -128,7 +130,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
             to={`/venue/${booking.venue?._id}`}
             className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold hover:opacity-90"
           >
-            View Details
+            {t("booking_card.view_venue")}
             <ExternalLink size={14} />
           </Link>
 
@@ -136,7 +138,7 @@ const BookingCard = ({ booking, onDeleteClick }) => {
             <button
               onClick={() => onDeleteClick(booking)}
               className="p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-red-500 hover:border-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition"
-              title="Cancel Booking"
+              title={t("booking_card.cancel_booking")}
             >
               <Trash2 size={16} />
             </button>
@@ -148,3 +150,4 @@ const BookingCard = ({ booking, onDeleteClick }) => {
 };
 
 export default BookingCard;
+

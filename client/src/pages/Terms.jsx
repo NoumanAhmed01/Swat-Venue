@@ -17,116 +17,134 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatedSection } from "../components/animation/Animation";
+import { useTranslation } from "react-i18next";
 
 const Terms = () => {
+  const { t, i18n } = useTranslation();
   const lastUpdated = "January 15, 2025";
 
   const sections = [
     {
-      title: "1. Acceptance of Terms",
+      title: i18n.language === "ur" ? "1. شرائط کی قبولیت" : "1. Acceptance of Terms",
       icon: FileText,
       content:
-        "By accessing and using SwatVenue, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not use our services.",
+        i18n.language === "ur"
+          ? "سوات وینیو تک رسائی اور استعمال کر کے، آپ ان سروس کی شرائط کے پابند ہونے سے اتفاق کرتے ہیں۔ اگر آپ شرائط کے کسی بھی حصے سے متفق نہیں ہیں، تو آپ ہماری خدمات استعمال نہیں کر سکتے۔"
+          : "By accessing and using SwatVenue, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not use our services.",
       points: [],
     },
     {
-      title: "2. Account Responsibilities",
+      title: i18n.language === "ur" ? "2. اکاؤنٹ کی ذمہ داریاں" : "2. Account Responsibilities",
       icon: UserCheck,
       content:
-        "You are responsible for maintaining the security of your account and for all activities that occur under your account.",
+        i18n.language === "ur"
+          ? "آپ اپنے اکاؤنٹ کی سیکیورٹی کو برقرار رکھنے اور اپنے اکاؤنٹ کے تحت ہونے والی تمام سرگرمیوں کے ذمہ دار ہیں۔"
+          : "You are responsible for maintaining the security of your account and for all activities that occur under your account.",
       points: [
-        "Provide accurate and current information",
-        "Maintain password security",
-        "Notify us of unauthorized access",
-        "Accept responsibility for account activities",
+        i18n.language === "ur" ? "درست اور موجودہ معلومات فراہم کریں" : "Provide accurate and current information",
+        i18n.language === "ur" ? "پاس ورڈ کی سیکیورٹی برقرار رکھیں" : "Maintain password security",
+        i18n.language === "ur" ? "غیر مجاز رسائی کے بارے میں ہمیں مطلع کریں" : "Notify us of unauthorized access",
+        i18n.language === "ur" ? "اکاؤنٹ کی سرگرمیوں کی ذمہ داری قبول کریں" : "Accept responsibility for account activities",
       ],
     },
     {
-      title: "3. Venue Booking Platform",
+      title: i18n.language === "ur" ? "3. وینیو بکنگ پلیٹ فارم" : "3. Venue Booking Platform",
       icon: Calendar,
       content:
-        "SwatVenue connects customers with venue owners. We facilitate discovery but are not party to transactions.",
+        i18n.language === "ur"
+          ? "سوات وینیو صارفین کو وینیو مالکان کے ساتھ جوڑتا ہے۔ ہم دریافت میں سہولت فراہم کرتے ہیں لیکن لین دین کا فریق نہیں ہیں۔"
+          : "SwatVenue connects customers with venue owners. We facilitate discovery but are not party to transactions.",
       points: [
-        "We verify venue information but don't guarantee accuracy",
-        "Bookings are made directly between parties",
-        "We're not responsible for venue conditions",
-        "Disputes should be resolved directly with venue owners",
+        i18n.language === "ur" ? "ہم وینیو کی معلومات کی تصدیق کرتے ہیں لیکن درستگی کی ضمانت نہیں دیتے" : "We verify venue information but don't guarantee accuracy",
+        i18n.language === "ur" ? "بکنگ براہ راست فریقین کے درمیان کی جاتی ہے" : "Bookings are made directly between parties",
+        i18n.language === "ur" ? "ہم وینیو کے حالات کے ذمہ دار نہیں ہیں" : "We're not responsible for venue conditions",
+        i18n.language === "ur" ? "تنازعات براہ راست وینیو مالکان کے ساتھ حل کیے جانے چاہئیں" : "Disputes should be resolved directly with venue owners",
       ],
     },
     {
-      title: "4. User Conduct",
+      title: i18n.language === "ur" ? "4. صارف کا طرز عمل" : "4. User Conduct",
       icon: Shield,
       content:
-        "Users must not engage in prohibited activities on our platform.",
+        i18n.language === "ur"
+          ? "صارفین کو ہمارے پلیٹ فارم پر ممنوعہ سرگرمیوں میں ملوث نہیں ہونا چاہیے۔"
+          : "Users must not engage in prohibited activities on our platform.",
       points: [
-        "Post illegal or offensive content",
-        "Infringe on intellectual property rights",
-        "Use the platform for fraudulent purposes",
-        "Share misleading or false information",
+        i18n.language === "ur" ? "غیر قانونی یا توہین آمیز مواد پوسٹ کرنا" : "Post illegal or offensive content",
+        i18n.language === "ur" ? "دانشورانہ ملکیت کے حقوق کی خلاف ورزی کرنا" : "Infringe on intellectual property rights",
+        i18n.language === "ur" ? "فراڈ کے مقاصد کے لیے پلیٹ فارم کا استعمال کرنا" : "Use the platform for fraudulent purposes",
+        i18n.language === "ur" ? "گمراہ کن یا غلط معلومات شیئر کرنا" : "Share misleading or false information",
       ],
     },
     {
-      title: "5. Content Guidelines",
+      title: i18n.language === "ur" ? "5. مواد کے رہنما خطوط" : "5. Content Guidelines",
       icon: AlertTriangle,
       content:
-        "All content posted on SwatVenue must comply with our community standards.",
+        i18n.language === "ur"
+          ? "سوات وینیو پر پوسٹ کیا گیا تمام مواد ہماری کمیونٹی کے معیارات کے مطابق ہونا چاہیے۔"
+          : "All content posted on SwatVenue must comply with our community standards.",
       points: [
-        "Accurate venue descriptions",
-        "Professional communication",
-        "Respectful reviews and ratings",
-        "No spam or promotional content",
+        i18n.language === "ur" ? "درست وینیو تفصیلات" : "Accurate venue descriptions",
+        i18n.language === "ur" ? "پیشہ ورانہ مواصلت" : "Professional communication",
+        i18n.language === "ur" ? "احترام کے ساتھ جائزے اور ریٹنگ" : "Respectful reviews and ratings",
+        i18n.language === "ur" ? "کوئی سپیم یا پروموشنل مواد نہیں" : "No spam or promotional content",
       ],
     },
     {
-      title: "6. Liability Limitations",
+      title: i18n.language === "ur" ? "6. ذمہ داری کی حدود" : "6. Liability Limitations",
       icon: Scale,
-      content: "SwatVenue's liability is limited as outlined below.",
+      content: i18n.language === "ur" ? "سوات وینیو کی ذمہ داری محدود ہے جیسا کہ ذیل میں بیان کیا گیا ہے۔" : "SwatVenue's liability is limited as outlined below.",
       points: [
-        "Not responsible for venue quality or availability",
-        "Not liable for booking disputes",
-        "No guarantee of service availability",
-        "Use the platform at your own risk",
+        i18n.language === "ur" ? "وینیو کے معیار یا دستیابی کے ذمہ دار نہیں" : "Not responsible for venue quality or availability",
+        i18n.language === "ur" ? "بکنگ کے تنازعات کے لیے ذمہ دار نہیں" : "Not liable for booking disputes",
+        i18n.language === "ur" ? "سروس کی دستیابی کی کوئی ضمانت نہیں" : "No guarantee of service availability",
+        i18n.language === "ur" ? "پلیٹ فارم کو اپنے خطرے پر استعمال کریں" : "Use the platform at your own risk",
       ],
     },
     {
-      title: "7. Account Termination",
+      title: i18n.language === "ur" ? "7. اکاؤنٹ کی منسوخی" : "7. Account Termination",
       icon: XCircle,
       content:
-        "We reserve the right to terminate accounts that violate our terms.",
+        i18n.language === "ur"
+          ? "ہم ان اکاؤنٹس کو ختم کرنے کا حق محفوظ رکھتے ہیں جو ہماری شرائط کی خلاف ورزی کرتے ہیں۔"
+          : "We reserve the right to terminate accounts that violate our terms.",
       points: [
-        "Immediate termination for serious violations",
-        "No liability for terminated accounts",
-        "Right to refuse service to anyone",
-        "User content may be removed",
+        i18n.language === "ur" ? "سنگین خلاف ورزیوں پر فوری خاتمہ" : "Immediate termination for serious violations",
+        i18n.language === "ur" ? "ختم کیے گئے اکاؤنٹس کے لیے کوئی ذمہ داری نہیں" : "No liability for terminated accounts",
+        i18n.language === "ur" ? "کسی کو بھی سروس دینے سے انکار کا حق" : "Right to refuse service to anyone",
+        i18n.language === "ur" ? "صارف کا مواد ہٹایا جا سکتا ہے" : "User content may be removed",
       ],
     },
     {
-      title: "8. Policy Updates",
+      title: i18n.language === "ur" ? "8. پالیسی اپ ڈیٹس" : "8. Policy Updates",
       icon: RefreshCw,
       content:
-        "We may update these terms as needed to reflect changes in our services.",
+        i18n.language === "ur"
+          ? "ہم اپنی خدمات میں تبدیلیوں کی عکاسی کرنے کے لیے ضرورت کے مطابق ان شرائط کو اپ ڈیٹ کر سکتے ہیں۔"
+          : "We may update these terms as needed to reflect changes in our services.",
       points: [
-        "Changes posted on this page",
-        "Continued use means acceptance",
-        "Check back for updates",
-        "Significant changes will be notified",
+        i18n.language === "ur" ? "اس صفحے پر پوسٹ کی گئی تبدیلیاں" : "Changes posted on this page",
+        i18n.language === "ur" ? "مسلسل استعمال کا مطلب قبولیت ہے" : "Continued use means acceptance",
+        i18n.language === "ur" ? "اپ ڈیٹس کے لیے دوبارہ چیک کریں" : "Check back for updates",
+        i18n.language === "ur" ? "اہم تبدیلیوں کے بارے میں مطلع کیا جائے گا" : "Significant changes will be notified",
       ],
     },
     {
-      title: "9. Governing Law",
+      title: i18n.language === "ur" ? "9. قابل اطلاق قانون" : "9. Governing Law",
       icon: Globe,
       content:
-        "These terms are governed by the laws of Pakistan. Any disputes shall be resolved in Pakistani courts.",
+        i18n.language === "ur"
+          ? "ان شرائط کو پاکستان کے قوانین کے تحت کنٹرول کیا جاتا ہے۔ کسی بھی تنازع کو پاکستانی عدالتوں میں حل کیا جائے گا۔"
+          : "These terms are governed by the laws of Pakistan. Any disputes shall be resolved in Pakistani courts.",
     },
   ];
 
   return (
     <>
       <Helmet>
-        <title>Terms of Service - SwatVenue</title>
+        <title>{t("terms.title")} - SwatVenue</title>
         <meta
           name="description"
-          content="Terms of Service for SwatVenue's venue booking platform. Understand your rights and responsibilities."
+          content={t("terms.intro")}
         />
       </Helmet>
 
@@ -140,16 +158,15 @@ const Terms = () => {
                   <FileText className="w-10 h-10 text-white" />
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-                  Terms of Service
+                  {t("terms.title")}
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-400">
-                  Last updated: {lastUpdated}
+                  {t("terms.last_updated")}: {lastUpdated}
                 </p>
               </div>
 
               <p className="text-gray-700 dark:text-gray-300 text-center max-w-3xl mx-auto">
-                These Terms of Service govern your use of SwatVenue's venue
-                booking platform. Please read them carefully.
+                {t("terms.intro")}
               </p>
             </AnimatedSection>
           </div>
@@ -205,12 +222,11 @@ const Terms = () => {
           <AnimatedSection className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Legal Contact
+                {t("terms.contact_title")}
               </h3>
 
               <p className="text-gray-700 dark:text-gray-300 mb-8">
-                For questions about these Terms of Service or legal matters,
-                please contact our legal department.
+                {t("terms.contact_desc")}
               </p>
 
               <div className="grid md:grid-cols-3 gap-6">
@@ -265,14 +281,14 @@ const Terms = () => {
               <div className="flex items-center gap-3">
                 <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  These terms are legally binding
+                  {t("terms.compliance1")}
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Use constitutes acceptance of terms
+                  {t("terms.compliance2")}
                 </span>
               </div>
             </div>
@@ -284,3 +300,4 @@ const Terms = () => {
 };
 
 export default Terms;
+

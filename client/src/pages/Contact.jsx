@@ -7,8 +7,10 @@ import { toast } from "../components/common/Toast";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { contactAPI } from "../utils/api";
+import { useTranslation } from "react-i18next";
 
 const Contact = () => {
+  const { t } = useTranslation();
   // Helper to restrict name to alphabets and spaces only during typing
   const handleNameKeyDown = (e) => {
     if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
@@ -37,8 +39,7 @@ const Contact = () => {
       const response = await contactAPI.create(data);
       if (response.data.success) {
         toast.success(
-          response.data.message ||
-            "Message sent successfully! We'll get back to you soon."
+          response.data.message || t("contact.success_msg")
         );
         reset();
       }
@@ -54,7 +55,7 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Phone,
-      title: "Phone",
+      title: t("contact.subjects.other"), // Using "Other" for general Phone title or could add more keys
       details: ["+92-300-SWATVENUE", "+92-946-123456"],
       action: "tel:+923001234567",
     },
@@ -106,10 +107,10 @@ const Contact = () => {
     <>
       {/* 🧠 SEO Optimization using Helmet */}
       <Helmet>
-        <title>Contact SwatVenue - Get in Touch</title>
+        <title>{t("contact.hero_title")} - SwatVenue</title>
         <meta
           name="description"
-          content="Contact SwatVenue for support, questions, or partnership opportunities. We're here to help you find the perfect event venue in Swat valley."
+          content={t("contact.hero_subtitle")}
         />
       </Helmet>
 
@@ -118,11 +119,10 @@ const Contact = () => {
         <section className="py-20 bg-gradient-to-r from-primary-900 to-primary-800 text-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Get in Touch
+              {t("contact.hero_title")}
             </h1>
             <p className="text-xl text-gray-200 max-w-2xl mx-auto">
-              Have questions? We'd love to hear from you. Send us a message and
-              we'll respond as soon as possible.
+              {t("contact.hero_subtitle")}
             </p>
           </div>
         </section>
@@ -134,11 +134,10 @@ const Contact = () => {
             <div className="space-y-8">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                  Contact Information
+                  {t("contact.info_title")}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-8">
-                  Reach out to us through any of these channels. We're here to
-                  help!
+                  {t("contact.info_subtitle")}
                 </p>
               </div>
 
@@ -149,7 +148,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-primary-900 dark:text-text-dark mb-2">
-                      {info.title}
+                      {index === 0 ? t("contact.subjects.other") : index === 1 ? "Email" : index === 2 ? "Address" : "Business Hours"}
                     </h3>
                     {info.details.map((detail, idx) => (
                       <p
@@ -177,7 +176,7 @@ const Contact = () => {
             <div className="lg:col-span-2">
               <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold text-primary-900 dark:text-text-dark mb-6">
-                  Send us a Message
+                  {t("contact.form_title")}
                 </h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -185,7 +184,7 @@ const Contact = () => {
                     {/* Name */}
                     <div>
                       <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
-                        Your Name *
+                        {t("contact.name_label")}
                       </label>
                       <input
                         {...register("name")}
@@ -193,7 +192,7 @@ const Contact = () => {
                         className={`w-full px-4 py-3 border ${
                           errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                         } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
-                        placeholder="Enter your full name"
+                        placeholder={t("contact.name_placeholder")}
                       />
                       {errors.name && (
                         <p className="text-red-500 text-sm mt-1">
@@ -205,7 +204,7 @@ const Contact = () => {
                     {/* Email */}
                     <div>
                       <label className="block text-sm font-medium mb-2  text-black dark:text-gray-300">
-                        Email Address *
+                        {t("contact.email_label")}
                       </label>
                       <input
                         type="email"
@@ -213,7 +212,7 @@ const Contact = () => {
                         className={`w-full px-4 py-3 border ${
                           errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                         } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
-                        placeholder="Enter your email"
+                        placeholder={t("contact.email_placeholder")}
                       />
                       {errors.email && (
                         <p className="text-red-500 text-sm mt-1">
@@ -226,7 +225,7 @@ const Contact = () => {
                   {/* Subject */}
                   <div>
                     <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
-                      Subject *
+                      {t("contact.subject_label")}
                     </label>
                     <select
                       {...register("subject")}
@@ -234,13 +233,13 @@ const Contact = () => {
                         errors.subject ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                     >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="booking">Booking Support</option>
-                      <option value="venue-listing">List My Venue</option>
-                      <option value="technical">Technical Issue</option>
-                      <option value="partnership">Partnership</option>
-                      <option value="other">Other</option>
+                      <option value="">{t("contact.subject_placeholder")}</option>
+                      <option value="general">{t("contact.subjects.general")}</option>
+                      <option value="booking">{t("contact.subjects.booking")}</option>
+                      <option value="venue-listing">{t("contact.subjects.venue_listing")}</option>
+                      <option value="technical">{t("contact.subjects.technical")}</option>
+                      <option value="partnership">{t("contact.subjects.partnership")}</option>
+                      <option value="other">{t("contact.subjects.other")}</option>
                     </select>
                     {errors.subject && (
                       <p className="text-red-500 text-sm mt-1">
@@ -252,7 +251,7 @@ const Contact = () => {
                   {/* Message */}
                   <div>
                     <label className="block text-sm font-medium mb-2 text-black dark:text-gray-300">
-                      Message *
+                      {t("contact.message_label")}
                     </label>
                     <textarea
                       rows="6"
@@ -260,7 +259,7 @@ const Contact = () => {
                       className={`w-full px-4 py-3 border ${
                         errors.message ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
-                      placeholder="Tell us how we can help you..."
+                      placeholder={t("contact.message_placeholder")}
                     />
                     {errors.message && (
                       <p className="text-red-500 text-sm mt-1">
@@ -280,7 +279,7 @@ const Contact = () => {
                     ) : (
                       <>
                         <Send className="h-5 w-5" />
-                        <span>Send Message</span>
+                        <span>{t("contact.send_button")}</span>
                       </>
                     )}
                   </button>
@@ -294,10 +293,10 @@ const Contact = () => {
         <section className="py-20 bg-white dark:bg-surface-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold mb-4 text-black dark:text-white">
-              Frequently Asked Questions
+              {t("contact.faq_title")}
             </h2>
             <p className="text-xl mb-12  text-black dark:text-white">
-              Quick answers to common questions
+              {t("contact.faq_subtitle")}
             </p>
 
             <div className="space-y-8 text-left">
@@ -322,7 +321,7 @@ const Contact = () => {
                 className="inline-flex items-center space-x-2 bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-lg font-semibold"
               >
                 <Phone className="h-5 w-5" />
-                <span>Call Us Now</span>
+                <span>{t("contact.call_now")}</span>
               </a>
             </div>
           </div>
@@ -332,10 +331,10 @@ const Contact = () => {
         <section className="py-20 bg-gray-50 dark:bg-surface-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold mb-4 text-black dark:text-white">
-              Visit Our Office
+              {t("contact.office_title")}
             </h2>
             <p className="text-xl mb-12 text-black dark:text-white">
-              Located in the heart of Mingora, Swat
+              {t("contact.office_subtitle")}
             </p>
 
             <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-lg p-8">
@@ -345,7 +344,7 @@ const Contact = () => {
                   Interactive Map
                 </h3>
                 <p className="text-gray-500">
-                  Google Maps integration would appear here
+                  {t("contact.map_placeholder")}
                 </p>
                 <p className="text-sm text-gray-400 mt-2">
                   Green Chowk, Mingora, Swat, KPK, Pakistan
@@ -360,3 +359,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

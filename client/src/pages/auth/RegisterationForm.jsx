@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "../../utils/validation";
@@ -19,6 +20,7 @@ import {
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -34,11 +36,11 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
   const passwordValue = watch("password", "");
 
   const passwordRequirements = [
-    { label: "At least 8 characters", met: passwordValue.length >= 8 },
-    { label: "One uppercase letter", met: /[A-Z]/.test(passwordValue) },
-    { label: "One lowercase letter", met: /[a-z]/.test(passwordValue) },
-    { label: "One number", met: /[0-9]/.test(passwordValue) },
-    { label: "One special character (@$!%*?&#)", met: /[@$!%*?&#]/.test(passwordValue) },
+    { label: t("auth.pass_req_8"), met: passwordValue.length >= 8 },
+    { label: t("auth.pass_req_upper"), met: /[A-Z]/.test(passwordValue) },
+    { label: t("auth.pass_req_lower"), met: /[a-z]/.test(passwordValue) },
+    { label: t("auth.pass_req_number"), met: /[0-9]/.test(passwordValue) },
+    { label: t("auth.pass_req_special"), met: /[@$!%*?&#]/.test(passwordValue) },
   ];
 
   // Helper to restrict name to alphabets and spaces only during typing
@@ -74,12 +76,12 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
   };
 
   const isCustomer = role === "customer";
-  const roleTitle = isCustomer ? "Customer" : "Owner";
+  const roleTitle = isCustomer ? t("auth.customer") : t("auth.owner");
 
   return (
     <>
       <Helmet>
-        <title>Register as {roleTitle} - SwatVenue</title>
+        <title>{t("auth.create_account")} - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950/20 flex items-center justify-center p-4 md:p-8">
@@ -92,19 +94,19 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
               className="hidden lg:flex items-center gap-2 text-amber-100 hover:text-white mb-8 transition-colors group self-start"
             >
               <ArrowRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm font-medium">Back to selection</span>
+              <span className="text-sm font-medium">{t("auth.back_to_selection")}</span>
             </button>
 
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Join Our Platform as{" "}
+                {t("auth.join_as")}{" "}
                 <span className="text-amber-300">{roleTitle}</span>
               </h2>
 
               <p className="text-amber-100 text-lg mb-10 max-w-md">
                 {isCustomer
-                  ? "Create your account to discover amazing venues, book events, and manage all your reservations in one place."
-                  : "Register your venue business to reach thousands of customers, manage bookings, and grow with powerful tools."}
+                  ? t("auth.customer_reg_desc")
+                  : t("auth.owner_reg_desc")}
               </p>
             </div>
 
@@ -113,10 +115,10 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
               {isCustomer
                 ? // Customer features
                   [
-                    { icon: Shield, text: "Enterprise Security" },
-                    { icon: Building, text: "Venue Management" },
-                    { icon: Users, text: "Customer Portal" },
-                    { icon: Shield, text: "Secure Access" },
+                    { icon: Shield, text: t("auth.enterprise_security") },
+                    { icon: Building, text: t("auth.venue_management") },
+                    { icon: Users, text: t("auth.customer_portal") },
+                    { icon: Shield, text: t("auth.secure_access") },
                   ].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
@@ -129,10 +131,10 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                   ))
                 : // Owner features
                   [
-                    { icon: Shield, text: "Business Security" },
-                    { icon: Building, text: "Venue Dashboard" },
-                    { icon: Users, text: "Owner Portal" },
-                    { icon: Shield, text: "Secure Management" },
+                    { icon: Shield, text: t("auth.business_security") },
+                    { icon: Building, text: t("auth.venue_dashboard") },
+                    { icon: Users, text: t("auth.owner_portal") },
+                    { icon: Shield, text: t("auth.secure_management") },
                   ].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
@@ -146,7 +148,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
             </div>
 
             <p className="relative z-10 text-amber-200 text-sm font-medium">
-              Trusted by 500+ venue owners worldwide
+              {t("auth.trusted_by")}
             </p>
           </div>
 
@@ -159,7 +161,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 className="lg:hidden flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 mb-6 transition-colors group"
               >
                 <ArrowRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-sm font-medium">Back to selection</span>
+                <span className="text-sm font-medium">{t("auth.back_to_selection")}</span>
               </button>
 
               {/* Form Header */}
@@ -168,11 +170,10 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                   <User className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Create Your Account
+                  {t("auth.create_account")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Fill in your details to get started as a{" "}
-                  {roleTitle.toLowerCase()}
+                  {t("auth.fill_details")} {roleTitle.toLowerCase()}
                 </p>
               </div>
 
@@ -184,7 +185,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Full Name
+                    {t("auth.full_name")}
                   </label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -192,7 +193,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                       type="text"
                       {...register("name")}
                       onKeyDown={handleNameKeyDown}
-                      placeholder="Enter your full name"
+                      placeholder={t("auth.name_placeholder")}
                       className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
@@ -208,7 +209,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Email Address
+                    {t("auth.email_label")}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -231,7 +232,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 {/* Phone */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Phone Number
+                    {t("auth.phone_number")}
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -239,7 +240,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                       type="tel"
                       {...register("phone")}
                       onKeyDown={handlePhoneKeyDown}
-                      placeholder="Enter your phone number"
+                      placeholder={t("auth.phone_placeholder")}
                       className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
@@ -255,14 +256,14 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 {/* Password */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Password
+                    {t("auth.password_label")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
-                      placeholder="Create a password (min. 8 characters)"
+                      placeholder={t("auth.password_placeholder")}
                       className={`w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.password ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
@@ -310,14 +311,14 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                 {/* Confirm Password */}
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-white">
-                    Confirm Password
+                    {t("auth.confirm_password")}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       {...register("confirmPassword")}
-                      placeholder="Confirm your password"
+                      placeholder={t("auth.confirm_password_placeholder")}
                       className={`w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.confirmPassword ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition-colors`}
@@ -353,19 +354,19 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                     htmlFor="terms"
                     className="text-sm text-gray-700 dark:text-gray-300"
                   >
-                    I agree to the{" "}
+                    {t("auth.agree_to")}{" "}
                     <Link
                       to="/terms"
                       className="font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline"
                     >
-                      Terms and Conditions
+                      {t("auth.terms_and_conditions")}
                     </Link>{" "}
-                    and{" "}
+                    {t("auth.and")}{" "}
                     <Link
                       to="/privacy"
                       className="font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline"
                     >
-                      Privacy Policy
+                      {t("auth.privacy_policy")}
                     </Link>
                   </label>
                 </div>
@@ -384,11 +385,11 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
                   {isSubmitting ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      Creating Account...
+                      {t("auth.creating_account")}
                     </>
                   ) : (
                     <>
-                      Create {roleTitle} Account
+                      {t("auth.create_role_account", { role: roleTitle })}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -398,9 +399,9 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
               {/* Sign In Link */}
               <div className="mt-10 text-center">
                 <p className="text-gray-600 dark:text-gray-400">
-                  Already have an account?{" "}
+                  {t("auth.already_have_account")}{" "}
                   <Link to="/auth/login" className="font-bold text-amber-600">
-                    Sign in now
+                    {t("auth.sign_in_now")}
                   </Link>
                 </p>
               </div>
@@ -408,7 +409,7 @@ const RegistrationForm = ({ role, onSubmit, isSubmitting, onBack }) => {
               {/* Security Note */}
               <p className="text-center text-xs text-gray-500 mt-8 pt-6 border-t">
                 <Shield className="w-3 h-3 inline mr-1" />
-                All data is encrypted • GDPR compliant • No spam ever
+                {t("auth.security_note_full")}
               </p>
             </div>
           </div>

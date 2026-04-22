@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Jameel Noori Nastaleeq - Professional Urdu Font */
+@font-face {
+  font-family: 'Jameel Noori Nastaleeq';
+  src: url('https://cdn.jsdelivr.net/gh/nafeespp/urdu-fonts@latest/fonts/JameelNooriNastaleeq.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/nafeespp/urdu-fonts@latest/fonts/JameelNooriNastaleeq.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply Jameel Noori Nastaleeq when language is Urdu */
+[lang="ur"], [lang="ur"] * {
+  font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif !important;
+  line-height: 1.8; /* Nastaleeq needs more vertical space */
+}
+
 @layer utilities {
   .no-scrollbar {
     -ms-overflow-style: none;

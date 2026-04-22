@@ -13,8 +13,10 @@ import {
 } from "lucide-react";
 import { bookingAPI, venueAPI } from "../../utils/api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useTranslation } from "react-i18next";
 
 const OwnerDashboard = () => {
+  const { t, i18n } = useTranslation();
   const [stats, setStats] = useState({
     totalVenues: 0,
     pendingBookings: 0,
@@ -87,31 +89,31 @@ const OwnerDashboard = () => {
 
   const statsData = [
     {
-      title: "Total Venues",
+      title: t("owner_dashboard.stats.total_venues"),
       value: stats.totalVenues.toString(),
-      change: `${stats.totalVenues} venues`,
+      change: t("owner_dashboard.stats.venues_count", { count: stats.totalVenues }),
       icon: Building,
       color: "bg-blue-500",
     },
     {
-      title: "Total Bookings",
+      title: t("owner_dashboard.stats.total_bookings"),
       value: stats.bookings.toString(),
-      change: `All time bookings`,
+      change: t("owner_dashboard.stats.all_time"),
       icon: Calendar,
       color: "bg-green-500",
     },
     {
-      title: "Pending Bookings",
+      title: t("owner_dashboard.stats.pending_bookings"),
       value: stats.pendingBookings.toString(),
-      change: "Awaiting confirmation",
+      change: t("owner_dashboard.stats.awaiting"),
       icon: AlertCircle,
       color: "bg-amber-500",
     },
 
     {
-      title: "Revenue",
+      title: t("owner_dashboard.stats.revenue"),
       value: `₨ ${stats.revenue.toLocaleString()}`,
-      change: "From confirmed bookings",
+      change: t("owner_dashboard.stats.from_confirmed"),
       icon: DollarSign,
       color: "bg-gold-500",
     },
@@ -119,22 +121,22 @@ const OwnerDashboard = () => {
 
   const quickActions = [
     {
-      title: "Add New Venue",
-      description: "List a new venue on the platform",
+      title: t("owner_dashboard.quick_actions.add_venue"),
+      description: t("owner_dashboard.quick_actions.add_venue_desc"),
       icon: Plus,
       link: "/owner/add-venue",
       color: "bg-gold-600 hover:bg-gold-700",
     },
     {
-      title: "Manage Venues",
-      description: "Edit or update your existing venues",
+      title: t("owner_dashboard.quick_actions.manage_venues"),
+      description: t("owner_dashboard.quick_actions.manage_venues_desc"),
       icon: Building,
       link: "/owner/manage-venues",
       color: "bg-blue-600 hover:bg-blue-700",
     },
     {
-      title: "Manage Bookings",
-      description: "View and manage all bookings",
+      title: t("owner_dashboard.quick_actions.manage_bookings"),
+      description: t("owner_dashboard.quick_actions.manage_bookings_desc"),
       icon: Eye,
       link: "/owner/booking",
       color: "bg-green-600 hover:bg-green-700",
@@ -152,7 +154,7 @@ const OwnerDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Owner Dashboard - SwatVenue</title>
+        <title>{t("owner_dashboard.title")} - SwatVenue</title>
         <meta
           name="description"
           content="Manage your venues and bookings on SwatVenue."
@@ -164,10 +166,10 @@ const OwnerDashboard = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Owner Dashboard
+              {t("owner_dashboard.title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Welcome back! Here's what's happening with your venues.
+              {t("owner_dashboard.welcome")}
             </p>
           </div>
 
@@ -203,7 +205,7 @@ const OwnerDashboard = () => {
             <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Quick Actions
+                  {t("owner_dashboard.quick_actions.title")}
                 </h2>
                 <div className="space-y-4">
                   {quickActions.map((action, index) => (
@@ -232,13 +234,13 @@ const OwnerDashboard = () => {
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    Recent Bookings
+                    {t("owner_dashboard.recent_bookings.title")}
                   </h2>
                   <Link
                     to="/owner/booking"
                     className="text-gold-600 hover:text-gold-700 text-sm font-medium"
                   >
-                    View all
+                    {t("owner_dashboard.recent_bookings.view_all")}
                   </Link>
                 </div>
 
@@ -247,19 +249,19 @@ const OwnerDashboard = () => {
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Venue
+                          {t("owner_dashboard.recent_bookings.venue")}
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Customer
+                          {t("owner_dashboard.recent_bookings.customer")}
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Date
+                          {t("owner_dashboard.recent_bookings.date")}
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Status
+                          {t("owner_dashboard.recent_bookings.status")}
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
-                          Amount
+                          {t("owner_dashboard.recent_bookings.amount")}
                         </th>
                       </tr>
                     </thead>
@@ -270,7 +272,7 @@ const OwnerDashboard = () => {
                             colSpan="5"
                             className="py-8 text-center text-gray-500 dark:text-gray-400"
                           >
-                            No bookings yet
+                            {t("owner_dashboard.recent_bookings.no_bookings")}
                           </td>
                         </tr>
                       ) : (
@@ -286,7 +288,7 @@ const OwnerDashboard = () => {
                               {booking.customerName}
                             </td>
                             <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                              {new Date(booking.eventDate).toLocaleDateString()}
+                              {new Date(booking.eventDate).toLocaleDateString(i18n.language === "ur" ? "ur-PK" : "en-US")}
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -306,7 +308,10 @@ const OwnerDashboard = () => {
                                 {booking.status === "pending" && (
                                   <Clock className="h-3 w-3" />
                                 )}
-                                {booking.status}
+                                {booking.status === "confirmed" ? t("my_bookings.confirmed") : 
+                                 booking.status === "pending" ? t("my_bookings.pending") :
+                                 booking.status === "completed" ? t("my_bookings.completed") :
+                                 booking.status === "cancelled" ? t("my_bookings.cancelled") : booking.status}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-gold-600 dark:text-gold-400 font-semibold">
@@ -333,3 +338,4 @@ const OwnerDashboard = () => {
 };
 
 export default OwnerDashboard;
+

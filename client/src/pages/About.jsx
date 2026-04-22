@@ -1,10 +1,13 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Users, Heart, Award, CheckCircle } from "lucide-react"; // Lucide icons for UI visuals
+import { useTranslation } from "react-i18next";
 
 // ✅ About Page Component
 // Displays information about SwatVenue: mission, values, team, and stats
 const About = () => {
+  const { t } = useTranslation();
+
   // Team members data (can later be fetched from an API)
   const team = [
     {
@@ -36,46 +39,42 @@ const About = () => {
   const values = [
     {
       icon: Heart,
-      title: "Customer First",
-      description:
-        "We put our customers at the heart of everything we do, ensuring exceptional service and support.",
+      title: t("about.value_customer_title"),
+      description: t("about.value_customer_desc"),
     },
     {
       icon: CheckCircle,
-      title: "Quality Assurance",
-      description:
-        "Every venue on our platform is personally verified to meet our high standards.",
+      title: t("about.value_quality_title"),
+      description: t("about.value_quality_desc"),
     },
     {
       icon: Users,
-      title: "Community Focus",
-      description:
-        "We support local venue owners and help strengthen the Swat valley event industry.",
+      title: t("about.value_community_title"),
+      description: t("about.value_community_desc"),
     },
     {
       icon: Award,
-      title: "Excellence",
-      description:
-        "We strive for excellence in every interaction and continuously improve our platform.",
+      title: t("about.value_excellence_title"),
+      description: t("about.value_excellence_desc"),
     },
   ];
 
   // Platform performance stats
   const stats = [
-    { number: "500+", label: "Verified Venues" },
-    { number: "2000+", label: "Successful Events" },
-    { number: "50,000+", label: "Happy Customers" },
-    { number: "4.8/5", label: "Average Rating" },
+    { number: "500+", label: t("stats.venues") },
+    { number: "2000+", label: t("stats.events") },
+    { number: "50,000+", label: t("stats.customers") },
+    { number: "4.8/5", label: t("stats.rating") },
   ];
 
   return (
     <>
       {/* Helmet dynamically sets the page title and meta description */}
       <Helmet>
-        <title>About SwatVenue - Your Event Venue Partner</title>
+        <title>{t("about.title")} - SwatVenue</title>
         <meta
           name="description"
-          content="Learn about SwatVenue's mission to connect people with perfect event venues in Swat valley. Meet our team and discover our values."
+          content={t("about.subtitle")}
         />
       </Helmet>
 
@@ -84,11 +83,10 @@ const About = () => {
         <section className="relative py-20 bg-gradient-to-r from-primary-900 to-primary-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              About SwatVenue
+              {t("about.title")}
             </h1>
             <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-              We're on a mission to make finding and booking the perfect event
-              venue in Swat valley as simple and stress-free as possible.
+              {t("about.subtitle")}
             </p>
           </div>
         </section>
@@ -98,26 +96,17 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-6">
-                Our Story
+                {t("about.story_title")}
               </h2>
               <div className="prose prose-lg dark:prose-invert">
                 <p className="text-text-light dark:text-text-dark mb-6">
-                  SwatVenue was born from a simple observation: finding the
-                  perfect venue for special events in Swat valley was
-                  unnecessarily complicated. Families and event planners were
-                  spending countless hours calling venues, visiting locations,
-                  and trying to compare options.
+                  {t("about.story_p1")}
                 </p>
                 <p className="text-text-light dark:text-text-dark mb-6">
-                  Founded in 2023, we set out to create a platform that would
-                  make venue discovery and booking as easy as browsing online.
-                  We believe that every celebration deserves the perfect
-                  setting, and we're here to make that happen.
+                  {t("about.story_p2")}
                 </p>
                 <p className="text-text-light dark:text-text-dark">
-                  Today, we're proud to be the leading venue booking platform in
-                  Swat valley, connecting thousands of customers with hundreds
-                  of verified venues.
+                  {t("about.story_p3")}
                 </p>
               </div>
             </div>
@@ -142,10 +131,10 @@ const About = () => {
         <section className="py-20 bg-gray-50 dark:bg-surface-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              Our Impact
+              {t("about.impact_title")}
             </h2>
             <p className="text-xl text-text-light dark:text-text-dark mb-16">
-              Numbers that tell our story of growth and success
+              {t("about.impact_subtitle")}
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -167,10 +156,10 @@ const About = () => {
         <section className="py-20 bg-white dark:bg-surface-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              Our Values
+              {t("about.values_title")}
             </h2>
             <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16">
-              The principles that guide everything we do
+              {t("about.values_subtitle")}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -198,10 +187,10 @@ const About = () => {
         <section className="py-20 bg-gray-50 dark:bg-surface-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              Meet Our Team
+              {t("about.team_title")}
             </h2>
             <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16">
-              The passionate people behind SwatVenue
+              {t("about.team_subtitle")}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -238,25 +227,23 @@ const About = () => {
         <section className="py-20 bg-gradient-to-r from-primary-900 to-primary-800 text-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Our Mission
+              {t("about.mission_title")}
             </h2>
             <p className="text-xl text-gray-200 max-w-4xl mx-auto mb-8">
-              To transform the way people discover, compare, and book event
-              venues in Swat valley, making every celebration memorable by
-              connecting them with the perfect space.
+              {t("about.mission_subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
               <a
                 href="/venues"
                 className="bg-white text-primary-900 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
               >
-                Browse Venues
+                {t("footer.browse")}
               </a>
               <a
                 href="/contact"
                 className="border-2 border-white text-white hover:bg-white hover:text-primary-900 px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
               >
-                Contact Us
+                {t("nav.contact")}
               </a>
             </div>
           </div>
@@ -267,3 +254,4 @@ const About = () => {
 };
 
 export default About;
+

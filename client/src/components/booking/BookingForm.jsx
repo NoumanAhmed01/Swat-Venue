@@ -14,8 +14,10 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI } from "../../utils/api";
 import BookingCalendar from "./BookingCalendar";
+import { useTranslation } from "react-i18next";
 
 const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -88,13 +90,13 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
   }, [venue]);
 
   const onSubmit = async (data) => {
-    if (!selectedDate) return toast.error("Please select an event date");
-    if (!selectedMenu) return toast.error("Please select a menu");
+    if (!selectedDate) return toast.error(t("booking_form.errors.select_date"));
+    if (!selectedMenu) return toast.error(t("booking_form.errors.select_menu"));
 
     // ✅ Guest Capacity Check
     if (Number(data.guestCount) > venue.capacity) {
       return toast.error(
-        `Guest count cannot exceed venue capacity of ${venue.capacity} people`,
+        t("booking_form.errors.capacity_error", { capacity: venue.capacity }),
       );
     }
 
@@ -113,12 +115,12 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
 
       const response = await bookingAPI.create(bookingData);
       if (response.data.success) {
-        toast.success("Booking submitted!");
+        toast.success(i18n.language === "ur" ? "بکنگ جمع کر دی گئی ہے!" : "Booking submitted!");
         onSuccess?.();
         onClose();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Booking failed");
+      toast.error(error.response?.data?.message || (i18n.language === "ur" ? "بکنگ ناکام رہی" : "Booking failed"));
     }
   };
 
@@ -138,7 +140,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            Book Your Event
+            {t("booking_form.title")}
           </h3>
           <button
             onClick={onClose}
@@ -154,7 +156,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
             <div className="flex items-center gap-2 mb-1">
               <Utensils className="h-3.5 w-3.5 text-gold-600" />
               <span className="text-[10px] font-bold uppercase tracking-wider text-gold-600">
-                Menu
+                {t("booking_form.menu_label")}
               </span>
             </div>
             <p className="text-sm font-bold truncate dark:text-white">
@@ -168,7 +170,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
             <div className="flex items-center gap-2 mb-1">
               <CreditCard className="h-3.5 w-3.5 text-emerald-600" />
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
-                Total
+                {t("booking_form.total_label")}
               </span>
             </div>
             <p className="text-sm font-bold dark:text-white">
@@ -177,7 +179,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 Number(guestCount || 0) * (selectedMenu?.pricePerHead || 0)
               ).toLocaleString()}
             </p>
-            <p className="text-xs text-gray-500">Estimated cost</p>
+            <p className="text-xs text-gray-500">{t("booking_form.estimated_cost")}</p>
           </div>
         </div>
 
@@ -187,7 +189,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">
-                  Full Name
+                  {t("booking_form.full_name")}
                 </label>
                 <input
                   {...register("name")}
@@ -204,7 +206,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">
-                  Email
+                  {t("booking_form.email")}
                 </label>
                 <input
                   {...register("email")}
@@ -223,7 +225,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">
-                  Phone
+                  {t("booking_form.phone")}
                 </label>
                 <input
                   {...register("phone")}
@@ -240,7 +242,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">
-                  Event Type
+                  {t("booking_form.event_type")}
                 </label>
                 <select
                   {...register("eventType")}
@@ -249,10 +251,10 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 >
                   <option value="">Select...</option>
-                  <option value="Wedding">Wedding</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Corporate">Corporate</option>
-                  <option value="Other">Other</option>
+                  <option value="Wedding">{i18n.language === "ur" ? "شادی" : "Wedding"}</option>
+                  <option value="Birthday">{i18n.language === "ur" ? "سالگرہ" : "Birthday"}</option>
+                  <option value="Corporate">{i18n.language === "ur" ? "کارپوریٹ" : "Corporate"}</option>
+                  <option value="Other">{i18n.language === "ur" ? "دیگر" : "Other"}</option>
                 </select>
                 {errors.eventType && (
                   <p className="text-red-500 text-[10px] mt-1">
@@ -265,7 +267,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">
-                  Event Date
+                  {t("booking_form.event_date")}
                 </label>
                 <button
                   type="button"
@@ -275,16 +277,16 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   } dark:bg-gray-900 dark:text-white text-sm text-left flex justify-between items-center transition-colors`}
                 >
                   {selectedDate
-                    ? selectedDate.toLocaleDateString()
-                    : "Choose Date"}
+                    ? selectedDate.toLocaleDateString(i18n.language === "ur" ? "ur-PK" : "en-US")
+                    : t("booking_form.choose_date")}
                   <CalendarIcon className="h-4 w-4 text-gray-400" />
                 </button>
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block justify-between">
-                  <span>Guests</span>
+                  <span>{t("booking_form.guests")}</span>
                   <span className="text-gold-600 font-black">
-                    Max: {venue.capacity}
+                    {t("booking_form.max_capacity")}: {venue.capacity}
                   </span>
                 </label>
                 <input
@@ -301,7 +303,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 )}
                 {Number(guestCount) > venue.capacity && !errors.guestCount && (
                   <p className="text-red-500 text-[10px] font-bold mt-1">
-                    Exceeds venue capacity!
+                    {t("booking_form.exceeds_capacity")}
                   </p>
                 )}
               </div>
@@ -309,7 +311,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
 
             <div>
               <label className="text-xs font-bold text-gray-500 mb-1 block">
-                Message (Optional)
+                {t("booking_form.message")}
               </label>
               <textarea
                 {...register("message")}
@@ -327,7 +329,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
               }
               className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4 shadow-lg shadow-gold-500/20"
             >
-              {isSubmitting ? "Confirming..." : "Complete Booking"}
+              {isSubmitting ? t("booking_form.confirming") : t("booking_form.complete_booking")}
             </button>
           </form>
         </div>
@@ -336,7 +338,7 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
         {showCalendar && (
           <div className="absolute inset-0 bg-white dark:bg-gray-800 z-[110] flex flex-col p-6 overflow-hidden">
             <div className="flex justify-between items-center mb-4 flex-shrink-0">
-              <h4 className="font-bold dark:text-white">Select Event Date</h4>
+              <h4 className="font-bold dark:text-white">{t("booking_form.select_date_title")}</h4>
               <button
                 onClick={() => setShowCalendar(false)}
                 className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors hover:text-red-500"
@@ -360,3 +362,4 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
 };
 
 export default BookingForm;
+

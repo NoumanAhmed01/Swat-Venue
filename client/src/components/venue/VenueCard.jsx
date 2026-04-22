@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Users, Star, Phone } from "lucide-react"; // Lucide-react → Icon library for modern, lightweight SVG icons
+import { useTranslation } from "react-i18next";
 
 // ✅ VenueCard Component
 // This component displays venue details in card format.
 // It is reusable and accepts a single 'venue' object as props.
 const VenueCard = ({ venue, className = "" }) => {
+  const { t, i18n } = useTranslation();
   // Determine if layout is list view (used for responsive design)
   const isListView = className.includes("lg:flex-row");
 
@@ -68,10 +70,14 @@ const VenueCard = ({ venue, className = "" }) => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center text-text-light dark:text-text-dark">
               <Users className="h-4 w-4 mr-1" />
-              <span className="text-sm">Up to {venue.capacity} guests</span>
+              <span className="text-sm">
+                {i18n.language === "ur" ? `${venue.capacity} مہمانوں تک` : `Up to ${venue.capacity} guests`}
+              </span>
             </div>
             <div className="flex items-center text-text-light dark:text-text-dark">
-              <span className="text-sm">{venue.reviews} reviews</span>
+              <span className="text-sm">
+                {venue.reviews} {i18n.language === "ur" ? "ریویوز" : "reviews"}
+              </span>
             </div>
           </div>
 
@@ -89,7 +95,7 @@ const VenueCard = ({ venue, className = "" }) => {
               {/* Show extra count if amenities exceed 2 */}
               {venue.amenities.length > 2 && (
                 <span className="px-2 py-1 bg-gray-100 dark:bg-surface-700 text-text-light dark:text-text-dark text-xs rounded-full">
-                  +{venue.amenities.length - 3} more
+                  +{venue.amenities.length - 2} {i18n.language === "ur" ? "مزید" : "more"}
                 </span>
               )}
             </div>
@@ -103,7 +109,7 @@ const VenueCard = ({ venue, className = "" }) => {
             to={`/venue/${venue._id}`}
             className="flex-1 bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 rounded-lg text-center font-medium transition-colors duration-200"
           >
-            View Details
+            {i18n.language === "ur" ? "تفصیلات دیکھیں" : "View Details"}
           </Link>
         </div>
       </div>
@@ -112,3 +118,4 @@ const VenueCard = ({ venue, className = "" }) => {
 };
 
 export default VenueCard;
+

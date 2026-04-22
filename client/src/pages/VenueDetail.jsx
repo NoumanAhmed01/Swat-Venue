@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { toast } from "../components/common/Toast";
 import { VenueDetailSkeleton } from "../components/common/SkeletonLoader";
 import Review from "../components/venue/Review";
@@ -21,6 +22,7 @@ import Menu from "../components/venue/Menu";
 import { motion, fadeInUp } from "../components/animation/Animation";
 
 const VenueDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -106,13 +108,13 @@ const VenueDetail = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Venue Not Found
+            {t("venue.not_found")}
           </h1>
           <Link
             to="/venues"
             className="text-gold-600 hover:text-gold-700 font-medium"
           >
-            Back to Venues
+            {t("venue.back_to_venues")}
           </Link>
         </div>
       </div>
@@ -182,7 +184,7 @@ const VenueDetail = () => {
                 onBookNow={() => {
                   // ✅ CHECK AUTHENTICATION
                   if (!user) {
-                    toast("Please login to book this venue", { type: "info" });
+                    toast(t("venue.login_to_book"), { type: "info" });
                     navigate("/auth/login", {
                       state: { from: `/venue/${id}` },
                     });
@@ -191,7 +193,7 @@ const VenueDetail = () => {
 
                   // ✅ CHECK MENU SELECTED
                   if (!selectedMenu) {
-                    toast.error("Please select a menu first");
+                    toast.error(t("venue.select_menu_first"));
                     return;
                   }
                   setBookingModalOpen(true);
@@ -215,12 +217,14 @@ const VenueDetail = () => {
       {venue?.phone && (
         <a
           href={`https://wa.me/${venue.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-            `Hi, I'm interested in your venue "${venue.name}" on SwatVenue. Could you please provide more details?`
+            i18n.language === "ur" 
+              ? `اسلام علیکم، میں سوات وینیو پر آپ کے وینیو "${venue.name}" میں دلچسپی رکھتا ہوں۔ کیا آپ مزید تفصیلات فراہم کر سکتے ہیں؟`
+              : `Hi, I'm interested in your venue "${venue.name}" on SwatVenue. Could you please provide more details?`
           )}`}
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-40 group flex items-center justify-center"
-          title="Chat with Owner"
+          title={t("venue.chat_with_owner")}
         >
           {/* Sonar Rings */}
           <span className="absolute w-full h-full rounded-full bg-[#25D366] animate-sonar opacity-60"></span>
@@ -229,7 +233,7 @@ const VenueDetail = () => {
           <div className="relative bg-[#25D366] hover:bg-[#128C7E] text-white p-3.5 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1 flex items-center justify-center">
             {/* Tooltip */}
             <div className="absolute -top-12 right-0 bg-white dark:bg-surface-800 text-primary-900 dark:text-text-dark px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 border border-gray-100 dark:border-surface-700 whitespace-nowrap pointer-events-none">
-              Chat with Owner
+              {t("venue.chat_with_owner")}
               <div className="absolute -bottom-1 right-5 w-2 h-2 bg-white dark:bg-surface-800 rotate-45 border-r border-b border-gray-100 dark:border-surface-700"></div>
             </div>
             

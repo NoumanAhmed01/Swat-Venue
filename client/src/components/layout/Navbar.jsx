@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { useTranslation } from "react-i18next";
 import logo from "../../assets/logo.svg";
 
 // Importing icons from lucide-react (lightweight, modern React icon set)
@@ -15,6 +16,7 @@ import {
   Settings,
   Calendar,
   ChevronDown,
+  Globe,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -24,6 +26,7 @@ const Navbar = () => {
 
   const { user, logout } = useAuth(); // Get user data and logout method from AuthContext
   const { darkMode, toggleDarkMode } = useTheme(); // Get theme state and toggle method from ThemeContext
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate(); // Used for programmatic navigation
 
   // Handle user logout
@@ -33,12 +36,17 @@ const Navbar = () => {
     setUserMenuOpen(false);
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "en" ? "ur" : "en";
+    i18n.changeLanguage(newLang);
+  };
+
   // Navigation links for desktop & mobile
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Venues", href: "/venues" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: t("nav.home"), href: "/" },
+    { name: t("nav.venues"), href: "/venues" },
+    { name: t("nav.about"), href: "/about" },
+    { name: t("nav.contact"), href: "/contact" },
   ];
 
   return (
@@ -54,7 +62,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.href}
                 to={item.href}
                 className="text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
@@ -64,17 +72,32 @@ const Navbar = () => {
           </div>
 
           {/* --- RIGHT SIDE BUTTONS (THEME + USER MENU / AUTH BUTTONS) --- */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
+            {/* Minimalist Professional Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-800 transition-all duration-200 text-text-light dark:text-text-dark"
+              title={i18n.language === "en" ? "اردو میں بدلیں" : "Switch to English"}
+            >
+              <Globe className="h-4 w-4 text-gold-500" />
+              <span 
+                className={`text-sm font-bold tracking-wide ${i18n.language === "en" ? "pt-1" : ""}`}
+                style={{ fontFamily: i18n.language === "en" ? "Jameel Noori Nastaleeq" : "inherit" }}
+              >
+                {i18n.language === "en" ? "اردو" : "English"}
+              </span>
+            </button>
+
             {/* Toggle dark/light mode */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-800 transition-colors duration-200"
+              className="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-800 transition-all duration-200"
               aria-label="Toggle dark mode"
             >
               {darkMode ? (
-                <Sun className="h-5 w-5" />
+                <Sun className="h-5 w-5 text-gold-500" />
               ) : (
-                <Moon className="h-5 w-5" />
+                <Moon className="h-5 w-5 text-gray-500" />
               )}
             </button>
 
@@ -109,7 +132,7 @@ const Navbar = () => {
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Calendar className="h-4 w-4 mr-2" />
-                        My Bookings
+                        {t("nav.my_bookings")}
                       </Link>
                     )}
 
@@ -121,7 +144,7 @@ const Navbar = () => {
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Dashboard
+                        {t("nav.dashboard")}
                       </Link>
                     )}
 
@@ -133,7 +156,7 @@ const Navbar = () => {
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Admin Panel
+                        {t("nav.admin_panel")}
                       </Link>
                     )}
 
@@ -142,7 +165,7 @@ const Navbar = () => {
                       className="flex items-center w-full text-left px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      {t("nav.logout")}
                     </button>
                   </div>
                 )}
@@ -154,13 +177,13 @@ const Navbar = () => {
                   to="/auth/login"
                   className="text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
-                  Login
+                  {t("nav.login")}
                 </Link>
                 <Link
                   to="/auth/register"
                   className="bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
-                  Register
+                  {t("nav.register")}
                 </Link>
               </div>
             )}
@@ -168,6 +191,15 @@ const Navbar = () => {
 
           {/* --- MOBILE MENU BUTTON --- */}
           <div className="md:hidden flex items-center space-x-2">
+            {/* Language Toggle (mobile) */}
+            <button
+              onClick={toggleLanguage}
+              className="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-800 transition-colors duration-200 font-bold text-xs uppercase"
+              aria-label="Change Language"
+            >
+              {i18n.language === "en" ? "اردو" : "EN"}
+            </button>
+
             {/* Theme toggle (mobile) */}
             <button
               onClick={toggleDarkMode}
@@ -231,7 +263,7 @@ const Navbar = () => {
                     className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
-                    My Bookings
+                    {t("nav.my_bookings")}
                   </Link>
                 )}
 
@@ -242,7 +274,7 @@ const Navbar = () => {
                     className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
-                    Dashboard
+                    {t("nav.dashboard")}
                   </Link>
                 )}
 
@@ -253,7 +285,7 @@ const Navbar = () => {
                     className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
-                    Admin Panel
+                    {t("nav.admin_panel")}
                   </Link>
                 )}
 
@@ -261,7 +293,7 @@ const Navbar = () => {
                   onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                 >
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </div>
             ) : (
@@ -271,14 +303,14 @@ const Navbar = () => {
                   className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
-                  Login
+                  {t("nav.login")}
                 </Link>
                 <Link
                   to="/auth/register"
                   className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
-                  Register
+                  {t("nav.register")}
                 </Link>
               </div>
             )}

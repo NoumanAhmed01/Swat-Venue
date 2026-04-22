@@ -308,6 +308,8 @@ export const AnimatedStatsContainer = ({
   stats,
   className = "",
   duration = 2,
+  labelClassName = "",
+  statClassName = "",
 }) => {
   return (
     <motion.div
@@ -320,6 +322,8 @@ export const AnimatedStatsContainer = ({
           number={stat.number}
           label={stat.label}
           duration={duration}
+          labelClassName={labelClassName}
+          statClassName={statClassName}
         />
       ))}
     </motion.div>
