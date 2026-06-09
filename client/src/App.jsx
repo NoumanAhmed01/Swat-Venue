@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,9 +13,9 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
-// Page Transition Animation - ADDED THESE IMPORTS
+// Page Transition Animation
 import { AnimatePresence } from "framer-motion";
-import LayoutWrapper from "./components/animation/LayoutWrapper"; // Fixed import path
+import LayoutWrapper from "./components/animation/LayoutWrapper";
 
 // Pages
 import Home from "./pages/Home";
@@ -50,9 +50,24 @@ import VenueApprovals from "./pages/admin/VenueApprovals";
 import AdminBookings from "./pages/admin/AdminBookings";
 import ContactManagement from "./pages/admin/ContactManagement";
 
-// IMPORTANT: We need to separate the content into a component because useLocation can't be used directly in App
 function AppContent() {
-  const location = useLocation(); // This hook must be inside Router
+  const location = useLocation();
+
+  useEffect(() => {
+    // Function to hide the static HTML loader after React is ready
+    const hideStaticLoader = () => {
+      const staticLoader = document.getElementById("initial-loader");
+      if (staticLoader) {
+        staticLoader.classList.add("loader-hidden");
+        // Remove from DOM after transition
+        setTimeout(() => staticLoader.remove(), 500);
+      }
+    };
+
+    // Small delay to ensure everything is rendered before fading out
+    const timer = setTimeout(hideStaticLoader, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -66,25 +81,13 @@ function AppContent() {
           name="keywords"
           content="venues, banquet halls, events, weddings, Swat, Pakistan"
         />
-        <meta
-          property="og:title"
-          content="SwatVenue - Find Perfect Event Venues in Swat"
-        />
-        <meta
-          property="og:description"
-          content="Discover and book the best banquet halls and event venues in Swat valley."
-        />
-        <meta property="og:type" content="website" />
       </Helmet>
 
       <Navbar />
 
       <main className="min-h-screen">
-        {/* ADDED: AnimatePresence for exit animations */}
         <AnimatePresence mode="wait">
-          {/* ADDED: location and key props for animations */}
           <Routes location={location} key={location.pathname}>
-            {/* ADDED: LayoutWrapper wraps ALL routes */}
             <Route element={<LayoutWrapper />}>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -98,10 +101,7 @@ function AppContent() {
               {/* Auth Routes */}
               <Route path="/auth/login" element={<Login />} />
               <Route path="/auth/register" element={<Register />} />
-              <Route
-                path="/auth/forgot-password"
-                element={<ForgotPassword />}
-              />
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth/reset-password" element={<ResetPassword />} />
               <Route path="/auth/verify-otp" element={<VerifyOtp />} />
 
@@ -216,7 +216,6 @@ function App() {
     <HelmetProvider>
       <ThemeProvider>
         <AuthProvider>
-          {/* IMPORTANT: Router must wrap AppContent */}
           <Router>
             <AppContent />
           </Router>

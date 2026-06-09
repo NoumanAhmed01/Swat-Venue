@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Building } from "lucide-react";
 import { marqueeAnimation } from "../animation/Animation";
+import Logo from "../../../public/icon.png";
 
 const partnersRow1 = [
   "Pearl Continental",
@@ -20,13 +20,13 @@ const partnersRow2 = [
 ];
 
 const PartnerCard = ({ name }) => (
-  <div className="w-64 h-36  bg-white dark:bg-surface-800 rounded-xl shadow-lg flex flex-col items-center justify-center mx-6">
-    <div className="w-12 h-12 bg-gold-100 rounded-lg flex items-center justify-center mb-3">
-      <Building className="w-6 h-6 text-gold-600" />
+  <div className="w-64 h-36   dark:bg-surface-800 rounded-xl shadow-lg flex flex-col items-center justify-center mx-6">
+    <div className="w-12 h-12  rounded-lg flex items-center justify-center mb-3">
+      <img src={Logo} className="w-20 h-16 text-gold-600" />
     </div>
-    <p className="font-semibold text-gray-800 dark:text-gray-100 text-center">
+    <h2 className="font-semibold text-lg text-gray-800 dark:text-gray-100 text-center">
       {name}
-    </p>
+    </h2>
   </div>
 );
 
