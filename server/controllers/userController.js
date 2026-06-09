@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const { deleteFromCloudinary } = require("../config/Cloudinary");
+const { deleteFromCloudinary } = require("../config/cloudinary");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -50,11 +50,15 @@ exports.updateUser = async (req, res) => {
     // Handle password update if requested
     if (newPassword) {
       if (!currentPassword) {
-        return res.status(400).json({ message: "Current password is required to set a new one" });
+        return res
+          .status(400)
+          .json({ message: "Current password is required to set a new one" });
       }
       const isMatch = await user.comparePassword(currentPassword);
       if (!isMatch) {
-        return res.status(401).json({ message: "Current password is incorrect" });
+        return res
+          .status(401)
+          .json({ message: "Current password is incorrect" });
       }
       user.password = newPassword;
     }
@@ -153,7 +157,7 @@ exports.updateUserRole = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { role },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password");
 
     if (!user) {
@@ -197,7 +201,7 @@ exports.updateUserStatus = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { isActive },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password");
 
     if (!user) {

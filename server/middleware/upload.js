@@ -1,6 +1,6 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const { cloudinary } = require("../config/Cloudinary");
+const { cloudinary } = require("../config/cloudinary");
 
 const imageStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -19,7 +19,13 @@ const profileStorage = new CloudinaryStorage({
     folder: "swatvenue/profiles",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
     transformation: [
-      { width: 400, height: 400, crop: "fill", gravity: "face", quality: "auto" },
+      {
+        width: 400,
+        height: 400,
+        crop: "fill",
+        gravity: "face",
+        quality: "auto",
+      },
     ],
   },
 });
