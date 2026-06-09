@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 /* Jameel Noori Nastaleeq - Professional Urdu Font */
+/* Primary: Jameel Noori from a reliable repo, Fallback: Google Noto Nastaliq */
 @font-face {
   font-family: 'Jameel Noori Nastaleeq';
-  src: url('https://cdn.jsdelivr.net/gh/nafeespp/urdu-fonts@latest/fonts/JameelNooriNastaleeq.woff2') format('woff2'),
-       url('https://cdn.jsdelivr.net/gh/nafeespp/urdu-fonts@latest/fonts/JameelNooriNastaleeq.woff') format('woff');
+  src: url('https://raw.githubusercontent.com/fawad-ghaffar/urdu-fonts/master/fonts/Jameel%20Noori%20Nastaleeq.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -15,7 +15,7 @@
 /* Apply Jameel Noori Nastaleeq when language is Urdu */
 [lang="ur"], [lang="ur"] * {
   font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif !important;
-  line-height: 1.8; /* Nastaleeq needs more vertical space */
+  line-height: 2; /* Nastaleeq needs more vertical space */
 }
 
 @layer utilities {
