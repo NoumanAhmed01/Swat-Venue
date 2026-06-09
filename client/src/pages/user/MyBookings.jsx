@@ -7,6 +7,7 @@ import {
   XCircle,
   CalendarCheck,
   Calendar,
+  User,
 } from "lucide-react";
 import { bookingAPI } from "../../utils/api";
 import BookingCard from "./BookingCard";
@@ -14,9 +15,11 @@ import DeleteBookingModal from "../../components/booking/DeleteBookingModal";
 import { toast } from "../../components/common/Toast";
 import StatsCard from "../../components/common/StatsCard"; // Import the reusable component
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../context/AuthContext";
 
 const MyBookings = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -52,13 +55,44 @@ const MyBookings = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-surface-900 py-10">
         <div className="max-w-7xl mx-auto px-4">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {t("my_bookings.title")}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {t("my_bookings.subtitle")}
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                {t("my_bookings.title")}
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
+                {t("my_bookings.subtitle")}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden sm:block">
+                <div className="flex items-center justify-end gap-2 mb-1">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">
+                    {user?.name}
+                  </p>
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/10 dark:bg-blue-500/20 rounded-full border border-blue-100 dark:border-blue-500/30">
+                    <CheckCircle size={10} className="text-blue-600 dark:text-blue-400 fill-current" />
+                    <span className="text-[8px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                      {user?.role}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-[0.1em]">
+                  {user?.email}
+                </p>
+              </div>
+              
+              <div className="w-14 h-14 rounded-full p-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden flex-shrink-0">
+                {user?.profilePicture?.url ? (
+                  <img src={user.profilePicture.url} alt="" className="w-full h-full rounded-full object-cover shadow-sm" />
+                ) : (
+                  <div className="w-full h-full rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-950">
+                    <User size={24} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Stats / Filters using reusable StatsCard */}

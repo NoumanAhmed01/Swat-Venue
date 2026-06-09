@@ -84,18 +84,23 @@ exports.createBooking = async (req, res) => {
       .populate("customer", "name email phone")
       .populate("menu", "name pricePerHead");
 
-    // Emails (no change needed)
-    await sendBookingConfirmationEmailToCustomer(
-      populatedBooking,
-      populatedBooking.venue,
-      populatedBooking.customer,
-    );
+    // Emails (wrapped in try-catch to prevent 500 error if SMTP fails)
+    try {
+      await sendBookingConfirmationEmailToCustomer(
+        populatedBooking,
+        populatedBooking.venue,
+        populatedBooking.customer,
+      );
 
-    await sendBookingNotificationToOwner(
-      populatedBooking,
-      populatedBooking.venue,
-      populatedBooking.venue.owner,
-    );
+      await sendBookingNotificationToOwner(
+        populatedBooking,
+        populatedBooking.venue,
+        populatedBooking.venue.owner,
+      );
+    } catch (emailError) {
+      console.error("Booking email notification failed:", emailError.message);
+      // We don't throw here so the user still gets a success response for the booking
+    }
 
     res.status(201).json({
       success: true,

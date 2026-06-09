@@ -35,11 +35,13 @@ const VenueInfoCard = ({ venue }) => {
       </div>
 
       {/* Quick Stats Grid - More Compact */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
         <div className="bg-gray-50 dark:bg-surface-900/50 p-3 rounded-xl border border-gray-100 dark:border-surface-700">
           <div className="flex items-center text-gray-400 mb-1">
             <Users className="h-3 w-3 mr-1.5" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">{t("search.guests")}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider">
+              {t("search.guests")}
+            </span>
           </div>
           <p className="text-sm font-bold text-primary-900 dark:text-text-dark">
             {venue.capacity}
@@ -49,7 +51,9 @@ const VenueInfoCard = ({ venue }) => {
         <div className="bg-gray-50 dark:bg-surface-900/50 p-3 rounded-xl border border-gray-100 dark:border-surface-700">
           <div className="flex items-center text-gray-400 mb-1">
             <Star className="h-3 w-3 mr-1.5 text-yellow-400 fill-current" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">{i18n.language === "ur" ? "ریٹنگ" : "Rating"}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider">
+              {i18n.language === "ur" ? "ریٹنگ" : "Rating"}
+            </span>
           </div>
           <p className="text-sm font-bold text-primary-900 dark:text-text-dark">
             {venue.rating}
@@ -59,7 +63,9 @@ const VenueInfoCard = ({ venue }) => {
         <div className="bg-gray-50 dark:bg-surface-900/50 p-3 rounded-xl border border-gray-100 dark:border-surface-700">
           <div className="flex items-center text-gray-400 mb-2">
             <Clock className="h-3 w-3 mr-1.5 text-gold-600" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">{i18n.language === "ur" ? "ایونٹ سلاٹس" : "Event Slots"}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider">
+              {i18n.language === "ur" ? "ایونٹ سلاٹس" : "Event Slots"}
+            </span>
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center">
@@ -95,4 +101,3 @@ const VenueInfoCard = ({ venue }) => {
 };
 
 export default VenueInfoCard;
-

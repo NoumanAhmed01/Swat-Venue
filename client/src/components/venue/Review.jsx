@@ -10,11 +10,11 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from "lucide-react";
-import { reviewAPI, bookingAPI } from "../../utils/api";
+import { reviewAPI, bookingAPI, venueAPI } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 
 const getInitials = (name) => {
-  if (!name) return "U";
+  if (!name || typeof name !== "string") return "U";
   return name
     .split(" ")
     .filter(Boolean)
@@ -47,6 +47,9 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewableBookings, setReviewableBookings] = useState([]);
+  const [venueOwnerId, setVenueOwnerId] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
 
   const {
     register,
@@ -67,37 +70,60 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
   const currentRating = watch("rating");
 
   useEffect(() => {
-    setReviews([]);
-    setReviewableBookings([]);
-    fetchReviews();
-    if (user) fetchUserEligibility();
+    const initializeReviews = async () => {
+      setLoading(true);
+      const fetchedReviews = await fetchReviews();
+      if (user) {
+        fetchUserEligibility(fetchedReviews);
+      }
+      fetchVenueOwner();
+      setLoading(false);
+    };
+    initializeReviews();
   }, [venueId, user]);
 
-  const fetchReviews = async () => {
+  const fetchVenueOwner = async () => {
     try {
-      setLoading(true);
-      const response = await reviewAPI.getVenueReviews(venueId);
-      setReviews(response.data.data || []);
+      const response = await venueAPI.getById(venueId);
+      const ownerId = response.data.data.owner?._id || response.data.data.owner;
+      setVenueOwnerId(ownerId);
     } catch (error) {
-      console.error("Error fetching reviews:", error);
-      toast.error("Failed to load reviews");
-    } finally {
-      setLoading(false);
+      console.error("Error fetching venue owner:", error);
     }
   };
 
-  const fetchUserEligibility = async () => {
+  const fetchReviews = async () => {
+    try {
+      const response = await reviewAPI.getVenueReviews(venueId);
+      const data = response.data.data || [];
+      setReviews(data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      toast.error("Failed to load reviews");
+      return [];
+    }
+  };
+
+  const fetchUserEligibility = async (currentReviews = reviews) => {
     try {
       const response = await bookingAPI.getUserBookings();
       const allBookings = response.data.data || [];
 
       const eligible = allBookings.filter((b) => {
         const isThisVenue = (b.venue?._id || b.venue) === venueId;
-        const isConfirmed = b.status === "confirmed";
-        const isPast = new Date(b.eventDate) < new Date();
-        const alreadyReviewed = reviews.some((r) => r.booking === b._id);
+        const bookingId = b._id?.toString();
 
-        return isThisVenue && isConfirmed && isPast && !alreadyReviewed;
+        const alreadyReviewed = currentReviews.some((r) => {
+          const rBookingId = (r.booking?._id || r.booking)?.toString();
+          return rBookingId === bookingId;
+        });
+
+        const isPast = new Date(b.eventDate) < new Date();
+        const canReview =
+          b.status === "completed" || (b.status === "confirmed" && isPast);
+
+        return isThisVenue && !alreadyReviewed && canReview;
       });
 
       setReviewableBookings(eligible);
@@ -122,6 +148,19 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to submit review");
+    }
+  };
+
+  const handleReplySubmit = async (reviewId) => {
+    if (!replyText.trim()) return;
+    try {
+      await reviewAPI.reply(reviewId, replyText);
+      toast.success("Reply posted successfully!");
+      setReplyingTo(null);
+      setReplyText("");
+      fetchReviews();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to post reply");
     }
   };
 
@@ -195,11 +234,24 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                   <div className="flex items-start space-x-3">
                     {/* User Avatar */}
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-600 to-primary-800 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-primary-900/10 uppercase">
-                        {getInitials(
-                          review.customerName || review.customer?.name,
-                        )}
-                      </div>
+                      {review.customer?.profilePicture?.url ||
+                      (typeof review.customer?.profilePicture === "string" &&
+                        review.customer?.profilePicture) ? (
+                        <img
+                          src={
+                            review.customer?.profilePicture?.url ||
+                            review.customer?.profilePicture
+                          }
+                          alt={review.customerName || review.customer?.name}
+                          className="w-10 h-10 rounded-full object-cover shadow-lg shadow-primary-900/10"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-600 to-primary-800 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-primary-900/10 uppercase">
+                          {getInitials(
+                            review.customerName || review.customer?.name,
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Name & Badge */}
@@ -248,9 +300,70 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                 </div>
 
                 {/* Comment */}
-                <p className="text-text-light dark:text-text-dark text-sm leading-relaxed pl-0 sm:pl-13 opacity-90 italic">
+                <p className="text-text-light dark:text-text-dark text-sm leading-relaxed pl-0 sm:pl-13 opacity-90 italic mb-4">
                   "{review.comment}"
                 </p>
+
+                {/* Owner Reply Display */}
+                {review.ownerReply && review.ownerReply.comment && (
+                  <div className="ml-0 sm:ml-13 mt-4 p-4 bg-gold-50 dark:bg-gold-900/10 rounded-xl border-l-4 border-gold-500">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ShieldCheck className="h-4 w-4 text-gold-600" />
+                      <span className="text-xs font-black text-primary-900 dark:text-gold-500 uppercase tracking-widest">
+                        Owner's Response
+                      </span>
+                    </div>
+                    <p className="text-sm text-primary-800 dark:text-text-dark italic leading-relaxed">
+                      "{review.ownerReply.comment}"
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">
+                      {new Date(review.ownerReply.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+
+                {/* Reply Button (Only for Venue Owner) */}
+                {user &&
+                  user.id === venueOwnerId &&
+                  !review.ownerReply?.comment && (
+                    <div className="ml-0 sm:ml-13 mt-4">
+                      {replyingTo === review._id ? (
+                        <div className="space-y-3">
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Write your professional response..."
+                            className="w-full p-3 bg-gray-50 dark:bg-surface-900 text-primary-800 dark:text-primary-200 border border-gray-200 dark:border-surface-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-gold-500/20 resize-none"
+                            rows="3"
+                          ></textarea>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleReplySubmit(review._id)}
+                              className="bg-gold-500 hover:bg-gold-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                            >
+                              Post Reply
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReplyingTo(null);
+                                setReplyText("");
+                              }}
+                              className="text-gray-400 hover:text-gray-600 px-4 py-1.5 text-xs font-bold"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setReplyingTo(review._id)}
+                          className="text-xs font-bold text-gold-600 hover:text-gold-700 underline underline-offset-4"
+                        >
+                          Reply to Guest
+                        </button>
+                      )}
+                    </div>
+                  )}
               </div>
             ))}
           </div>
@@ -317,15 +430,19 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {reviewableBookings.length > 1 && (
                   <div className="grid grid-cols-1 gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">
                       Select Event
                     </label>
                     <select
                       {...register("bookingId")}
-                      className="w-full p-3.5 bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-gold-500/20"
+                      className="w-full p-3.5 bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-2xl text-sm text-primary-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-500/20"
                     >
                       {reviewableBookings.map((b) => (
-                        <option key={b._id} value={b._id}>
+                        <option
+                          key={b._id}
+                          value={b._id}
+                          className="dark:bg-surface-800"
+                        >
                           {b.eventType} (
                           {new Date(b.eventDate).toLocaleDateString()})
                         </option>
@@ -335,7 +452,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                 )}
 
                 <div className="bg-white dark:bg-surface-800 p-6 rounded-2xl border border-gray-100 dark:border-surface-700 text-center">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                  <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
                     Overall Experience
                   </p>
                   <div className="flex justify-center space-x-2">
@@ -349,7 +466,7 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                         className="transition-transform active:scale-90"
                       >
                         <Star
-                          className={`h-8 w-8 sm:h-10 sm:w-10 ${star <= (hoveredRating || currentRating) ? "text-yellow-400 fill-current" : "text-gray-100 dark:text-gray-800"} transition-colors`}
+                          className={`h-8 w-8 sm:h-10 sm:w-10 ${star <= (hoveredRating || currentRating) ? "text-yellow-400 fill-current" : "text-gray-200 dark:text-gray-700"} transition-colors`}
                         />
                       </button>
                     ))}
@@ -357,14 +474,14 @@ const Review = ({ venueId, venueRating, onReviewSubmitted }) => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">
                     Your Story
                   </label>
                   <textarea
                     {...register("comment")}
                     rows="4"
                     placeholder="Tell other guests about your experience..."
-                    className="w-full p-4 bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-gold-500/20 resize-none"
+                    className="w-full p-4 bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-2xl text-sm text-primary-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:ring-2 focus:ring-gold-500/20 resize-none"
                   ></textarea>
                 </div>
 

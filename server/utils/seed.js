@@ -78,11 +78,11 @@ const seedDatabase = async () => {
 
     console.log("Users created...");
 
-    // Create Venues with valid geoLocation
+    // Create Venues
     const venue1 = await Venue.create({
       name: "Royal Banquet Hall",
       location: "Mingora, Swat",
-      geoLocation: { type: "Point", coordinates: [72.1451, 34.7708] },
+
       address: "Green Chowk, Mingora, Swat, KPK",
       capacity: 500,
       price: 75000,
@@ -106,7 +106,7 @@ const seedDatabase = async () => {
     const venue2 = await Venue.create({
       name: "Mountain View Resort",
       location: "Kalam, Swat",
-      geoLocation: { type: "Point", coordinates: [72.4661, 35.6500] },
+
       address: "Upper Kalam, Swat Valley, KPK",
       capacity: 200,
       price: 45000,
@@ -136,7 +136,7 @@ const seedDatabase = async () => {
     const venue3 = await Venue.create({
       name: "Grand Palace Hall",
       location: "Saidu Sharif, Swat",
-      geoLocation: { type: "Point", coordinates: [72.3600, 34.7900] },
+
       address: "Main Bazaar, Saidu Sharif, Swat, KPK",
       capacity: 800,
       price: 120000,
@@ -168,7 +168,7 @@ const seedDatabase = async () => {
     const venue4 = await Venue.create({
       name: "Garden Pavilion",
       location: "Bahrain, Swat",
-      geoLocation: { type: "Point", coordinates: [72.7000, 34.8500] },
+
       address: "Riverside, Bahrain, Swat Valley, KPK",
       capacity: 150,
       price: 35000,

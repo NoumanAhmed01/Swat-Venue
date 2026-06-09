@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required']
+    required: [true, 'Phone number is required'],
+    match: [/^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/, 'Please enter a valid Pakistani phone number']
   },
   role: {
     type: String,
@@ -43,6 +44,16 @@ const userSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false
+  },
+  profilePicture: {
+    public_id: {
+      type: String,
+      default: null
+    },
+    url: {
+      type: String,
+      default: null
+    }
   },
   createdAt: {
     type: Date,

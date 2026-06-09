@@ -9,6 +9,7 @@
     "dashboard": "Dashboard",
     "admin_panel": "Admin Panel",
     "my_bookings": "My Bookings",
+    "profile": "Profile Settings",
     "logout": "Logout"
   },
   "hero": {
@@ -81,6 +82,10 @@
     "venue_management": "Venue Management",
     "customer_portal": "Customer Portal",
     "secure_access": "Secure Access",
+    "business_security": "Business Security",
+    "venue_dashboard": "Venue Dashboard",
+    "owner_portal": "Owner Portal",
+    "secure_management": "Secure Management",
     "trusted_by": "Trusted by 500+ venue owners worldwide",
     "email_label": "Email Address",
     "password_label": "Password",
@@ -136,7 +141,35 @@
     "pass_req_number": "One number",
     "pass_req_special": "One special character (@$!%*?&#)",
     "customer": "Customer",
-    "owner": "Owner"
+    "owner": "Owner",
+    "verify_otp": {
+      "title": "Verify Your Identity",
+      "subtitle": "Enter the 6-digit code sent to your email",
+      "code_sent": "Code sent to",
+      "label": "6-Digit Verification Code",
+      "expires": "Code expires in",
+      "verifying": "Verifying...",
+      "verify_button": "Verify & Continue",
+      "resend_otp": "Resend OTP",
+      "resend_available": "Resend available in {{seconds}}s",
+      "back_to_login": "Back to login",
+      "security_note": "One-time password for enhanced security",
+      "success_verify": "Email verified successfully! You can now log in.",
+      "success_otp": "OTP verified successfully!",
+      "error_invalid": "Invalid or expired OTP.",
+      "error_resend": "Failed to resend OTP. Try again later.",
+      "resend_success": "New OTP sent to your email!"
+    },
+    "reset_password": {
+      "title": "Set New Password",
+      "subtitle": "Create a strong password to protect your account",
+      "new_pass_label": "New Password",
+      "confirm_pass_label": "Confirm New Password",
+      "resetting": "Resetting Password...",
+      "reset_button": "Reset Password",
+      "success": "Password reset successfully. You can now log in with your new password.",
+      "error": "Failed to reset password. Please try again."
+    }
   },
   "venue": {
     "not_found": "Venue Not Found",
@@ -309,6 +342,29 @@
       "amount": "Amount",
       "no_bookings": "No bookings yet"
     }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your personal information and account preferences",
+    "account_info": "Account Information",
+    "email_label": "Email Address",
+    "phone_label": "Phone Number",
+    "security_status": "Security & Status",
+    "verification_status": "Verification Status",
+    "verified": "Account Verified",
+    "completion_title": "Profile Completion",
+    "completion_desc": "Your profile is almost complete. Adding a profile picture helps build trust with other members.",
+    "update_more_title": "Need to update more?",
+    "update_more_desc": "Contact our support team if you want to change your email or registered phone number.",
+    "contact_support": "Contact Support",
+    "member_since": "Member since {{date}}",
+    "remove_picture": "Remove picture",
+    "upload_error": "Failed to upload image",
+    "upload_success": "Profile picture updated successfully",
+    "remove_success": "Profile picture removed",
+    "remove_confirm": "Are you sure you want to remove your profile picture?",
+    "select_image_error": "Please select an image file",
+    "size_error": "Image size should be less than 5MB"
   },
   "common": {
     "view_all": "View All Venues",

@@ -13,13 +13,18 @@ const Contact = () => {
   const { t } = useTranslation();
   // Helper to restrict name to alphabets and spaces only during typing
   const handleNameKeyDown = (e) => {
-    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
-        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
-        (e.keyCode >= 35 && e.keyCode <= 39)) {
-             return;
+    if (
+      [8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+      (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+      (e.keyCode >= 35 && e.keyCode <= 39)
+    ) {
+      return;
     }
-    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 122)) {
-        e.preventDefault();
+    if (
+      (e.keyCode < 65 || e.keyCode > 90) &&
+      (e.keyCode < 97 || e.keyCode > 122)
+    ) {
+      e.preventDefault();
     }
   };
 
@@ -38,9 +43,7 @@ const Contact = () => {
     try {
       const response = await contactAPI.create(data);
       if (response.data.success) {
-        toast.success(
-          response.data.message || t("contact.success_msg")
-        );
+        toast.success(response.data.message || t("contact.success_msg"));
         reset();
       }
     } catch (error) {
@@ -62,8 +65,8 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email",
-      details: ["info@swatvenue.com", "support@swatvenue.com"],
-      action: "mailto:info@swatvenue.com",
+      details: ["swatvenue@gmail.com", "support@swatvenue.com"],
+      action: "mailto:swatvenue@gmail.com",
     },
     {
       icon: MapPin,
@@ -108,10 +111,7 @@ const Contact = () => {
       {/* 🧠 SEO Optimization using Helmet */}
       <Helmet>
         <title>{t("contact.hero_title")} - SwatVenue</title>
-        <meta
-          name="description"
-          content={t("contact.hero_subtitle")}
-        />
+        <meta name="description" content={t("contact.hero_subtitle")} />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -148,7 +148,13 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-primary-900 dark:text-text-dark mb-2">
-                      {index === 0 ? t("contact.subjects.other") : index === 1 ? "Email" : index === 2 ? "Address" : "Business Hours"}
+                      {index === 0
+                        ? t("contact.subjects.other")
+                        : index === 1
+                          ? "Email"
+                          : index === 2
+                            ? "Address"
+                            : "Business Hours"}
                     </h3>
                     {info.details.map((detail, idx) => (
                       <p
@@ -190,7 +196,9 @@ const Contact = () => {
                         {...register("name")}
                         onKeyDown={handleNameKeyDown}
                         className={`w-full px-4 py-3 border ${
-                          errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                          errors.name
+                            ? "border-red-500"
+                            : "border-gray-200 dark:border-gray-700"
                         } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                         placeholder={t("contact.name_placeholder")}
                       />
@@ -210,7 +218,9 @@ const Contact = () => {
                         type="email"
                         {...register("email")}
                         className={`w-full px-4 py-3 border ${
-                          errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                          errors.email
+                            ? "border-red-500"
+                            : "border-gray-200 dark:border-gray-700"
                         } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                         placeholder={t("contact.email_placeholder")}
                       />
@@ -230,16 +240,32 @@ const Contact = () => {
                     <select
                       {...register("subject")}
                       className={`w-full px-4 py-3 border ${
-                        errors.subject ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                        errors.subject
+                          ? "border-red-500"
+                          : "border-gray-200 dark:border-gray-700"
                       } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                     >
-                      <option value="">{t("contact.subject_placeholder")}</option>
-                      <option value="general">{t("contact.subjects.general")}</option>
-                      <option value="booking">{t("contact.subjects.booking")}</option>
-                      <option value="venue-listing">{t("contact.subjects.venue_listing")}</option>
-                      <option value="technical">{t("contact.subjects.technical")}</option>
-                      <option value="partnership">{t("contact.subjects.partnership")}</option>
-                      <option value="other">{t("contact.subjects.other")}</option>
+                      <option value="">
+                        {t("contact.subject_placeholder")}
+                      </option>
+                      <option value="general">
+                        {t("contact.subjects.general")}
+                      </option>
+                      <option value="booking">
+                        {t("contact.subjects.booking")}
+                      </option>
+                      <option value="venue-listing">
+                        {t("contact.subjects.venue_listing")}
+                      </option>
+                      <option value="technical">
+                        {t("contact.subjects.technical")}
+                      </option>
+                      <option value="partnership">
+                        {t("contact.subjects.partnership")}
+                      </option>
+                      <option value="other">
+                        {t("contact.subjects.other")}
+                      </option>
                     </select>
                     {errors.subject && (
                       <p className="text-red-500 text-sm mt-1">
@@ -257,7 +283,9 @@ const Contact = () => {
                       rows="6"
                       {...register("message")}
                       className={`w-full px-4 py-3 border ${
-                        errors.message ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                        errors.message
+                          ? "border-red-500"
+                          : "border-gray-200 dark:border-gray-700"
                       } rounded-lg focus:ring-2 focus:ring-gold-500 dark:bg-surface-700 dark:text-text-dark transition-colors`}
                       placeholder={t("contact.message_placeholder")}
                     />
@@ -337,18 +365,18 @@ const Contact = () => {
               {t("contact.office_subtitle")}
             </p>
 
-            <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-lg p-8">
-              <div className="bg-gray-200 dark:bg-surface-700 h-96 rounded-lg flex flex-col items-center justify-center">
-                <MapPin className="h-16 w-16 text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-black dark:text-white">
-                  Interactive Map
-                </h3>
-                <p className="text-gray-500">
-                  {t("contact.map_placeholder")}
-                </p>
-                <p className="text-sm text-gray-400 mt-2">
-                  Green Chowk, Mingora, Swat, KPK, Pakistan
-                </p>
+            <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-surface-700">
+              <div className="w-full h-[450px]">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3276.556589795626!2d72.28680277555038!3d34.791936372887434!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dc179eafdd2ea7%3A0x4dd833268f21905f!2sDr%20Khan%20Shaheed%20Govt%20Degree%20College%20Kabal%20Swat!5e0!3m2!1sen!2s!4v1780982018483!5m2!1sen!2s"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Office Location"
+                ></iframe>
               </div>
             </div>
           </div>
@@ -359,4 +387,3 @@ const Contact = () => {
 };
 
 export default Contact;
-

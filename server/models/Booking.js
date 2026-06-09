@@ -68,6 +68,7 @@ const bookingSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
+      match: [/^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/, 'Please enter a valid Pakistani phone number']
     },
 
     email: {

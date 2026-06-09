@@ -108,8 +108,18 @@ const Navbar = () => {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center space-x-1.5 text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 group"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gold-500/10 dark:bg-gold-500/20 flex items-center justify-center border border-gold-500/20">
-                    <User className="h-4 w-4 text-gold-600 dark:text-gold-400" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-gold-500/20 flex items-center justify-center">
+                    {user.profilePicture?.url ? (
+                      <img
+                        src={user.profilePicture.url}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gold-500/10 dark:bg-gold-500/20 flex items-center justify-center">
+                        <User className="h-4 w-4 text-gold-600 dark:text-gold-400" />
+                      </div>
+                    )}
                   </div>
                   <span>{user.name}</span>
                   <ChevronDown
@@ -124,6 +134,14 @@ const Navbar = () => {
                 {/* User dropdown menu */}
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-800 rounded-md shadow-lg py-1 z-50">
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-surface-700"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Profile Settings
+                    </Link>
                     {/* For customer/users */}
                     {(user.role === "user" || user.role === "customer") && (
                       <Link
@@ -247,14 +265,33 @@ const Navbar = () => {
             {/* Mobile user section */}
             {user ? (
               <div className="pt-4 pb-3 border-t border-gray-200 dark:border-surface-700">
-                <div className="px-3 mb-3">
-                  <p className="text-base font-medium text-primary-900 dark:text-text-dark">
-                    {user.name}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {user.email}
-                  </p>
+                <div className="flex items-center px-3 mb-3 gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gold-500/20">
+                    {user.profilePicture?.url ? (
+                      <img src={user.profilePicture.url} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gold-500/10 flex items-center justify-center">
+                        <User className="h-6 w-6 text-gold-600" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-primary-900 dark:text-text-dark leading-none mb-1">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {user.email}
+                    </p>
+                  </div>
                 </div>
+
+                <Link
+                  to="/profile"
+                  className="block px-3 py-2 text-base font-medium text-text-light dark:text-text-dark hover:text-gold-600 dark:hover:text-gold-400 transition-colors duration-200"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Profile Settings
+                </Link>
 
                 {/* For customer/users */}
                 {user.role === "customer" && (

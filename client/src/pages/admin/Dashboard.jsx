@@ -9,11 +9,15 @@ import {
   Mail,
   Loader2,
   AlertCircle,
+  User,
+  CheckCircle,
 } from "lucide-react";
 import { userAPI, venueAPI, bookingAPI } from "../../utils/api";
 import { toast } from "../../components/common/Toast";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState([
     { title: "Total Users", value: "0", icon: Users, color: "bg-blue-500" },
     {
@@ -226,13 +230,41 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Admin Dashboard
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Welcome to SwatVenue admin panel. Here's your platform overview.
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 bg-white dark:bg-[#1E293B] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Admin Dashboard
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                Welcome back, {user?.name.split(' ')[0]}! Platform overview.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 pl-4 border-l border-slate-100 dark:border-slate-800">
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                  {user?.name}
+                </p>
+                <div className="flex items-center justify-end mt-1">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-md">
+                    <CheckCircle size={10} className="text-blue-600 dark:text-blue-400 fill-current" />
+                    <span className="text-[8px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                      {user?.role}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-sm">
+                {user?.profilePicture?.url ? (
+                  <img src={user.profilePicture.url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-400">
+                    <User size={20} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Stats Grid */}

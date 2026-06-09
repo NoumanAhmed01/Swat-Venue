@@ -298,6 +298,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
                 <option value="Saidu Sharif">Saidu Sharif</option>
                 <option value="Bahrain">Bahrain</option>
                 <option value="Kalam">Kalam</option>
+                <option value="Kabal">Kabal</option>
                 <option value="Malam Jabba">Malam Jabba</option>
               </select>
               {errors.location && (

@@ -16,19 +16,36 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("user");
 
-    if (token && userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+      if (token && userData) {
+        try {
+          // Set initial user from localStorage for immediate UI response
+          setUser(JSON.parse(userData));
+          
+          // Fetch latest data from server to keep in sync
+          const response = await authAPI.getMe();
+          if (response.data.success) {
+            const latestUser = response.data.user;
+            localStorage.setItem("user", JSON.stringify(latestUser));
+            setUser(latestUser);
+          }
+        } catch (error) {
+          console.error("Error fetching latest user data:", error);
+          // If 401, interceptor will handle it, but for other errors we might want to keep local data
+          if (error.response?.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setUser(null);
+          }
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    fetchUser();
   }, []);
 
   const login = async (email, password) => {
@@ -74,12 +91,19 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    const updatedUser = { ...user, ...userData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
   const value = {
     user,
     login,
     logout,
     register,
     loading,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

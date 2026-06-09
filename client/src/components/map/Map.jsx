@@ -8,29 +8,36 @@ import { ExternalLink, ShieldCheck } from "lucide-react";
  * Fixes overflow/clipping issues for rounded corners.
  */
 export default function Map({ address = "", venueName = "", zoom = 16 }) {
-  const regionLock = "Swat, KPK, Pakistan";
-  const cleanAddress = address.split(",").slice(0, 2).join(",");
+  // Clean up the strings and remove redundancy
+  const cleanAddress = address
+    .replace(/Swat|KPK|Pakistan/gi, "")
+    .replace(/,\s*,/g, ",")
+    .trim();
+  const locationContext = "Swat, KPK, Pakistan";
+
+  // Construct a cleaner search query: "Venue Name, Address, Swat, Pakistan"
+  // If the venue name is likely just a label, prioritizing address helps Google find the spot.
   const searchQuery = encodeURIComponent(
-    `${venueName}, ${cleanAddress}, ${regionLock}`,
+    `${venueName ? venueName + ", " : ""}${cleanAddress}${cleanAddress ? ", " : ""}${locationContext}`,
   );
 
-  const googleMapsUrl = `https://www.google.com/maps?q=${searchQuery}&z=${zoom}&output=embed&iwloc=near`;
+  const googleMapsUrl = `https://www.google.com/maps?q=${searchQuery}&z=${zoom}&output=embed`;
   const externalMapUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
 
   return (
     <div
-      className="relative w-full h-full rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-500 hover:shadow-xl"
+      className="relative w-full h-full rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-500 hover:shadow-xl group"
       style={{
         isolation: "isolate",
         transform: "translateZ(0)",
       }}
     >
-      {/* The Map Iframe - Changed from absolute to relative positioning */}
+      {/* The Map Iframe */}
       <iframe
         title={`${venueName} Location`}
         width="100%"
         height="100%"
-        className="w-full h-full grayscale-[0.1] contrast-[1.05] brightness-[1.02] dark:opacity-90 dark:invert-[0.9] dark:hue-rotate-180 transition-all duration-700 group-hover:grayscale-0"
+        className="w-full h-full grayscale-[0.05] contrast-[1.02] brightness-[1.02] dark:opacity-90 dark:invert-[0.9] dark:hue-rotate-180 transition-all duration-700"
         style={{ border: 0, display: "block" }}
         src={googleMapsUrl}
         allowFullScreen
@@ -38,17 +45,30 @@ export default function Map({ address = "", venueName = "", zoom = 16 }) {
         referrerPolicy="no-referrer-when-downgrade"
       />
 
-      {/* Decorative Gradient Overlay (Top) - Subtle shadow for depth */}
-      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-10" />
+      {/* Decorative Gradient Overlay (Top) */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/20 to-transparent pointer-events-none z-10" />
 
-      {/* Bottom Left Info Group */}
-      <div className="absolute bottom-4 left-4 flex flex-col gap-1.5 pointer-events-none z-20">
-        {/* Region Context Label */}
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm self-start">
-          <p className="text-[8px] md:text-[10px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
-            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-ping" />
-            SWAT VALLEY, KPK
-          </p>
+      {/* Bottom Info Group */}
+      <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2 z-20">
+        {/* Action Button */}
+        <div className="flex gap-2">
+          <a
+            href={externalMapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-primary-900 text-white dark:bg-white dark:text-primary-900 px-4 py-2 rounded-lg text-xs font-bold shadow-lg flex items-center gap-2 w-fit transition-all duration-300 hover:bg-black dark:hover:bg-gray-200 hover:scale-105 active:scale-95"
+          >
+            <ExternalLink size={14} />
+            Open in Google Maps
+          </a>
+        </div>
+      </div>
+
+      {/* Accuracy Disclaimer (Subtle) */}
+      <div className="absolute top-4 right-4 z-20 pointer-events-none">
+        <div className="bg-black/40 backdrop-blur-sm text-white/90 text-[9px] px-2 py-1 rounded-full border border-white/10 flex items-center gap-1">
+          <ShieldCheck size={10} className="text-emerald-400" />
+          Approximate Location
         </div>
       </div>
     </div>

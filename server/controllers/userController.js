@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const { deleteFromCloudinary } = require("../config/Cloudinary");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -35,21 +36,91 @@ exports.getUserById = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { name, phone, email } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name, phone, email },
-      { new: true, runValidators: true }
-    ).select("-password");
+    const { name, phone, currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Handle profile info updates
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+
+    // Handle password update if requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "Current password is required to set a new one" });
+      }
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select("-password");
+
     res.json({
       success: true,
-      data: user,
+      data: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Please upload an image" });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    // Delete old picture if exists
+    if (user.profilePicture && user.profilePicture.public_id) {
+      await deleteFromCloudinary(user.profilePicture.public_id);
+    }
+
+    user.profilePicture = {
+      public_id: req.file.filename,
+      url: req.file.path,
+    };
+
+    await user.save();
+
+    res.json({
+      success: true,
+      data: {
+        profilePicture: user.profilePicture,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user.profilePicture && user.profilePicture.public_id) {
+      await deleteFromCloudinary(user.profilePicture.public_id);
+    }
+
+    user.profilePicture = {
+      public_id: null,
+      url: null,
+    };
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Profile picture deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

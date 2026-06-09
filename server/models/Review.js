@@ -38,6 +38,15 @@ const reviewSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  ownerReply: {
+    comment: {
+      type: String,
+      trim: true
+    },
+    date: {
+      type: Date
+    }
   }
 }, {
   timestamps: true

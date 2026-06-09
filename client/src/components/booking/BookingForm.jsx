@@ -35,30 +35,46 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "",
+      eventDate: null,
     },
   });
 
+  // Register hidden fields
+  useEffect(() => {
+    register("eventDate");
+  }, [register]);
+
   // Helper to restrict name to alphabets and spaces only during typing
   const handleNameKeyDown = (e) => {
-    if ([8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
-        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
-        (e.keyCode >= 35 && e.keyCode <= 39)) {
-             return;
+    if (
+      [8, 46, 9, 27, 13, 32].indexOf(e.keyCode) !== -1 ||
+      (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+      (e.keyCode >= 35 && e.keyCode <= 39)
+    ) {
+      return;
     }
-    if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 122)) {
-        e.preventDefault();
+    if (
+      (e.keyCode < 65 || e.keyCode > 90) &&
+      (e.keyCode < 97 || e.keyCode > 122)
+    ) {
+      e.preventDefault();
     }
   };
 
   // Helper to restrict phone to numbers and + only during typing
   const handlePhoneKeyDown = (e) => {
-    if ([8, 46, 9, 27, 13, 187, 107].indexOf(e.keyCode) !== -1 ||
-        (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
-        (e.keyCode >= 35 && e.keyCode <= 39)) {
-             return;
+    if (
+      [8, 46, 9, 27, 13, 187, 107].indexOf(e.keyCode) !== -1 ||
+      (e.ctrlKey === true && [65, 67, 86, 88].indexOf(e.keyCode) !== -1) ||
+      (e.keyCode >= 35 && e.keyCode <= 39)
+    ) {
+      return;
     }
-    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-        e.preventDefault();
+    if (
+      (e.shiftKey || e.keyCode < 48 || e.keyCode > 57) &&
+      (e.keyCode < 96 || e.keyCode > 105)
+    ) {
+      e.preventDefault();
     }
   };
 
@@ -115,17 +131,25 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
 
       const response = await bookingAPI.create(bookingData);
       if (response.data.success) {
-        toast.success(i18n.language === "ur" ? "بکنگ جمع کر دی گئی ہے!" : "Booking submitted!");
+        toast.success(
+          i18n.language === "ur"
+            ? "بکنگ جمع کر دی گئی ہے!"
+            : "Booking submitted!",
+        );
         onSuccess?.();
         onClose();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || (i18n.language === "ur" ? "بکنگ ناکام رہی" : "Booking failed"));
+      toast.error(
+        error.response?.data?.message ||
+          (i18n.language === "ur" ? "بکنگ ناکام رہی" : "Booking failed"),
+      );
     }
   };
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
+    setValue("eventDate", date, { shouldValidate: true });
     setShowCalendar(false);
   };
 
@@ -179,7 +203,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 Number(guestCount || 0) * (selectedMenu?.pricePerHead || 0)
               ).toLocaleString()}
             </p>
-            <p className="text-xs text-gray-500">{t("booking_form.estimated_cost")}</p>
+            <p className="text-xs text-gray-500">
+              {t("booking_form.estimated_cost")}
+            </p>
           </div>
         </div>
 
@@ -195,7 +221,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   {...register("name")}
                   onKeyDown={handleNameKeyDown}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.name ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                    errors.name
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.name && (
@@ -211,7 +239,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 <input
                   {...register("email")}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                    errors.email
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.email && (
@@ -231,7 +261,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   {...register("phone")}
                   onKeyDown={handlePhoneKeyDown}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.phone ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                    errors.phone
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.phone && (
@@ -247,14 +279,24 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 <select
                   {...register("eventType")}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.eventType ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                    errors.eventType
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 >
                   <option value="">Select...</option>
-                  <option value="Wedding">{i18n.language === "ur" ? "شادی" : "Wedding"}</option>
-                  <option value="Birthday">{i18n.language === "ur" ? "سالگرہ" : "Birthday"}</option>
-                  <option value="Corporate">{i18n.language === "ur" ? "کارپوریٹ" : "Corporate"}</option>
-                  <option value="Other">{i18n.language === "ur" ? "دیگر" : "Other"}</option>
+                  <option value="Wedding">
+                    {i18n.language === "ur" ? "شادی" : "Wedding"}
+                  </option>
+                  <option value="Birthday">
+                    {i18n.language === "ur" ? "سالگرہ" : "Birthday"}
+                  </option>
+                  <option value="Corporate">
+                    {i18n.language === "ur" ? "کارپوریٹ" : "Corporate"}
+                  </option>
+                  <option value="Other">
+                    {i18n.language === "ur" ? "دیگر" : "Other"}
+                  </option>
                 </select>
                 {errors.eventType && (
                   <p className="text-red-500 text-[10px] mt-1">
@@ -273,14 +315,23 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                   type="button"
                   onClick={() => setShowCalendar(true)}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    !selectedDate && errors.eventDate ? "border-red-500" : "border-gray-200 dark:border-gray-700"
+                    !selectedDate && (errors.eventDate || errors.eventDate)
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm text-left flex justify-between items-center transition-colors`}
                 >
                   {selectedDate
-                    ? selectedDate.toLocaleDateString(i18n.language === "ur" ? "ur-PK" : "en-US")
+                    ? selectedDate.toLocaleDateString(
+                        i18n.language === "ur" ? "ur-PK" : "en-US",
+                      )
                     : t("booking_form.choose_date")}
                   <CalendarIcon className="h-4 w-4 text-gray-400" />
                 </button>
+                {errors.eventDate && (
+                  <p className="text-red-500 text-[10px] mt-1">
+                    {errors.eventDate.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block justify-between">
@@ -291,9 +342,11 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
                 </label>
                 <input
                   type="number"
-                  {...register("guestCount")}
+                  {...register("guestCount", { valueAsNumber: true })}
                   className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.guestCount || Number(guestCount) > venue.capacity ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-gray-200 dark:border-gray-700"
+                    errors.guestCount || Number(guestCount) > venue.capacity
+                      ? "border-red-500 bg-red-50 dark:bg-red-900/10"
+                      : "border-gray-200 dark:border-gray-700"
                   } dark:bg-gray-900 dark:text-white text-sm focus:border-gold-500 outline-none transition-colors`}
                 />
                 {errors.guestCount && (
@@ -329,7 +382,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
               }
               className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4 shadow-lg shadow-gold-500/20"
             >
-              {isSubmitting ? t("booking_form.confirming") : t("booking_form.complete_booking")}
+              {isSubmitting
+                ? t("booking_form.confirming")
+                : t("booking_form.complete_booking")}
             </button>
           </form>
         </div>
@@ -338,7 +393,9 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
         {showCalendar && (
           <div className="absolute inset-0 bg-white dark:bg-gray-800 z-[110] flex flex-col p-6 overflow-hidden">
             <div className="flex justify-between items-center mb-4 flex-shrink-0">
-              <h4 className="font-bold dark:text-white">{t("booking_form.select_date_title")}</h4>
+              <h4 className="font-bold dark:text-white">
+                {t("booking_form.select_date_title")}
+              </h4>
               <button
                 onClick={() => setShowCalendar(false)}
                 className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors hover:text-red-500"
@@ -362,4 +419,3 @@ const BookingForm = ({ venue, selectedMenu, onClose, onSuccess }) => {
 };
 
 export default BookingForm;
-

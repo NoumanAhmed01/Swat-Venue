@@ -31,15 +31,21 @@ const deleteVideoFromCloudinary = async (publicId) => {
 const extractPublicId = (url) => {
   if (!url) return null;
 
+  // Example URL: https://res.cloudinary.com/cloud_name/image/upload/v12345678/swatvenue/images/sample.jpg
   const parts = url.split("/");
-  const filename = parts[parts.length - 1];
-  const publicId = filename.split(".")[0];
+  const uploadIndex = parts.indexOf("upload");
 
-  const folderIndex = parts.indexOf("upload");
-  if (folderIndex !== -1 && folderIndex + 2 < parts.length) {
-    const folder = parts[folderIndex + 1];
-    return `${folder}/${publicId}`;
+  if (uploadIndex === -1 || uploadIndex === parts.length - 1) return null;
+
+  // The public ID starts after the version (v12345678) or after 'upload' if no version
+  let startIndex = uploadIndex + 1;
+  if (parts[startIndex].startsWith("v") && !isNaN(parts[startIndex].substring(1))) {
+    startIndex++;
   }
+
+  // Join the remaining parts and remove the file extension
+  const publicIdWithExtension = parts.slice(startIndex).join("/");
+  const publicId = publicIdWithExtension.split(".")[0];
 
   return publicId;
 };

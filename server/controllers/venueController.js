@@ -150,11 +150,6 @@ exports.createVenue = async (req, res) => {
       phone: req.body.phone || req.user.phone,
       images: imageUrls,
       videos: videoUrls,
-      // Default coordinates [lng, lat] for Swat center as placeholder
-      geoLocation: {
-        type: "Point",
-        coordinates: [72.36015, 34.77175], 
-      },
     };
 
     if (typeof venueData.amenities === "string") {
@@ -202,80 +197,130 @@ exports.createVenue = async (req, res) => {
 
 exports.updateVenue = async (req, res) => {
   try {
-    let venue = await Venue.findById(req.params.id);
+    const venueId = req.params.id;
+    let venue = await Venue.findById(venueId);
 
     if (!venue) {
       return res.status(404).json({ message: "Venue not found" });
     }
 
+    // Check ownership
     if (venue.owner.toString() !== req.user.id && req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to update this venue" });
+      return res.status(403).json({ message: "Not authorized to update this venue" });
     }
 
-    const updateData = { ...req.body };
+    // 1. Prepare Update Data from req.body
+    // Destructure to isolate arrays that need special handling
+    const { 
+      images: bodyImages, 
+      videos: bodyVideos, 
+      deletedImages, 
+      deletedVideos, 
+      amenities,
+      capacity,
+      price,
+      ...otherFields 
+    } = req.body;
 
-    if (typeof updateData.amenities === "string") {
-      updateData.amenities = JSON.parse(updateData.amenities);
-    }
+    const updateData = { ...otherFields };
 
-    if (req.body.deletedImages) {
-      const deletedImages = JSON.parse(req.body.deletedImages);
-      for (const imageUrl of deletedImages) {
-        const publicId = extractPublicId(imageUrl);
-        if (publicId) {
-          await deleteFromCloudinary(publicId);
-        }
+    // Explicitly cast numeric fields (since they come from FormData as strings)
+    if (capacity) updateData.capacity = Number(capacity);
+    if (price) updateData.price = Number(price);
+
+    // Parse amenities if it's a JSON string
+    if (amenities) {
+      try {
+        updateData.amenities = typeof amenities === "string" ? JSON.parse(amenities) : amenities;
+      } catch (e) {
+        console.error("Error parsing amenities:", e);
       }
-      updateData.images = venue.images.filter(
-        (img) => !deletedImages.includes(img)
-      );
     }
 
-    if (req.body.deletedVideos) {
-      const deletedVideos = JSON.parse(req.body.deletedVideos);
-      for (const videoUrl of deletedVideos) {
-        const publicId = extractPublicId(videoUrl);
-        if (publicId) {
-          await deleteVideoFromCloudinary(publicId);
+    // 2. Handle Image Updates
+    let finalImages = Array.isArray(venue.images) ? [...venue.images] : [];
+
+    // Handle Deletions
+    if (deletedImages) {
+      try {
+        const toDelete = typeof deletedImages === "string" ? JSON.parse(deletedImages) : deletedImages;
+        if (Array.isArray(toDelete)) {
+          for (const imageUrl of toDelete) {
+            const publicId = extractPublicId(imageUrl);
+            if (publicId) {
+              await deleteFromCloudinary(publicId).catch(err => console.error("Cloudinary delete error:", err));
+            }
+          }
+          finalImages = finalImages.filter(img => !toDelete.includes(img));
         }
+      } catch (e) {
+        console.error("Error parsing deletedImages:", e);
       }
-      updateData.videos = venue.videos.filter(
-        (vid) => !deletedVideos.includes(vid)
-      );
     }
 
-    const newImageUrls = [...(updateData.images || venue.images)];
+    // Handle New Image Uploads
     if (req.files && req.files.images) {
       for (const file of req.files.images) {
-        const url = await uploadToCloudinary(file, "images", "image");
-        newImageUrls.push(url);
+        try {
+          const url = await uploadToCloudinary(file, "images", "image");
+          finalImages.push(url);
+        } catch (uploadErr) {
+          console.error("Cloudinary upload error (image):", uploadErr);
+        }
       }
     }
-    updateData.images = newImageUrls;
+    updateData.images = finalImages;
 
-    const newVideoUrls = [...(updateData.videos || venue.videos)];
+    // 3. Handle Video Updates
+    let finalVideos = Array.isArray(venue.videos) ? [...venue.videos] : [];
+
+    // Handle Deletions
+    if (deletedVideos) {
+      try {
+        const toDelete = typeof deletedVideos === "string" ? JSON.parse(deletedVideos) : deletedVideos;
+        if (Array.isArray(toDelete)) {
+          for (const videoUrl of toDelete) {
+            const publicId = extractPublicId(videoUrl);
+            if (publicId) {
+              await deleteVideoFromCloudinary(publicId).catch(err => console.error("Cloudinary video delete error:", err));
+            }
+          }
+          finalVideos = finalVideos.filter(vid => !toDelete.includes(vid));
+        }
+      } catch (e) {
+        console.error("Error parsing deletedVideos:", e);
+      }
+    }
+
+    // Handle New Video Uploads
     if (req.files && req.files.videos) {
       for (const file of req.files.videos) {
-        const url = await uploadToCloudinary(file, "videos", "video");
-        newVideoUrls.push(url);
+        try {
+          const url = await uploadToCloudinary(file, "videos", "video");
+          finalVideos.push(url);
+        } catch (uploadErr) {
+          console.error("Cloudinary upload error (video):", uploadErr);
+        }
       }
     }
-    updateData.videos = newVideoUrls;
+    updateData.videos = finalVideos;
 
-    venue = await Venue.findByIdAndUpdate(req.params.id, updateData, {
+    // 4. Save to Database
+    const updatedVenue = await Venue.findByIdAndUpdate(venueId, updateData, {
       new: true,
       runValidators: true,
     });
 
     res.json({
       success: true,
-      data: venue,
+      data: updatedVenue,
     });
   } catch (error) {
-    console.error("Update venue error:", error);
-    res.status(500).json({ message: error.message });
+    console.error("Update venue critical error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Internal server error during venue update" 
+    });
   }
 };
 

@@ -25,6 +25,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Profile from "./pages/Profile";
 
 // Auth Pages
 import Login from "./pages/auth/Login";
@@ -103,6 +104,16 @@ function AppContent() {
               />
               <Route path="/auth/reset-password" element={<ResetPassword />} />
               <Route path="/auth/verify-otp" element={<VerifyOtp />} />
+
+              {/* Protected Routes */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute allowedRoles={["customer", "owner", "admin"]}>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Owner Routes */}
               <Route

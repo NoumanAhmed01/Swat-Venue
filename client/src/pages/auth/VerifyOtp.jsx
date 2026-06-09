@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
+import { useTranslation } from "react-i18next";
 
 const verifySchema = yup.object({
   otp: yup
@@ -25,6 +26,7 @@ const verifySchema = yup.object({
 });
 
 const VerifyOtp = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || "";
@@ -56,18 +58,18 @@ const VerifyOtp = () => {
     try {
       if (type === "verify") {
         await authAPI.verifyEmail({ email, otp: data.otp });
-        toast.success("Email verified successfully! You can now log in.");
+        toast.success(t("verify_otp.success_verify"));
         navigate("/auth/login");
       } else {
         const response = await authAPI.verifyOtp(email, data.otp);
         if (response.data.resetToken) {
           sessionStorage.setItem("resetToken", response.data.resetToken);
         }
-        toast.success("OTP verified successfully!");
+        toast.success(t("verify_otp.success_otp"));
         navigate("/auth/reset-password", { state: { email } });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid or expired OTP.");
+      toast.error(error.response?.data?.message || t("verify_otp.error_invalid"));
     }
   };
 
@@ -76,18 +78,18 @@ const VerifyOtp = () => {
 
     try {
       await authAPI.forgotPassword(email);
-      toast.success("New OTP sent to your email!");
+      toast.success(t("verify_otp.resend_success"));
       setResendTimer(60);
       setCanResend(false);
     } catch (error) {
-      toast.error("Failed to resend OTP. Try again later.");
+      toast.error(t("verify_otp.error_resend"));
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>Verify OTP - SwatVenue</title>
+        <title>{t("verify_otp.title")} - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950/20 flex items-center justify-center p-4 md:p-8">
@@ -117,12 +119,11 @@ const VerifyOtp = () => {
               </div>
 
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Security <span className="text-amber-300">Verification</span>
+                {i18n.language === "ur" ? "سیکیورٹی " : "Security "}<span className="text-amber-300">{i18n.language === "ur" ? "تصدیق" : "Verification"}</span>
               </h2>
 
               <p className="text-amber-100 text-lg mb-10 max-w-md">
-                Enter the 6-digit verification code sent to your email to
-                securely access your account.
+                {t("verify_otp.subtitle")}
               </p>
             </div>
 
@@ -132,25 +133,25 @@ const VerifyOtp = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <Shield className="w-6 h-6 text-amber-300" />
                   <span className="text-white font-bold text-lg">
-                    Secure Verification
+                    {i18n.language === "ur" ? "محفوظ تصدیق" : "Secure Verification"}
                   </span>
                 </div>
                 <ul className="text-amber-100 text-sm space-y-1 pl-9">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Check your email inbox and spam folder
+                    {i18n.language === "ur" ? "اپنا ای میل ان باکس اور سپیم فولڈر چیک کریں" : "Check your email inbox and spam folder"}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Enter the 6-digit code within 10 minutes
+                    {i18n.language === "ur" ? "10 منٹ کے اندر 6 ہندسوں کا کوڈ درج کریں" : "Enter the 6-digit code within 10 minutes"}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Don't share your OTP with anyone
+                    {i18n.language === "ur" ? "اپنا او ٹی پی کسی کے ساتھ شیئر نہ کریں" : "Don't share your OTP with anyone"}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    OTP expires for your security
+                    {i18n.language === "ur" ? "آپ کی سیکیورٹی کے لیے او ٹی پی کی میعاد ختم ہو جاتی ہے" : "OTP expires for your security"}
                   </li>
                 </ul>
               </div>
@@ -158,7 +159,7 @@ const VerifyOtp = () => {
               <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl">
                 <div className="flex items-center gap-3 mb-2">
                   <Mail className="w-6 h-6 text-amber-300" />
-                  <span className="text-white font-bold">Email Sent To:</span>
+                  <span className="text-white font-bold">{i18n.language === "ur" ? "ای میل یہاں بھیجی گئی:" : "Email Sent To:"}</span>
                 </div>
                 <p className="text-amber-100 text-sm break-all">
                   {email || "your registered email"}
@@ -168,7 +169,7 @@ const VerifyOtp = () => {
 
             <div className="relative z-10">
               <p className="text-amber-200 text-sm font-medium">
-                Two-factor authentication protects your account
+                {i18n.language === "ur" ? "دو قدمی تصدیق آپ کے اکاؤنٹ کی حفاظت کرتی ہے" : "Two-factor authentication protects your account"}
               </p>
             </div>
           </div>
@@ -194,14 +195,14 @@ const VerifyOtp = () => {
                   <KeyRound className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Verify Your Identity
+                  {t("verify_otp.title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Enter the 6-digit code sent to your email
+                  {t("verify_otp.subtitle")}
                 </p>
                 {email && (
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Code sent to: <span className="font-semibold">{email}</span>
+                    {t("verify_otp.code_sent")}: <span className="font-semibold">{email}</span>
                   </p>
                 )}
               </div>
@@ -211,7 +212,7 @@ const VerifyOtp = () => {
                 {/* OTP Input */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    6-Digit Verification Code
+                    {t("verify_otp.label")}
                   </label>
                   <div className="relative group">
                     <KeyRound className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-500 transition-colors duration-300" />
@@ -237,7 +238,7 @@ const VerifyOtp = () => {
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>Code expires in: </span>
+                    <span>{t("verify_otp.expires")}: </span>
                     <span
                       className={`font-semibold ${
                         resendTimer < 30 ? "text-red-500" : "text-amber-600"
@@ -258,11 +259,11 @@ const VerifyOtp = () => {
                   {isSubmitting ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      <span>Verifying...</span>
+                      <span>{t("verify_otp.verifying")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Verify & Continue</span>
+                      <span>{t("verify_otp.verify_button")}</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -295,8 +296,8 @@ const VerifyOtp = () => {
                       />
                     </svg>
                     {canResend
-                      ? "Resend OTP"
-                      : `Resend available in ${resendTimer}s`}
+                      ? t("verify_otp.resend_otp")
+                      : t("verify_otp.resend_available", { seconds: resendTimer })}
                   </button>
 
                   <Link
@@ -304,7 +305,7 @@ const VerifyOtp = () => {
                     className="font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors inline-flex items-center gap-2 group"
                   >
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    <span>Back to login</span>
+                    <span>{t("verify_otp.back_to_login")}</span>
                   </Link>
                 </div>
               </div>
@@ -312,7 +313,7 @@ const VerifyOtp = () => {
               {/* Security Note */}
               <p className="text-center text-xs text-gray-500 dark:text-gray-500 mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <Shield className="w-3 h-3 inline mr-1" />
-                One-time password for enhanced security
+                {t("verify_otp.security_note")}
               </p>
             </div>
           </div>
@@ -323,3 +324,4 @@ const VerifyOtp = () => {
 };
 
 export default VerifyOtp;
+

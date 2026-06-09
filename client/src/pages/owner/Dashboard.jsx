@@ -10,13 +10,16 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
+  User,
 } from "lucide-react";
 import { bookingAPI, venueAPI } from "../../utils/api";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../context/AuthContext";
 
 const OwnerDashboard = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     totalVenues: 0,
     pendingBookings: 0,
@@ -91,7 +94,9 @@ const OwnerDashboard = () => {
     {
       title: t("owner_dashboard.stats.total_venues"),
       value: stats.totalVenues.toString(),
-      change: t("owner_dashboard.stats.venues_count", { count: stats.totalVenues }),
+      change: t("owner_dashboard.stats.venues_count", {
+        count: stats.totalVenues,
+      }),
       icon: Building,
       color: "bg-blue-500",
     },
@@ -109,7 +114,6 @@ const OwnerDashboard = () => {
       icon: AlertCircle,
       color: "bg-amber-500",
     },
-
     {
       title: t("owner_dashboard.stats.revenue"),
       value: `₨ ${stats.revenue.toLocaleString()}`,
@@ -163,17 +167,56 @@ const OwnerDashboard = () => {
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {t("owner_dashboard.title")}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              {t("owner_dashboard.welcome")}
-            </p>
+          {/* Header - Professional Design */}
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                {t("owner_dashboard.title")}
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
+                {t("owner_dashboard.welcome")}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden sm:block">
+                <div className="flex items-center justify-end gap-2 mb-1">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">
+                    {user?.name}
+                  </p>
+                  {/* Professional Role Badge - Fixed Version */}
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 rounded-full border border-blue-200/60 dark:border-blue-500/20 shadow-sm">
+                    <CheckCircle
+                      size={10}
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                    <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">
+                      {user?.role}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-[0.1em]">
+                  {user?.email}
+                </p>
+              </div>
+
+              <div className="w-14 h-14 rounded-full p-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden flex-shrink-0">
+                {user?.profilePicture?.url ? (
+                  <img
+                    src={user.profilePicture.url}
+                    alt=""
+                    className="w-full h-full rounded-full object-cover shadow-sm"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-950">
+                    <User size={24} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Stats Grid - Now 4 cards with Pending Venues */}
+          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {statsData.map((stat, index) => (
               <div
@@ -201,7 +244,7 @@ const OwnerDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Quick Actions - Now with Manage Bookings */}
+            {/* Quick Actions */}
             <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
@@ -288,7 +331,9 @@ const OwnerDashboard = () => {
                               {booking.customerName}
                             </td>
                             <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                              {new Date(booking.eventDate).toLocaleDateString(i18n.language === "ur" ? "ur-PK" : "en-US")}
+                              {new Date(booking.eventDate).toLocaleDateString(
+                                i18n.language === "ur" ? "ur-PK" : "en-US",
+                              )}
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -308,10 +353,15 @@ const OwnerDashboard = () => {
                                 {booking.status === "pending" && (
                                   <Clock className="h-3 w-3" />
                                 )}
-                                {booking.status === "confirmed" ? t("my_bookings.confirmed") : 
-                                 booking.status === "pending" ? t("my_bookings.pending") :
-                                 booking.status === "completed" ? t("my_bookings.completed") :
-                                 booking.status === "cancelled" ? t("my_bookings.cancelled") : booking.status}
+                                {booking.status === "confirmed"
+                                  ? t("my_bookings.confirmed")
+                                  : booking.status === "pending"
+                                    ? t("my_bookings.pending")
+                                    : booking.status === "completed"
+                                      ? t("my_bookings.completed")
+                                      : booking.status === "cancelled"
+                                        ? t("my_bookings.cancelled")
+                                        : booking.status}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-gold-600 dark:text-gold-400 font-semibold">
@@ -338,4 +388,3 @@ const OwnerDashboard = () => {
 };
 
 export default OwnerDashboard;
-

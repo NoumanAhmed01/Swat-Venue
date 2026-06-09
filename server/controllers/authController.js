@@ -27,7 +27,17 @@ exports.register = async (req, res) => {
     await OTP.create({ email, otp, otpType: "verify" });
 
     // send OTP email
-    await sendVerificationOTPEmail(email, otp, user.name);
+    try {
+      await sendVerificationOTPEmail(email, otp, user.name);
+    } catch (emailError) {
+      console.error("Registration OTP email failed:", emailError.message);
+      return res.status(201).json({
+        success: true,
+        message: "Registration successful, but we couldn't send the verification email. Please use 'Forgot Password' to resend the code.",
+        email: user.email,
+        emailError: true
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -120,6 +130,7 @@ exports.login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
@@ -132,7 +143,14 @@ exports.getMe = async (req, res) => {
     const user = await User.findById(req.user.id);
     res.json({
       success: true,
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -164,10 +182,18 @@ exports.forgotPassword = async (req, res) => {
     await OTP.create({ email, otp, otpType });
 
     // send OTP email
-    if (user.isVerified) {
-      await sendOTPEmail(email, otp, user.name);
-    } else {
-      await sendVerificationOTPEmail(email, otp, user.name);
+    try {
+      if (user.isVerified) {
+        await sendOTPEmail(email, otp, user.name);
+      } else {
+        await sendVerificationOTPEmail(email, otp, user.name);
+      }
+    } catch (emailError) {
+      console.error("Forgot Password OTP email failed:", emailError.message);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Please check your email configuration.",
+      });
     }
 
     res.status(200).json({

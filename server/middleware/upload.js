@@ -13,6 +13,17 @@ const imageStorage = new CloudinaryStorage({
   },
 });
 
+const profileStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "swatvenue/profiles",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [
+      { width: 400, height: 400, crop: "fill", gravity: "face", quality: "auto" },
+    ],
+  },
+});
+
 const videoStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -26,6 +37,20 @@ const uploadImages = multer({
   storage: imageStorage,
   limits: {
     fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"), false);
+    }
+  },
+});
+
+const uploadProfilePicture = multer({
+  storage: profileStorage,
+  limits: {
+    fileSize: 2 * 1024 * 1024, // 2MB is plenty for 400x400
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
@@ -62,6 +87,7 @@ const uploadVenueMedia = multer({
 
 module.exports = {
   uploadImages,
+  uploadProfilePicture,
   uploadVideos,
   uploadVenueMedia,
 };

@@ -11,8 +11,12 @@ exports.createContact = async (req, res) => {
       subject,
       message,
     });
-    // Send notification email to admin
-    await sendContactNotificationEmail(contact);
+    // Send notification email to admin (wrapped in try-catch)
+    try {
+      await sendContactNotificationEmail(contact);
+    } catch (emailError) {
+      console.error("Contact notification email failed:", emailError.message);
+    }
 
     res.status(201).json({
       success: true,

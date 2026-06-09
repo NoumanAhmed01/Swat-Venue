@@ -53,8 +53,12 @@ export const authAPI = {
 export const venueAPI = {
   getAll: (params) => api.get("/venues", { params }),
   getById: (id) => api.get(`/venues/${id}`),
-  create: (data) => api.post("/venues", data),
-  update: (id, data) => api.put(`/venues/${id}`, data),
+  create: (data) => api.post("/venues", data, {
+    headers: { "Content-Type": "multipart/form-data" }
+  }),
+  update: (id, data) => api.put(`/venues/${id}`, data, {
+    headers: { "Content-Type": "multipart/form-data" }
+  }),
   delete: (id) => api.delete(`/venues/${id}`),
   getOwnerVenues: () => api.get("/venues/owner/my-venues"),
   approve: (id) => api.patch(`/venues/${id}/approve`),
@@ -64,6 +68,7 @@ export const venueAPI = {
 export const reviewAPI = {
   getVenueReviews: (venueId) => api.get(`/reviews/venue/${venueId}`),
   create: (venueId, data) => api.post(`/reviews/venue/${venueId}`, data),
+  reply: (reviewId, comment) => api.post(`/reviews/${reviewId}/reply`, { comment }),
   update: (id, data) => api.put(`/reviews/${id}`, data),
   delete: (id) => api.delete(`/reviews/${id}`),
 };
@@ -94,6 +99,9 @@ export const userAPI = {
   updateRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
   getStats: () => api.get("/users/stats"),
   updateStatus: (id, data) => api.patch(`/users/${id}/status`, data),
+  updateProfilePicture: (formData) =>
+    api.post("/users/profile-picture", formData),
+  deleteProfilePicture: () => api.delete("/users/profile-picture"),
 };
 
 export const menuAPI = {

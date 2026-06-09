@@ -8,11 +8,23 @@ const {
   updateUserRole,
   getStats,
   updateUserStatus,
+  updateProfilePicture,
+  deleteProfilePicture,
 } = require("../controllers/userController");
 const { protect, authorize } = require("../middleware/auth");
+const { uploadImages, uploadProfilePicture } = require("../middleware/upload");
 
 router.get("/", protect, authorize("admin"), getAllUsers);
 router.get("/stats", protect, authorize("admin"), getStats);
+
+router.post(
+  "/profile-picture",
+  protect,
+  uploadProfilePicture.single("profilePicture"),
+  updateProfilePicture
+);
+router.delete("/profile-picture", protect, deleteProfilePicture);
+
 router.get("/:id", protect, getUserById);
 router.put("/:id", protect, updateUser);
 router.delete("/:id", protect, authorize("admin"), deleteUser);

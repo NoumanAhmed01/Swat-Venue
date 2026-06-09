@@ -33,6 +33,17 @@ const VenueMediaGallery = ({ images = [], videos = [] }) => {
 
   const currentMedia = allMedia[currentIndex];
 
+  if (allMedia.length === 0) {
+    return (
+      <div className="bg-white dark:bg-surface-800 rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-surface-700 p-8 flex flex-col items-center justify-center aspect-video">
+        <div className="bg-gray-100 dark:bg-surface-700 p-4 rounded-full mb-4">
+          <ChevronLeft className="h-8 w-8 text-gray-400" />
+        </div>
+        <p className="text-gray-500 dark:text-gray-400 font-medium">No photos or videos available for this venue.</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="bg-white dark:bg-surface-800 rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-surface-700">

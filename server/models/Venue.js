@@ -12,18 +12,6 @@ const venueSchema = new mongoose.Schema(
       required: [true, "Location is required"],
       trim: true,
     },
-    // ✅ New field for Mapbox geocoding
-    geoLocation: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [lng, lat]
-      },
-    },
-
     address: {
       type: String,
       required: [true, "Address is required"],
@@ -85,6 +73,7 @@ const venueSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, "Phone number is required"],
+      match: [/^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/, 'Please enter a valid Pakistani phone number']
     },
     status: {
       type: String,
@@ -102,6 +91,5 @@ const venueSchema = new mongoose.Schema(
 );
 
 venueSchema.index({ name: "text", location: "text", description: "text" });
-// Geospatial index for Mapbox
-venueSchema.index({ geoLocation: "2dsphere" });
+
 module.exports = mongoose.model("Venue", venueSchema);
