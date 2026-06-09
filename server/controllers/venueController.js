@@ -1,8 +1,8 @@
 const Venue = require("../models/Venue");
 const User = require("../models/User");
 const Menu = require("../models/Menu");
-const { cloudinary } = require("../config/cloudinary");
 const {
+  cloudinary,
   deleteFromCloudinary,
   deleteVideoFromCloudinary,
   extractPublicId,
