@@ -13,6 +13,9 @@ connectDB();
 
 const app = express();
 
+// Trust Vercel Proxy
+app.set("trust proxy", 1);
+
 // Security Middleware
 app.use(helmet());
 
@@ -20,6 +23,8 @@ app.use(helmet());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 app.use("/api/", limiter);
@@ -28,17 +33,34 @@ app.use("/api/", limiter);
 const authLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // Limit each IP to 10 requests per hour for auth routes
+  standardHeaders: true,
+  legacyHeaders: false,
   message: "Too many login/register attempts, please try again after an hour",
 });
 app.use("/api/auth", authLimiter);
 
+// Allow multiple origins or use CLIENT_URL
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://swat-venue.vercel.app",
+  "http://localhost:5173"
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        var msg = 'The CORS policy for this site does not ' +
+                  'allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   }),
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
