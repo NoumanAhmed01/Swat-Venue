@@ -293,6 +293,21 @@ const BookingCard = ({
                 </div>
               )}
 
+              {/* Cancellation Reason */}
+              {booking.status === "cancelled" && booking.cancellationReason && (
+                <div>
+                  <h4 className="text-sm font-semibold text-rose-600 dark:text-rose-400 mb-3 flex items-center gap-2">
+                    <XCircle className="h-4 w-4" />
+                    Cancellation Reason
+                  </h4>
+                  <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 rounded-lg p-4">
+                    <p className="text-sm text-rose-800 dark:text-rose-200 italic">
+                      "{booking.cancellationReason}"
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">

@@ -272,6 +272,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     user.password = newPassword;
+    user.isVerified = true;
     await user.save();
 
     res.status(200).json({

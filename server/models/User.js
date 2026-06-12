@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { normalizePhone } = require('../utils/phone');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -26,7 +27,7 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: [true, 'Phone number is required'],
-    match: [/^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/, 'Please enter a valid Pakistani phone number']
+    match: [/^(?:\+92|92|0)?3\d{2}[- ]?\d{7}$/, 'Please enter a valid Pakistani phone number']
   },
   role: {
     type: String,
@@ -73,6 +74,11 @@ userSchema.index(
 );
 
 userSchema.pre('save', async function(next) {
+  // Normalize phone number
+  if (this.isModified('phone')) {
+    this.phone = normalizePhone(this.phone);
+  }
+
   if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);

@@ -8,8 +8,10 @@ import { resetPasswordSchema } from "../../utils/validation";
 import { Lock, ArrowLeft, Building, Shield, ArrowRight } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || "";
@@ -20,39 +22,39 @@ const ResetPassword = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(resetSchema),
+    resolver: yupResolver(resetPasswordSchema),
   });
 
   const passwordValue = watch("password", "");
 
   const passwordRequirements = [
-    { label: "Minimum 8 characters", met: passwordValue.length >= 8 },
-    { label: "Uppercase & lowercase letters", met: /[A-Z]/.test(passwordValue) && /[a-z]/.test(passwordValue) },
-    { label: "Numbers & Special characters", met: /[0-9]/.test(passwordValue) && /[@$!%*?&#]/.test(passwordValue) },
+    { label: t("auth.reset_password.req_min_chars"), met: passwordValue.length >= 8 },
+    { label: t("auth.reset_password.req_mix"), met: /[A-Z]/.test(passwordValue) && /[a-z]/.test(passwordValue) },
+    { label: t("auth.reset_password.req_numbers_symbols"), met: /[0-9]/.test(passwordValue) && /[@$!%*?&#]/.test(passwordValue) },
   ];
 
   const onSubmit = async (data) => {
     try {
       const resetToken = sessionStorage.getItem("resetToken");
       if (!resetToken) {
-        toast.error("Session expired. Please verify OTP again.");
+        toast.error(t("auth.reset_password.session_expired"));
         navigate("/auth/forgot-password");
         return;
       }
 
       await authAPI.resetPassword(email, data.password, resetToken);
-      toast.success("Password reset successfully!");
+      toast.success(t("auth.reset_password.success"));
       sessionStorage.removeItem("resetToken");
       navigate("/auth/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to reset password.");
+      toast.error(error.response?.data?.message || t("auth.reset_password.error"));
     }
   };
 
   return (
     <>
       <Helmet>
-        <title>Reset Password - SwatVenue</title>
+        <title>{t("auth.reset_password.form_title")} - SwatVenue</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950/20 flex items-center justify-center p-4 md:p-8">
@@ -82,12 +84,11 @@ const ResetPassword = () => {
               </div>
 
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Secure Your <span className="text-amber-300">Account</span>
+                {t("auth.reset_password.title")}
               </h2>
 
               <p className="text-amber-100 text-lg mb-10 max-w-md">
-                Set a strong new password to protect your account and continue
-                managing your venues safely.
+                {t("auth.reset_password.subtitle")}
               </p>
             </div>
 
@@ -97,25 +98,25 @@ const ResetPassword = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <Shield className="w-6 h-6 text-amber-300" />
                   <span className="text-white font-bold text-lg">
-                    Strong Password Tips
+                    {t("auth.reset_password.tips_title")}
                   </span>
                 </div>
                 <ul className="text-amber-100 text-sm space-y-1 pl-9">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Use at least 8 characters
+                    {t("auth.reset_password.tip1")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Mix letters, numbers & symbols
+                    {t("auth.reset_password.tip2")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Avoid common words & patterns
+                    {t("auth.reset_password.tip3")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Don't reuse old passwords
+                    {t("auth.reset_password.tip4")}
                   </li>
                 </ul>
               </div>
@@ -123,7 +124,7 @@ const ResetPassword = () => {
 
             <div className="relative z-10">
               <p className="text-amber-200 text-sm font-medium">
-                Your security is our top priority
+                {t("auth.reset_password.security_priority")}
               </p>
             </div>
           </div>
@@ -149,14 +150,14 @@ const ResetPassword = () => {
                   <Lock className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Reset Your Password
+                  {t("auth.reset_password.form_title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Create a strong new password for your account
+                  {t("auth.reset_password.form_subtitle")}
                 </p>
                 {email && (
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Resetting password for:{" "}
+                    {t("auth.reset_password.resetting_for")}{" "}
                     <span className="font-semibold">{email}</span>
                   </p>
                 )}
@@ -167,7 +168,7 @@ const ResetPassword = () => {
                 {/* New Password */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    New Password
+                    {t("auth.reset_password.new_pass_label")}
                   </label>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-500 transition-colors duration-300" />
@@ -177,7 +178,7 @@ const ResetPassword = () => {
                       className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.password ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600`}
-                      placeholder="Enter your new password"
+                      placeholder={t("auth.reset_password.new_pass_placeholder")}
                     />
                   </div>
                   {errors.password && (
@@ -190,7 +191,7 @@ const ResetPassword = () => {
                 {/* Confirm Password */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    Confirm New Password
+                    {t("auth.reset_password.confirm_pass_label")}
                   </label>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-500 transition-colors duration-300" />
@@ -200,7 +201,7 @@ const ResetPassword = () => {
                       className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.confirmPassword ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600`}
-                      placeholder="Confirm your new password"
+                      placeholder={t("auth.reset_password.confirm_pass_placeholder")}
                     />
                   </div>
                   {errors.confirmPassword && (
@@ -213,7 +214,7 @@ const ResetPassword = () => {
                 {/* Password Strength Checklist */}
                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                   <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                    Password Requirements:
+                    {t("auth.reset_password.requirements_title")}
                   </p>
                   <div className="grid grid-cols-1 gap-2">
                     {passwordRequirements.map((req, index) => (
@@ -248,11 +249,11 @@ const ResetPassword = () => {
                   {isSubmitting ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      <span>Resetting Password...</span>
+                      <span>{t("auth.reset_password.resetting_button")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Reset Password</span>
+                      <span>{t("auth.reset_password.reset_button")}</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -266,14 +267,14 @@ const ResetPassword = () => {
                   className="font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors inline-flex items-center gap-2 group"
                 >
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  <span>Back to login</span>
+                  <span>{t("auth.reset_password.back_to_login")}</span>
                 </Link>
               </div>
 
               {/* Security Note */}
               <p className="text-center text-xs text-gray-500 dark:text-gray-500 mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <Shield className="w-3 h-3 inline mr-1" />
-                All passwords are encrypted with industry-standard security
+                {t("auth.reset_password.security_note")}
               </p>
             </div>
           </div>

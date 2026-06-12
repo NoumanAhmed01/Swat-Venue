@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { normalizePhone } = require("../utils/phone");
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -68,7 +69,7 @@ const bookingSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      match: [/^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/, 'Please enter a valid Pakistani phone number']
+      match: [/^(?:\+92|92|0)?3\d{2}[- ]?\d{7}$/, 'Please enter a valid Pakistani phone number']
     },
 
     email: {
@@ -77,6 +78,10 @@ const bookingSchema = new mongoose.Schema(
     },
 
     message: {
+      type: String,
+    },
+
+    cancellationReason: {
       type: String,
     },
   },
@@ -94,5 +99,12 @@ bookingSchema.index(
   }
 );
 bookingSchema.index({ customer: 1 });
+
+bookingSchema.pre("save", function (next) {
+  if (this.isModified("phone")) {
+    this.phone = normalizePhone(this.phone);
+  }
+  next();
+});
 
 module.exports = mongoose.model("Booking", bookingSchema);

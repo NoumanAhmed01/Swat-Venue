@@ -4,6 +4,8 @@ const Menu = require("../models/Menu");
 const {
   sendBookingConfirmationEmailToCustomer,
   sendBookingNotificationToOwner,
+  sendBookingStatusUpdateEmail,
+  sendBookingCancellationEmail,
 } = require("../config/email");
 
 exports.createBooking = async (req, res) => {
@@ -195,20 +197,48 @@ exports.getAllBookings = async (req, res) => {
 
 exports.updateBookingStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    const booking = await Booking.findById(req.params.id);
+    const { status, cancellationReason } = req.body;
+    const booking = await Booking.findById(req.params.id)
+      .populate("customer", "name email phone")
+      .populate("venue", "name owner");
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    const venue = await Venue.findById(booking.venue);
+    const venue = booking.venue;
     if (venue.owner.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
 
+    const oldStatus = booking.status;
     booking.status = status;
+    
+    if (status === "cancelled" && cancellationReason) {
+      booking.cancellationReason = cancellationReason;
+    }
+
     await booking.save();
+
+    // Send notification email to customer
+    try {
+      if (status === "cancelled") {
+        await sendBookingCancellationEmail(
+          booking,
+          venue,
+          booking.customer,
+          cancellationReason
+        );
+      } else if (status !== oldStatus) {
+        await sendBookingStatusUpdateEmail(
+          booking,
+          venue,
+          booking.customer
+        );
+      }
+    } catch (emailError) {
+      console.error("Booking status update email failed:", emailError.message);
+    }
 
     res.json({
       success: true,

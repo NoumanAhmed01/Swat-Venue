@@ -73,6 +73,18 @@ const BookingCard = ({ booking, onDeleteClick }) => {
         </div>
       </div>
 
+      {/* CANCELLATION REASON - If applicable */}
+      {booking.status === "cancelled" && booking.cancellationReason && (
+        <div className="px-5 py-3 bg-rose-50 dark:bg-rose-900/10 border-b border-rose-100 dark:border-rose-900/20">
+          <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-1">
+            {t("booking_card.cancellation_reason")}
+          </p>
+          <p className="text-sm text-rose-700 dark:text-rose-300 italic">
+            "{booking.cancellationReason}"
+          </p>
+        </div>
+      )}
+
       {/* IMAGE */}
       <div className="relative h-36">
         <img

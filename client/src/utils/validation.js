@@ -1,8 +1,8 @@
 import * as yup from "yup";
 
 // --- Shared Regex ---
-// Supports: 03001234567, 0300-1234567, +923001234567, 923001234567, etc.
-export const phoneRegex = /^((\+92)|(92)|(0))?3[0-9]{2}-?[0-9]{7}$/;
+// Supports: 03001234567, 0300 1234567, 0300-1234567, +923001234567, 923001234567, etc.
+export const phoneRegex = /^(?:\+92|92|0)?3\d{2}[- ]?\d{7}$/;
 export const nameRegex = /^[a-zA-Z\s]+$/;
 export const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 

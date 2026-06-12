@@ -78,7 +78,7 @@ export const bookingAPI = {
   getUserBookings: () => api.get("/bookings/my-bookings"),
   getVenueBookings: (venueId) => api.get(`/bookings/venue/${venueId}`),
   getAllBookings: () => api.get("/bookings/all"),
-  updateStatus: (id, status) => api.patch(`/bookings/${id}/status`, { status }),
+  updateStatus: (id, data) => api.patch(`/bookings/${id}/status`, data),
   getReservedDates: (venueId) =>
     api.get(`/bookings/venue/${venueId}/reserved-dates`),
   delete: (id) => api.delete(`/bookings/${id}`),

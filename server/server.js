@@ -16,30 +16,7 @@ const app = express();
 // Trust Vercel Proxy
 app.set("trust proxy", 1);
 
-// Security Middleware
-app.use(helmet());
-
-// General Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: "Too many requests from this IP, please try again after 15 minutes",
-});
-app.use("/api/", limiter);
-
-// Stricter Rate Limiting for Auth
-const authLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Limit each IP to 10 requests per hour for auth routes
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many login/register attempts, please try again after an hour",
-});
-app.use("/api/auth", authLimiter);
-
-// Allow multiple origins or use CLIENT_URL
+// CORS Middleware - MUST BE BEFORE RATE LIMITERS
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "https://swat-venue.vercel.app",
@@ -49,11 +26,9 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
-        var msg = 'The CORS policy for this site does not ' +
-                  'allow access from the specified Origin.';
+        var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
         return callback(new Error(msg), false);
       }
       return callback(null, true);
@@ -61,6 +36,30 @@ app.use(
     credentials: true,
   }),
 );
+
+// Security Middleware
+app.use(helmet());
+
+// General Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use("/api/", limiter);
+
+// Stricter Rate Limiting for Auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // Reduced to 15 mins
+  max: 100, // Increased to 100 for testing
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many login/register attempts, please try again after 15 minutes",
+});
+app.use("/api/auth", authLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

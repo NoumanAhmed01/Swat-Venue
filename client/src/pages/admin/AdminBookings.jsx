@@ -273,7 +273,7 @@ const AdminBookings = () => {
                         Amount
                       </th>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                        Status
+                        Status / Reason
                       </th>
                     </tr>
                   </thead>
@@ -351,6 +351,11 @@ const AdminBookings = () => {
                             {getStatusIcon(booking.status)}
                             <span className="capitalize">{booking.status}</span>
                           </div>
+                          {booking.status === "cancelled" && booking.cancellationReason && (
+                            <div className="mt-2 text-[10px] text-red-500 dark:text-red-400 italic max-w-[150px] leading-tight">
+                              Reason: {booking.cancellationReason}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}

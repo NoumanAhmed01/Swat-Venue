@@ -155,7 +155,7 @@ const Login = () => {
                       to="/auth/forgot-password"
                       className="text-sm text-amber-600 font-medium"
                     >
-                      {t("auth.forgot_password")}
+                      {t("auth.forgot_password_link")}
                     </Link>
                   </div>
                   <div className="relative">

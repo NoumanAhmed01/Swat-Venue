@@ -89,7 +89,7 @@
     "trusted_by": "Trusted by 500+ venue owners worldwide",
     "email_label": "Email Address",
     "password_label": "Password",
-    "forgot_password": "Forgot password?",
+    "forgot_password_link": "Forgot password?",
     "signing_in": "Signing in...",
     "continue_dashboard": "Continue to Dashboard",
     "no_account": "Don't have an account?",
@@ -158,17 +158,68 @@
       "success_otp": "OTP verified successfully!",
       "error_invalid": "Invalid or expired OTP.",
       "error_resend": "Failed to resend OTP. Try again later.",
-      "resend_success": "New OTP sent to your email!"
+      "resend_success": "New OTP sent to your email!",
+      "security_title": "Security",
+      "verification_title": "Verification",
+      "secure_recovery_title": "Secure Verification",
+      "tip1": "Check your email inbox and spam folder",
+      "tip2": "Enter the 6-digit code within 10 minutes",
+      "tip3": "Don't share your OTP with anyone",
+      "tip4": "OTP expires for your security",
+      "email_sent_to": "Email Sent To:",
+      "two_factor_note": "Two-factor authentication protects your account"
+    },
+    "forgot_password": {
+      "title": "Reset Your Password",
+      "subtitle": "Enter your email address and we'll send you a secure verification code to reset your password.",
+      "email_label": "Email Address",
+      "email_placeholder": "you@example.com",
+      "process_title": "Secure Recovery Process",
+      "process_step1": "Enter your registered email address",
+      "process_step2": "Receive a 6-digit verification code",
+      "process_step3": "Verify your identity with the OTP",
+      "process_step4": "Set a new strong password",
+      "cant_find_email": "Can't find the email?",
+      "cant_find_desc": "Check your spam folder or verify that you entered the correct email address associated with your account.",
+      "security_priority": "Your security is our top priority",
+      "form_title": "Forgot Your Password?",
+      "form_subtitle": "Don't worry! Enter your email to reset your password",
+      "next_step_title": "What happens next?",
+      "next_step_desc": "We'll send a 6-digit verification code to your email. Use that code in the next step to reset your password securely.",
+      "send_otp": "Sending OTP...",
+      "send_button": "Send Verification Code",
+      "back_to_login": "Back to login",
+      "security_note": "Your email is secure and will only be used for password recovery",
+      "success": "OTP has been sent to your email!",
+      "error": "Failed to send OTP. Try again."
     },
     "reset_password": {
-      "title": "Set New Password",
-      "subtitle": "Create a strong password to protect your account",
+      "title": "Secure Your Account",
+      "subtitle": "Set a strong new password to protect your account and continue managing your venues safely.",
+      "tips_title": "Strong Password Tips",
+      "tip1": "Use at least 8 characters",
+      "tip2": "Mix letters, numbers & symbols",
+      "tip3": "Avoid common words & patterns",
+      "tip4": "Don't reuse old passwords",
+      "security_priority": "Your security is our top priority",
+      "form_title": "Reset Your Password",
+      "form_subtitle": "Create a strong new password for your account",
+      "resetting_for": "Resetting password for:",
       "new_pass_label": "New Password",
+      "new_pass_placeholder": "Enter your new password",
       "confirm_pass_label": "Confirm New Password",
-      "resetting": "Resetting Password...",
+      "confirm_pass_placeholder": "Confirm your new password",
+      "requirements_title": "Password Requirements:",
+      "req_min_chars": "Minimum 8 characters",
+      "req_mix": "Uppercase & lowercase letters",
+      "req_numbers_symbols": "Numbers & Special characters",
+      "resetting_button": "Resetting Password...",
       "reset_button": "Reset Password",
-      "success": "Password reset successfully. You can now log in with your new password.",
-      "error": "Failed to reset password. Please try again."
+      "back_to_login": "Back to login",
+      "security_note": "All passwords are encrypted with industry-standard security",
+      "session_expired": "Session expired. Please verify OTP again.",
+      "success": "Password reset successfully!",
+      "error": "Failed to reset password."
     }
   },
   "venue": {
@@ -284,7 +335,14 @@
     "total_price": "Total Price",
     "status": "Status",
     "view_venue": "View Venue",
-    "cancel_booking": "Cancel Booking"
+    "cancel_booking": "Cancel Booking",
+    "cancellation_reason": "Cancellation Reason",
+    "cancellation_reason_desc": "Please provide a reason for cancelling this booking. This will be shared with the customer.",
+    "cancellation_reason_label": "Reason for cancellation",
+    "cancellation_reason_placeholder": "e.g., Venue is closed for maintenance on this date...",
+    "cancellation_reason_required": "Please provide a reason for cancellation",
+    "provide_reason": "Provide Reason",
+    "cancelling": "Cancelling..."
   },
   "booking_form": {
     "title": "Book Your Event",
@@ -369,6 +427,7 @@
   "common": {
     "view_all": "View All Venues",
     "learn_more": "Learn More",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "cancel":"Cancel"
   }
 }

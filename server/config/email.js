@@ -1,14 +1,27 @@
 const nodemailer = require("nodemailer");
 const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: process.env.EMAIL_PORT || 587,
-  secure: false,
+  port: parseInt(process.env.EMAIL_PORT) || 587,
+  secure: process.env.EMAIL_PORT == 465, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false, // Helpful for some SMTP servers
+  },
+});
+
+// Verify connection configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP Connection Error:", error);
+  } else {
+    console.log("SMTP Server is ready to take our messages");
+  }
 });
 
 const sendEmail = async (options) => {
@@ -20,7 +33,8 @@ const sendEmail = async (options) => {
       html: options.html,
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: %s", info.messageId);
     return true;
   } catch (error) {
     console.error("Email send error:", error);
@@ -32,56 +46,53 @@ const baseTemplate = (content, title) => `
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #f4f7f9; }
-    .wrapper { width: 100%; table-layout: fixed; background-color: #f4f7f9; padding-bottom: 40px; }
-    .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #1a1a1a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #0F1C2E 0%, #1a2942 100%); padding: 40px 20px; text-align: center; }
-    .logo { width: 180px; height: auto; margin-bottom: 10px; }
-    .header h1 { color: #D4AF37; margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; }
-    .content { padding: 40px 30px; background-color: #ffffff; }
-    .content h2 { color: #0F1C2E; margin-top: 0; font-size: 24px; font-weight: 700; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 25px; }
-    .footer { background-color: #0F1C2E; color: #ffffff; padding: 30px; text-align: center; font-size: 13px; }
-    .footer p { margin: 5px 0; opacity: 0.8; }
-    .footer .social-links { margin: 20px 0; }
-    .footer .social-links a { color: #D4AF37; text-decoration: none; margin: 0 10px; font-weight: bold; }
-    .btn { display: inline-block; padding: 14px 30px; background-color: #D4AF37; color: #0F1C2E !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; margin: 20px 0; text-transform: uppercase; letter-spacing: 1px; }
-    .otp-container { background-color: #f8faff; border: 2px dashed #D4AF37; border-radius: 12px; padding: 30px; text-align: center; margin: 30px 0; }
-    .otp-code { font-size: 38px; font-weight: 800; color: #0F1C2E; letter-spacing: 8px; margin: 0; font-family: 'Courier New', Courier, monospace; }
-    .alert-box { background-color: #fff8e1; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; font-size: 14px; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${title}</title>
 </head>
-<body>
-  <div class="wrapper">
-    <table class="main">
-      <tr>
-        <td class="header">
-          <!-- Hosted logo URL for performance -->
-          <img src="https://res.cloudinary.com/duu5ede4m/image/upload/v1776182957/logo_pvrkol.png" alt="SwatVenue Logo" class="logo">
-          <h1>SwatVenue</h1>
-          <p style="color: #ffffff; opacity: 0.7; margin: 5px 0 0 0; font-size: 14px;">${title}</p>
-        </td>
-      </tr>
-      <tr>
-        <td class="content">
-          ${content}
-        </td>
-      </tr>
-      <tr>
-        <td class="footer">
-          <p><strong>SwatVenue - Premium Venue Booking Platform</strong></p>
-          <p>Mingora, Swat, Khyber Pakhtunkhwa, Pakistan</p>
-          <div class="social-links">
-            <a href="#">Facebook</a> | <a href="#">Instagram</a> | <a href="#">LinkedIn</a>
-          </div>
-          <p>&copy; 2025 SwatVenue. All rights reserved.</p>
-          <p style="font-size: 11px; margin-top: 15px; opacity: 0.5;">If you did not expect this email, please contact our support team immediately.</p>
-        </td>
-      </tr>
-    </table>
-  </div>
+
+<body style="margin:0; padding:0; background:#f4f6f8; font-family: Arial, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:30px 10px;">
+    <tr>
+      <td align="center">
+
+        <!-- Main Card -->
+        <table width="100%" style="max-width:600px; background:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e5e7eb;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#0F1C2E; padding:20px; text-align:center;">
+              <h2 style="color:#fff; margin:0; font-size:20px; font-weight:600;">
+                SwatVenue
+              </h2>
+              <p style="color:rgba(255,255,255,0.7); margin:4px 0 0; font-size:12px;">
+                ${title}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:25px; color:#111827; font-size:14px; line-height:1.6;">
+              ${content}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb; text-align:center; padding:15px; font-size:12px; color:#6b7280; border-top:1px solid #e5e7eb;">
+              <p style="margin:4px 0;"><strong>© 2026 SwatVenue</strong></p>
+              <p style="margin:4px 0;">Automated email — please do not reply</p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
 `;
@@ -209,6 +220,66 @@ const sendBookingNotificationToOwner = async (booking, venue, owner) => {
   });
 };
 
+const sendBookingStatusUpdateEmail = async (booking, venue, customer) => {
+  const content = `
+    <h2>Booking Status Updated</h2>
+    <p>Dear <strong>${customer.name}</strong>,</p>
+    <p>The status of your booking at <strong>${venue.name}</strong> has been updated to: <strong>${booking.status.toUpperCase()}</strong></p>
+    
+    <div style="background-color: #f9fafb; border-radius: 12px; padding: 25px; margin: 25px 0; border: 1px solid #e5e7eb;">
+      <table width="100%" style="border-collapse: collapse;">
+        <tr><td style="padding: 10px 0; color: #666;">Venue:</td><td style="text-align: right; font-weight: bold;">${venue.name}</td></tr>
+        <tr><td style="padding: 10px 0; color: #666;">Date:</td><td style="text-align: right; font-weight: bold;">${new Date(booking.eventDate).toLocaleDateString()}</td></tr>
+        <tr><td style="padding: 10px 0; color: #666;">New Status:</td><td style="text-align: right;"><span style="background-color: ${booking.status === "confirmed" ? "#10b981" : "#6b7280"}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase;">${booking.status.toUpperCase()}</span></td></tr>
+      </table>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/user/my-bookings" class="btn">View Booking Details</a>
+    </div>
+
+    <p>Thank you for choosing SwatVenue!</p>
+  `;
+
+  return await sendEmail({
+    to: customer.email,
+    subject: `SwatVenue - Booking Status Update: ${venue.name}`,
+    html: baseTemplate(content, "Booking Update"),
+  });
+};
+
+const sendBookingCancellationEmail = async (
+  booking,
+  venue,
+  customer,
+  reason,
+) => {
+  const content = `
+    <h2>Booking Cancelled</h2>
+    <p>Dear <strong>${customer.name}</strong>,</p>
+    <p>We regret to inform you that your booking at <strong>${venue.name}</strong> for <strong>${new Date(booking.eventDate).toLocaleDateString()}</strong> has been cancelled.</p>
+    
+    <div style="background-color: #fff1f2; border-radius: 12px; padding: 25px; margin: 25px 0; border: 1px solid #fecaca;">
+      <h3 style="margin-top: 0; color: #b91c1c;">Cancellation Reason:</h3>
+      <p style="color: #444; font-style: italic;">"${reason || "No specific reason provided."}"</p>
+    </div>
+
+    <p>If you have any questions regarding this cancellation, please contact the venue owner or our support team.</p>
+    
+    <div style="text-align: center;">
+      <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/venues" class="btn">Browse Other Venues</a>
+    </div>
+
+    <p>We hope to serve you again in the future.</p>
+  `;
+
+  return await sendEmail({
+    to: customer.email,
+    subject: `SwatVenue - Booking Cancellation: ${venue.name}`,
+    html: baseTemplate(content, "Booking Cancelled"),
+  });
+};
+
 const sendContactNotificationEmail = async (contact) => {
   const content = `
     <h2>New Inquiry via Support Portal</h2>
@@ -238,5 +309,7 @@ module.exports = {
   sendVerificationOTPEmail,
   sendBookingConfirmationEmailToCustomer,
   sendBookingNotificationToOwner,
+  sendBookingStatusUpdateEmail,
+  sendBookingCancellationEmail,
   sendContactNotificationEmail,
 };

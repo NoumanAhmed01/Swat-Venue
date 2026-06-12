@@ -8,6 +8,7 @@ import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import DeleteConfirmation from "../../../components/common/DeleteConfirmation";
 import BookingStats from "./BookingStats";
 import BookingCard from "./BookingCard";
+import CancellationModal from "../../../components/booking/CancellationModal";
 
 const ManageBooking = () => {
   const [bookings, setBookings] = useState([]);
@@ -15,6 +16,8 @@ const ManageBooking = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedBooking, setExpandedBooking] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
+  const [cancellationModal, setCancellationModal] = useState(null);
+  const [isSubmittingStatus, setIsSubmittingStatus] = useState(false);
 
   useEffect(() => {
     fetchBookingsForOwner();
@@ -58,17 +61,26 @@ const ManageBooking = () => {
     }
   };
 
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusChange = async (id, newStatus, reason = null) => {
     try {
-      await bookingAPI.updateStatus(id, newStatus);
+      setIsSubmittingStatus(true);
+      const updateData = { status: newStatus };
+      if (reason) updateData.cancellationReason = reason;
+
+      await bookingAPI.updateStatus(id, updateData);
+      
       setBookings((prev) =>
-        prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
+        prev.map((b) => (b._id === id ? { ...b, status: newStatus, cancellationReason: reason || b.cancellationReason } : b))
       );
+      
       setExpandedBooking(null);
+      setCancellationModal(null);
       toast.success(`Booking status updated to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update booking status");
       console.error("Error updating booking status:", error);
+    } finally {
+      setIsSubmittingStatus(false);
     }
   };
 
@@ -157,7 +169,13 @@ const ManageBooking = () => {
                   booking={booking}
                   expandedBooking={expandedBooking}
                   setExpandedBooking={setExpandedBooking}
-                  handleStatusChange={handleStatusChange}
+                  handleStatusChange={(id, status) => {
+                    if (status === "cancelled") {
+                      setCancellationModal(booking);
+                    } else {
+                      handleStatusChange(id, status);
+                    }
+                  }}
                   setDeleteModal={setDeleteModal}
                 />
               ))}
@@ -165,6 +183,17 @@ const ManageBooking = () => {
           )}
         </div>
       </div>
+
+      {/* Cancellation Modal */}
+      {cancellationModal && (
+        <CancellationModal
+          isOpen={!!cancellationModal}
+          onClose={() => setCancellationModal(null)}
+          onConfirm={handleStatusChange}
+          booking={cancellationModal}
+          isSubmitting={isSubmittingStatus}
+        />
+      )}
 
       {/* Delete Modal - Now using reusable DeleteConfirmation */}
       {deleteModal && (

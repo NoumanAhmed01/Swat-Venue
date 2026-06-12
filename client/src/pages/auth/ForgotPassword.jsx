@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { authAPI } from "../../utils/api";
+import { useTranslation } from "react-i18next";
 
 const ForgotPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const {
@@ -30,12 +32,12 @@ const ForgotPassword = () => {
   const onSubmit = async (data) => {
     try {
       await authAPI.forgotPassword(data.email);
-      toast.success("OTP has been sent to your email!");
+      toast.success(t("auth.forgot_password.success"));
       navigate("/auth/verify-otp", { state: { email: data.email } });
     } catch (error) {
       console.error(error);
       toast.error(
-        error.response?.data?.message || "Failed to send OTP. Try again."
+        error.response?.data?.message || t("auth.forgot_password.error")
       );
     }
   };
@@ -43,7 +45,7 @@ const ForgotPassword = () => {
   return (
     <>
       <Helmet>
-        <title>Forgot Password - SwatVenue</title>
+        <title>{t("auth.forgot_password.title")} - SwatVenue</title>
         <meta
           name="description"
           content="Reset your SwatVenue account password."
@@ -77,12 +79,11 @@ const ForgotPassword = () => {
               </div>
 
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Reset Your <span className="text-amber-300">Password</span>
+                {t("auth.forgot_password.title")}
               </h2>
 
               <p className="text-amber-100 text-lg mb-10 max-w-md">
-                Enter your email address and we'll send you a secure
-                verification code to reset your password.
+                {t("auth.forgot_password.subtitle")}
               </p>
             </div>
 
@@ -92,25 +93,25 @@ const ForgotPassword = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <Shield className="w-6 h-6 text-amber-300" />
                   <span className="text-white font-bold text-lg">
-                    Secure Recovery Process
+                    {t("auth.forgot_password.process_title")}
                   </span>
                 </div>
                 <ul className="text-amber-100 text-sm space-y-1 pl-9">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Enter your registered email address
+                    {t("auth.forgot_password.process_step1")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Receive a 6-digit verification code
+                    {t("auth.forgot_password.process_step2")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Verify your identity with the OTP
+                    {t("auth.forgot_password.process_step3")}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-300 rounded-full"></span>
-                    Set a new strong password
+                    {t("auth.forgot_password.process_step4")}
                   </li>
                 </ul>
               </div>
@@ -119,19 +120,18 @@ const ForgotPassword = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <HelpCircle className="w-6 h-6 text-amber-300" />
                   <span className="text-white font-bold">
-                    Can't find the email?
+                    {t("auth.forgot_password.cant_find_email")}
                   </span>
                 </div>
                 <p className="text-amber-100 text-sm">
-                  Check your spam folder or verify that you entered the correct
-                  email address associated with your account.
+                  {t("auth.forgot_password.cant_find_desc")}
                 </p>
               </div>
             </div>
 
             <div className="relative z-10">
               <p className="text-amber-200 text-sm font-medium">
-                Your security is our top priority
+                {t("auth.forgot_password.security_priority")}
               </p>
             </div>
           </div>
@@ -157,10 +157,10 @@ const ForgotPassword = () => {
                   <Mail className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Forgot Your Password?
+                  {t("auth.forgot_password.form_title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Don't worry! Enter your email to reset your password
+                  {t("auth.forgot_password.form_subtitle")}
                 </p>
               </div>
 
@@ -169,7 +169,7 @@ const ForgotPassword = () => {
                 {/* Email Input */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    Email Address
+                    {t("auth.forgot_password.email_label")}
                   </label>
                   <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-500 transition-colors duration-300" />
@@ -179,7 +179,7 @@ const ForgotPassword = () => {
                       className={`w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border ${
                         errors.email ? "border-red-500" : "border-gray-200 dark:border-gray-700"
                       } rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600`}
-                      placeholder="you@example.com"
+                      placeholder={t("auth.forgot_password.email_placeholder")}
                     />
                   </div>
                   {errors.email && (
@@ -192,11 +192,10 @@ const ForgotPassword = () => {
                 {/* Instructions */}
                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800">
                   <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">
-                    What happens next?
+                    {t("auth.forgot_password.next_step_title")}
                   </p>
                   <p className="text-xs text-amber-700 dark:text-amber-400">
-                    We'll send a 6-digit verification code to your email. Use
-                    that code in the next step to reset your password securely.
+                    {t("auth.forgot_password.next_step_desc")}
                   </p>
                 </div>
 
@@ -209,11 +208,11 @@ const ForgotPassword = () => {
                   {isSubmitting ? (
                     <>
                       <LoadingSpinner size="sm" />
-                      <span>Sending OTP...</span>
+                      <span>{t("auth.forgot_password.send_otp")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Send Verification Code</span>
+                      <span>{t("auth.forgot_password.send_button")}</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -227,14 +226,14 @@ const ForgotPassword = () => {
                   className="font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors inline-flex items-center gap-2 group"
                 >
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  <span>Back to login</span>
+                  <span>{t("auth.forgot_password.back_to_login")}</span>
                 </Link>
               </div>
 
               {/* Security Note */}
               <p className="text-center text-xs text-gray-500 dark:text-gray-500 mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <Shield className="w-3 h-3 inline mr-1" />
-                Your email is secure and will only be used for password recovery
+                {t("auth.forgot_password.security_note")}
               </p>
             </div>
           </div>
