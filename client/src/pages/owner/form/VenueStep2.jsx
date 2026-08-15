@@ -57,6 +57,15 @@ const VenueStep2 = ({
     setVideoFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const makeCover = (index) => {
+    setImageFiles((prev) => {
+      const files = [...prev];
+      const [target] = files.splice(index, 1);
+      files.unshift(target);
+      return files;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
@@ -99,7 +108,7 @@ const VenueStep2 = ({
         {imageFiles.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             {imageFiles.map((file, index) => (
-              <div key={index} className="relative">
+              <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Preview ${index + 1}`}
@@ -108,10 +117,23 @@ const VenueStep2 = ({
                 <button
                   type="button"
                   onClick={() => removeImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </button>
+                {index === 0 ? (
+                  <span className="absolute bottom-1.5 left-1.5 bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-semibold z-10">
+                    ★ Display Cover
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => makeCover(index)}
+                    className="absolute bottom-1.5 left-1.5 bg-black/60 hover:bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-medium transition-colors z-10"
+                  >
+                    Set Cover
+                  </button>
+                )}
               </div>
             ))}
           </div>

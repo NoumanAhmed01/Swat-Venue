@@ -40,6 +40,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   const [deletedVideos, setDeletedVideos] = useState([]);
   const [menus, setMenus] = useState([]);
   const [deletedMenuIds, setDeletedMenuIds] = useState([]);
+  const [imagesOrder, setImagesOrder] = useState([]);
 
   const {
     register,
@@ -72,9 +73,10 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
         phone: venue.phone,
       });
 
-      setAmenitiesList(venue.amenities || []);
+       setAmenitiesList(venue.amenities || []);
       setExistingImages(venue.images || []);
       setExistingVideos(venue.videos || []);
+      setImagesOrder(venue.images || []);
     } catch (error) {
       console.error("Error fetching venue:", error);
       toast.error("Failed to load venue details");
@@ -109,6 +111,7 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   const removeExistingImage = (imageUrl) => {
     setDeletedImages((prev) => [...prev, imageUrl]);
     setExistingImages((prev) => prev.filter((img) => img !== imageUrl));
+    setImagesOrder((order) => order.filter((item) => item !== imageUrl));
   };
 
   const removeExistingVideo = (videoUrl) => {
@@ -117,7 +120,14 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   };
 
   const handleAddNewImages = (files) => {
-    setNewImageFiles((prev) => [...prev, ...files]);
+    setNewImageFiles((prev) => {
+      const updated = [...prev, ...files];
+      setImagesOrder((order) => [
+        ...order,
+        ...files.map((_, i) => `new_${prev.length + i}`),
+      ]);
+      return updated;
+    });
   };
 
   const handleAddNewVideos = (files) => {
@@ -125,7 +135,30 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
   };
 
   const removeNewImage = (index) => {
-    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewImageFiles((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      setImagesOrder((order) => {
+        const target = `new_${index}`;
+        const filtered = order.filter((item) => item !== target);
+        return filtered.map((item) => {
+          if (item.startsWith("new_")) {
+            const idx = parseInt(item.split("_")[1], 10);
+            if (idx > index) {
+              return `new_${idx - 1}`;
+            }
+          }
+          return item;
+        });
+      });
+      return updated;
+    });
+  };
+
+  const makeCover = (item) => {
+    setImagesOrder((order) => {
+      const filtered = order.filter((x) => x !== item);
+      return [item, ...filtered];
+    });
   };
 
   const removeNewVideo = (index) => {
@@ -186,13 +219,15 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
         formData.append("deletedImages", JSON.stringify(deletedImages));
       }
 
-      if (deletedVideos.length > 0) {
+       if (deletedVideos.length > 0) {
         formData.append("deletedVideos", JSON.stringify(deletedVideos));
       }
 
       newImageFiles.forEach((file) => {
         formData.append("images", file);
       });
+
+      formData.append("imagesOrder", JSON.stringify(imagesOrder));
 
       newVideoFiles.forEach((file) => {
         formData.append("videos", file);
@@ -399,13 +434,15 @@ const EditVenue = ({ venueId, onClose, onVenueUpdated }) => {
           </div>
 
           {/* Media Manager Component */}
-          <VenueMediaManager
+           <VenueMediaManager
             existingImages={existingImages}
             existingVideos={existingVideos}
             newImageFiles={newImageFiles}
             newVideoFiles={newVideoFiles}
             deletedImages={deletedImages}
             deletedVideos={deletedVideos}
+            imagesOrder={imagesOrder}
+            onMakeCover={makeCover}
             onRemoveExistingImage={removeExistingImage}
             onRemoveExistingVideo={removeExistingVideo}
             onRemoveNewImage={removeNewImage}

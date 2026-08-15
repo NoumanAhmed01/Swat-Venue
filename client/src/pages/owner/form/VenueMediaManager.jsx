@@ -9,6 +9,8 @@ const VenueMediaManager = ({
   newVideoFiles = [],
   deletedImages = [],
   deletedVideos = [],
+  imagesOrder = [],
+  onMakeCover,
   onRemoveExistingImage,
   onRemoveExistingVideo,
   onRemoveNewImage,
@@ -24,48 +26,78 @@ const VenueMediaManager = ({
           Venue Images
         </label>
 
-        {existingImages.length > 0 && (
+        {imagesOrder.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {existingImages.map((imageUrl, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={imageUrl}
-                  alt={`Existing ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => onRemoveExistingImage(imageUrl)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {newImageFiles.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {newImageFiles.map((file, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`New ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg border-2 border-gold-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => onRemoveNewImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <span className="absolute bottom-1 left-1 bg-gold-500 text-white text-xs px-2 py-1 rounded">
-                  New
-                </span>
-              </div>
-            ))}
+            {imagesOrder.map((item, index) => {
+              const isNew = item.startsWith("new_");
+              if (isNew) {
+                const fileIndex = parseInt(item.split("_")[1], 10);
+                const file = newImageFiles[fileIndex];
+                if (!file) return null;
+                return (
+                  <div key={item} className="relative group rounded-lg overflow-hidden border-2 border-gold-500">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`New Preview`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onRemoveNewImage(fileIndex)}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                    <span className="absolute top-1 left-1 bg-gold-500 text-white text-[10px] px-1.5 py-0.5 rounded font-semibold z-10">
+                      New
+                    </span>
+                    {index === 0 ? (
+                      <span className="absolute bottom-1.5 left-1.5 bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-semibold z-10">
+                        ★ Display Cover
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onMakeCover(item)}
+                        className="absolute bottom-1.5 left-1.5 bg-black/60 hover:bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-medium transition-colors z-10"
+                      >
+                        Set Cover
+                      </button>
+                    )}
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={item} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <img
+                      src={item}
+                      alt={`Existing`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onRemoveExistingImage(item)}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                    {index === 0 ? (
+                      <span className="absolute bottom-1.5 left-1.5 bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-semibold z-10">
+                        ★ Display Cover
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onMakeCover(item)}
+                        className="absolute bottom-1.5 left-1.5 bg-black/60 hover:bg-gold-600 text-white text-xs px-2 py-0.5 rounded shadow font-medium transition-colors z-10"
+                      >
+                        Set Cover
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+            })}
           </div>
         )}
 

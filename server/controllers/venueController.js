@@ -259,15 +259,63 @@ exports.updateVenue = async (req, res) => {
     }
 
     // Handle New Image Uploads
+    const uploadedUrls = [];
     if (req.files && req.files.images) {
       for (const file of req.files.images) {
         try {
           const url = await uploadToCloudinary(file, "images", "image");
-          finalImages.push(url);
+          uploadedUrls.push(url);
         } catch (uploadErr) {
           console.error("Cloudinary upload error (image):", uploadErr);
         }
       }
+    }
+
+    // Reconstruct image array with custom ordering if provided
+    if (req.body.imagesOrder) {
+      try {
+        const order = typeof req.body.imagesOrder === "string" 
+          ? JSON.parse(req.body.imagesOrder) 
+          : req.body.imagesOrder;
+        if (Array.isArray(order)) {
+          let newFileIndex = 0;
+          const orderedImages = [];
+          
+          order.forEach((item) => {
+            if (item.startsWith("new_")) {
+              if (newFileIndex < uploadedUrls.length) {
+                orderedImages.push(uploadedUrls[newFileIndex]);
+                newFileIndex++;
+              }
+            } else {
+              // Existing image url
+              if (finalImages.includes(item)) {
+                orderedImages.push(item);
+              }
+            }
+          });
+
+          // Append any remaining new uploads just in case
+          while (newFileIndex < uploadedUrls.length) {
+            orderedImages.push(uploadedUrls[newFileIndex]);
+            newFileIndex++;
+          }
+
+          // Append any remaining existing images that weren't in the order list
+          finalImages.forEach(img => {
+            if (!orderedImages.includes(img)) {
+              orderedImages.push(img);
+            }
+          });
+
+          finalImages = orderedImages;
+        }
+      } catch (e) {
+        console.error("Error parsing imagesOrder:", e);
+        finalImages = [...finalImages, ...uploadedUrls];
+      }
+    } else {
+      finalImages = [...finalImages, ...uploadedUrls];
     }
     updateData.images = finalImages;
 
