@@ -3,19 +3,21 @@ import { motion } from "framer-motion";
 import { marqueeAnimation } from "../animation/Animation";
 
 const partnersRow1 = [
-  "Pearl Continental",
-  "Swat Serena",
-  "Rock City Hotel",
-  "PTDC Motel",
-  "Swat View Hotel",
+  "Balana Shadi Hall",
+  "Arena Shadi Hall",
+  "Deewa Shadi Hall",
+  "Dehleez Wedding Hall",
+  "Elegant Shadi Hall",
+  "Rangoona Shadi Hall",
 ];
 
 const partnersRow2 = [
-  "Swat Continental",
-  "Green Palace",
-  "Royal Inn",
-  "Mountain View",
-  "Valley Resort",
+  "Gudar Wedding Hall",
+  "Hurain Banquet",
+  "Khadee Wedding Hall",
+  "Nakreezay Shadi Hall",
+  "Qasar-e-Noor Shadi Hall",
+  "Sagar Shaadi Hall",
 ];
 
 const PartnerCard = ({ name }) => (
