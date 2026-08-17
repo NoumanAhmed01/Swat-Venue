@@ -31,7 +31,6 @@ import {
   AnimatedStatsContainer, // Import the counter animation
 } from "../components/animation/Animation";
 import PartnerMarquee from "../components/animation/PartnerMarquee";
-import heroBg from "../assets/2.png";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -79,10 +78,10 @@ const Home = () => {
   };
 
   const stats = [
-    { number: "500+", label: t("stats.venues") },
-    { number: "2000+", label: t("stats.events") },
-    { number: "50000+", label: t("stats.customers") },
-    { number: "4.8", label: t("stats.rating") },
+    { number: "20+", label: t("stats.venues") },
+    { number: "200+", label: t("stats.events") },
+    { number: "200+", label: t("stats.customers") },
+    { number: "4.5", label: t("stats.rating") },
   ];
 
   const features = [
@@ -145,7 +144,7 @@ const Home = () => {
             className="w-full h-full"
           >
             <img
-              src={heroBg}
+              src="https://res.cloudinary.com/duu5ede4m/image/upload/v1786954593/bg_f6tgco.png"
               alt="Luxury Hall"
               className="w-full h-full object-cover opacity-70"
             />

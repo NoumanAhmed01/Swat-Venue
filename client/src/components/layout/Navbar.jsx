@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from "react-i18next";
-import logo from "../../assets/logo.svg";
 
 // Importing icons from lucide-react (lightweight, modern React icon set)
 import {
@@ -55,7 +54,11 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* --- LOGO --- */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src={logo} alt="logo" className="h-30 w-36" />
+            <img
+              src="https://res.cloudinary.com/duu5ede4m/image/upload/v1786954435/logo_vni9fr.svg"
+              alt="logo"
+              className="h-30 w-36"
+            />
           </Link>
 
           {/* --- DESKTOP NAVIGATION LINKS --- */}
@@ -77,12 +80,19 @@ const Navbar = () => {
             <button
               onClick={toggleLanguage}
               className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-800 transition-all duration-200 text-text-light dark:text-text-dark"
-              title={i18n.language === "en" ? "اردو میں بدلیں" : "Switch to English"}
+              title={
+                i18n.language === "en" ? "اردو میں بدلیں" : "Switch to English"
+              }
             >
               <Globe className="h-4 w-4 text-gold-500" />
-              <span 
+              <span
                 className={`text-sm font-bold tracking-wide ${i18n.language === "en" ? "pt-1" : ""}`}
-                style={{ fontFamily: i18n.language === "en" ? "Jameel Noori Nastaleeq" : "inherit" }}
+                style={{
+                  fontFamily:
+                    i18n.language === "en"
+                      ? "Jameel Noori Nastaleeq"
+                      : "inherit",
+                }}
               >
                 {i18n.language === "en" ? "اردو" : "English"}
               </span>
@@ -268,7 +278,11 @@ const Navbar = () => {
                 <div className="flex items-center px-3 mb-3 gap-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gold-500/20">
                     {user.profilePicture?.url ? (
-                      <img src={user.profilePicture.url} alt={user.name} className="w-full h-full object-cover" />
+                      <img
+                        src={user.profilePicture.url}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full bg-gold-500/10 flex items-center justify-center">
                         <User className="h-6 w-6 text-gold-600" />

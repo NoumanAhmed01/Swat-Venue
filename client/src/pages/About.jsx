@@ -11,27 +11,20 @@ const About = () => {
   // Team members data (can later be fetched from an API)
   const team = [
     {
-      name: "Ahmad Hassan",
-      role: "Founder & CEO",
+      name: "Nouman Ahmed",
+      role: "Founder & Lead Developer",
       image:
-        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg",
+        "https://res.cloudinary.com/duu5ede4m/image/upload/v1786812521/profile2_pnh5ib.png",
       description:
-        "Passionate about connecting people with perfect venues in Swat valley.",
+        "Designed and developed the full-stack MERN application end-to-end.",
     },
     {
-      name: "Fatima Khan",
-      role: "Head of Operations",
+      name: "Prof. Naveed Ahmad",
+      role: "Project Supervisor & Mentor",
       image:
-        "https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg",
+        "https://res.cloudinary.com/duu5ede4m/image/upload/v1786812488/WhatsApp_Image_2026-08-15_at_7.59.48_PM_qrm2ha.jpg",
       description:
-        "Ensures seamless experiences for both venue owners and customers.",
-    },
-    {
-      name: "Ali Rahman",
-      role: "Customer Success",
-      image:
-        "https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg",
-      description: "Dedicated to making every event booking a success story.",
+        "Guided project architecture, domain strategy, and technical execution.",
     },
   ];
 
@@ -72,10 +65,7 @@ const About = () => {
       {/* Helmet dynamically sets the page title and meta description */}
       <Helmet>
         <title>{t("about.title")} - SwatVenue</title>
-        <meta
-          name="description"
-          content={t("about.subtitle")}
-        />
+        <meta name="description" content={t("about.subtitle")} />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -184,43 +174,52 @@ const About = () => {
         </section>
 
         {/* 👥 Team Section */}
-        <section className="py-20 bg-gray-50 dark:bg-surface-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
-              {t("about.team_title")}
-            </h2>
-            <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16">
-              {t("about.team_subtitle")}
-            </p>
+        <section className="flex flex-col items-center justify-center  py-10 px-6 md:px-16 lg:px-24 xl:px-32 w-full min-h-screen">
+          {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"> */}
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-900 dark:text-text-dark mb-4">
+            {t("about.team_title")}
+          </h2>
+          <p className="text-xl text-text-light dark:text-text-dark max-w-2xl mx-auto mb-16 text-center">
+            {t("about.team_subtitle")}
+          </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {team.map((member, index) => (
-                <div
-                  key={index}
-                  className="bg-white dark:bg-surface-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className="h-64 overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-primary-900 dark:text-text-dark mb-2">
-                      {member.name}
-                    </h3>
-                    <p className="text-gold-600 font-medium mb-3">
-                      {member.role}
-                    </p>
-                    <p className="text-text-light dark:text-text-dark">
-                      {member.description}
-                    </p>
+          <div className="flex flex-wrap items-center justify-center gap-10 mt-6">
+            {team.map((member, index) => (
+              <div
+                key={index}
+                className="relative w-full max-w-[270px] rounded-3xl overflow-hidden transform transition duration-300 hover:-translate-y-1 group cursor-default"
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-96 object-cover"
+                />
+
+                {/* Original Gradient Background (fades out on hover) */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#951a20]/50 to-[#03005E] pointer-events-none opacity-80 group-hover:opacity-0 transition-opacity duration-300"></div>
+
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#000000]/70 to-[#03005E] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                <div className="absolute bottom-4 left-6 right-6 flex flex-col ">
+                  <h3 className="text-xl text-white">{member.name}</h3>
+                  <p className="text-sm text-white/75">{member.role}</p>
+
+                  {/* Hover Expandable Details */}
+                  <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300 ">
+                    <div className="overflow-hidden">
+                      <p className="text-sm text-white/90 pt-3">
+                        {member.description}
+                      </p>
+                      <button className="mt-4 px-5 py-2 rounded-full border border-white/90 text-sm text-white w-max hover:bg-white hover:text-black transition-colors cursor-pointer">
+                        See profile
+                      </button>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
+          {/* </div> */}
         </section>
 
         {/* 🎯 Mission Section */}
@@ -254,4 +253,3 @@ const About = () => {
 };
 
 export default About;
-

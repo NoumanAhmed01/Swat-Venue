@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import logo from "../../assets/logo.svg";
 import {
   MapPin,
   Phone,
@@ -21,7 +20,11 @@ const Footer = () => {
           {/* BRAND SECTION - Simplified for SVG logo */}
           <div className="space-y-4">
             <div className="mb-2">
-              <img src={logo} alt="SwatVenue" className="h-16 w-auto" />
+              <img
+                src="https://res.cloudinary.com/duu5ede4m/image/upload/v1786954435/logo_vni9fr.svg"
+                alt="SwatVenue"
+                className="h-16 w-auto"
+              />
             </div>
 
             <p className="text-gray-400 text-sm leading-relaxed">
